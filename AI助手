@@ -1,0 +1,977 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>智控电商 · AI 助手</title>
+    <!-- Font Awesome 6 -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        /* ===== 全局重置 ===== */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'PingFang SC', 'Microsoft YaHei', sans-serif;
+            background: #eef2f8;
+            color: #0a1a2b;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        /* ===== 顶部导航 ===== */
+        .app-header {
+            background: #0a1e2f;
+            color: #e2e8f0;
+            padding: 14px 28px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-shrink: 0;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+            z-index: 10;
+        }
+        .app-header .logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 20px;
+            font-weight: 700;
+            color: white;
+        }
+        .app-header .logo i {
+            color: #4dabf7;
+            font-size: 28px;
+            background: rgba(77,171,247,0.12);
+            padding: 8px;
+            border-radius: 12px;
+        }
+        .app-header .logo span { color: #4dabf7; }
+        .app-header .status {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 14px;
+            color: #9bb4cc;
+        }
+        .app-header .status .dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #0d7c4f;
+            display: inline-block;
+            animation: pulse 2s infinite;
+        }
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.4; }
+        }
+        .app-header .status .btn {
+            padding: 6px 18px;
+            border-radius: 30px;
+            border: 1px solid rgba(255,255,255,0.08);
+            background: rgba(255,255,255,0.04);
+            color: #b8cfe0;
+            font-size: 13px;
+            cursor: default;
+            transition: 0.15s;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .app-header .status .btn:hover {
+            background: rgba(255,255,255,0.08);
+        }
+        .app-header .status .btn i { color: #5a7f99; }
+
+        /* ===== 主体布局 ===== */
+        .app-body {
+            flex: 1;
+            display: flex;
+            overflow: hidden;
+        }
+
+        /* ===== 左侧：对话历史 ===== */
+        .sidebar-chat {
+            width: 280px;
+            background: white;
+            border-right: 1px solid #e8edf4;
+            display: flex;
+            flex-direction: column;
+            flex-shrink: 0;
+        }
+        .sidebar-chat .sidebar-header {
+            padding: 16px 20px;
+            border-bottom: 1px solid #e8edf4;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .sidebar-chat .sidebar-header h3 {
+            font-size: 14px;
+            font-weight: 600;
+            color: #0a1e2f;
+        }
+        .sidebar-chat .sidebar-header .new-btn {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            border: none;
+            background: #0a1e2f;
+            color: white;
+            cursor: pointer;
+            font-size: 16px;
+            transition: 0.15s;
+        }
+        .sidebar-chat .sidebar-header .new-btn:hover {
+            background: #1a3a5a;
+        }
+        .sidebar-chat .chat-list {
+            flex: 1;
+            overflow-y: auto;
+            padding: 8px 12px;
+        }
+        .sidebar-chat .chat-list::-webkit-scrollbar { width: 4px; }
+        .sidebar-chat .chat-list::-webkit-scrollbar-track { background: #f0f4f9; }
+        .sidebar-chat .chat-list::-webkit-scrollbar-thumb { background: #dce5ef; border-radius: 10px; }
+
+        .chat-history-item {
+            padding: 12px 14px;
+            border-radius: 10px;
+            margin-bottom: 4px;
+            cursor: pointer;
+            transition: 0.15s;
+            border: 1px solid transparent;
+        }
+        .chat-history-item:hover {
+            background: #f5f8fc;
+            border-color: #e8edf4;
+        }
+        .chat-history-item.active {
+            background: #f0f7fe;
+            border-color: rgba(77,171,247,0.2);
+        }
+        .chat-history-item .title {
+            font-size: 14px;
+            font-weight: 500;
+            color: #0a1e2f;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        .chat-history-item .meta {
+            font-size: 12px;
+            color: #94a3b8;
+            margin-top: 2px;
+            display: flex;
+            justify-content: space-between;
+        }
+        .chat-history-item .meta .tag {
+            font-size: 10px;
+            padding: 1px 10px;
+            border-radius: 30px;
+            background: #f0f7fe;
+            color: #2a7faa;
+        }
+
+        /* ===== 右侧：主对话区 ===== */
+        .chat-main {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            background: #f8fafc;
+            min-width: 0;
+        }
+
+        /* 对话头部 */
+        .chat-main-header {
+            padding: 16px 28px;
+            background: white;
+            border-bottom: 1px solid #e8edf4;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-shrink: 0;
+        }
+        .chat-main-header .info h4 {
+            font-size: 16px;
+            font-weight: 600;
+            color: #0a1e2f;
+        }
+        .chat-main-header .info p {
+            font-size: 13px;
+            color: #5f7d95;
+        }
+        .chat-main-header .actions {
+            display: flex;
+            gap: 8px;
+        }
+        .chat-main-header .actions .btn-sm {
+            padding: 5px 14px;
+            border-radius: 20px;
+            border: 1px solid #dce5ef;
+            background: white;
+            font-size: 12px;
+            color: #1e3a5f;
+            cursor: default;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            transition: 0.1s;
+        }
+        .chat-main-header .actions .btn-sm:hover {
+            border-color: #4dabf7;
+            color: #2a7faa;
+        }
+
+        /* 消息列表 */
+        .messages {
+            flex: 1;
+            overflow-y: auto;
+            padding: 20px 28px 12px;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+        .messages::-webkit-scrollbar { width: 5px; }
+        .messages::-webkit-scrollbar-track { background: transparent; }
+        .messages::-webkit-scrollbar-thumb { background: #dce5ef; border-radius: 10px; }
+
+        .message {
+            display: flex;
+            gap: 12px;
+            max-width: 85%;
+            animation: msgIn 0.3s ease;
+        }
+        @keyframes msgIn {
+            from { opacity: 0; transform: translateY(12px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .message.user {
+            align-self: flex-end;
+            flex-direction: row-reverse;
+        }
+        .message .avatar {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+            color: white;
+            flex-shrink: 0;
+        }
+        .message .avatar.ai {
+            background: linear-gradient(135deg, #4dabf7, #2a7faa);
+        }
+        .message .avatar.user {
+            background: #b55a1a;
+        }
+        .message .bubble {
+            padding: 12px 18px;
+            border-radius: 16px;
+            font-size: 14px;
+            line-height: 1.7;
+            word-break: break-word;
+            box-shadow: 0 1px 4px rgba(0,0,0,0.02);
+        }
+        .message .bubble p { margin-bottom: 6px; }
+        .message .bubble p:last-child { margin-bottom: 0; }
+        .message.user .bubble {
+            background: #0a1e2f;
+            color: white;
+            border-radius: 16px 4px 16px 16px;
+        }
+        .message.ai .bubble {
+            background: white;
+            color: #0a1e2f;
+            border: 1px solid #e8edf4;
+            border-radius: 4px 16px 16px 16px;
+        }
+        .message .bubble .time {
+            font-size: 11px;
+            color: #94a3b8;
+            margin-top: 6px;
+            display: block;
+        }
+        .message.user .bubble .time {
+            color: rgba(255,255,255,0.4);
+        }
+        /* AI 回复中的特殊卡片 */
+        .bubble .action-card {
+            background: #f8fafc;
+            border-radius: 10px;
+            padding: 12px 16px;
+            margin: 8px 0 4px 0;
+            border: 1px solid #e8edf4;
+        }
+        .bubble .action-card .title {
+            font-weight: 600;
+            color: #0a1e2f;
+            font-size: 14px;
+        }
+        .bubble .action-card .desc {
+            font-size: 13px;
+            color: #5f7d95;
+            margin-top: 2px;
+        }
+        .bubble .action-card .btn-group {
+            display: flex;
+            gap: 8px;
+            margin-top: 8px;
+            flex-wrap: wrap;
+        }
+        .bubble .action-card .btn-group .btn-sm {
+            padding: 4px 14px;
+            border-radius: 20px;
+            border: none;
+            font-size: 12px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: 0.1s;
+        }
+        .bubble .action-card .btn-group .btn-sm.primary {
+            background: #0a1e2f;
+            color: white;
+        }
+        .bubble .action-card .btn-group .btn-sm.outline {
+            background: transparent;
+            border: 1px solid #dce5ef;
+            color: #1e3a5f;
+        }
+        .bubble .action-card .btn-group .btn-sm:hover {
+            transform: scale(0.97);
+        }
+        /* 快捷回复标签 */
+        .quick-tags {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            margin-top: 8px;
+        }
+        .quick-tags .tag {
+            padding: 4px 14px;
+            border-radius: 30px;
+            border: 1px solid #dce5ef;
+            font-size: 12px;
+            color: #5f7d95;
+            cursor: pointer;
+            background: white;
+            transition: 0.15s;
+        }
+        .quick-tags .tag:hover {
+            border-color: #4dabf7;
+            color: #2a7faa;
+            background: #f5f9fe;
+        }
+
+        /* 打字指示器 */
+        .typing-indicator {
+            display: none;
+            align-items: center;
+            gap: 12px;
+            padding: 8px 0;
+        }
+        .typing-indicator.show { display: flex; }
+        .typing-indicator .dots span {
+            display: inline-block;
+            width: 8px;
+            height: 8px;
+            background: #94a3b8;
+            border-radius: 50%;
+            margin-right: 4px;
+            animation: dotPulse 1.2s infinite;
+        }
+        .typing-indicator .dots span:nth-child(2) { animation-delay: 0.2s; }
+        .typing-indicator .dots span:nth-child(3) { animation-delay: 0.4s; }
+        @keyframes dotPulse {
+            0%, 60%, 100% { transform: translateY(0); opacity: 0.4; }
+            30% { transform: translateY(-6px); opacity: 1; }
+        }
+
+        /* 输入区 */
+        .input-area {
+            padding: 16px 28px 20px;
+            background: white;
+            border-top: 1px solid #e8edf4;
+            display: flex;
+            gap: 12px;
+            align-items: flex-end;
+            flex-shrink: 0;
+        }
+        .input-area .input-wrap {
+            flex: 1;
+            display: flex;
+            align-items: flex-end;
+            background: #f8fafc;
+            border: 1px solid #e8edf4;
+            border-radius: 12px;
+            padding: 6px 16px;
+            transition: 0.15s;
+        }
+        .input-area .input-wrap:focus-within {
+            border-color: #4dabf7;
+            box-shadow: 0 0 0 3px rgba(77,171,247,0.06);
+        }
+        .input-area .input-wrap textarea {
+            flex: 1;
+            border: none;
+            background: transparent;
+            padding: 8px 0;
+            font-size: 14px;
+            font-family: inherit;
+            resize: none;
+            outline: none;
+            max-height: 120px;
+            color: #0a1e2f;
+        }
+        .input-area .input-wrap textarea::placeholder {
+            color: #94a3b8;
+        }
+        .input-area .input-wrap .char-count {
+            font-size: 11px;
+            color: #94a3b8;
+            padding-left: 8px;
+            flex-shrink: 0;
+        }
+        .input-area .send-btn {
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            border: none;
+            background: #0a1e2f;
+            color: white;
+            font-size: 18px;
+            cursor: pointer;
+            transition: 0.15s;
+            flex-shrink: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .input-area .send-btn:hover {
+            background: #1a3a5a;
+            transform: scale(1.02);
+        }
+        .input-area .send-btn:disabled {
+            opacity: 0.4;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        /* ===== 空状态 ===== */
+        .empty-state {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            color: #94a3b8;
+            padding: 40px;
+            text-align: center;
+        }
+        .empty-state i {
+            font-size: 56px;
+            color: #dce5ef;
+            margin-bottom: 16px;
+        }
+        .empty-state h3 {
+            font-size: 20px;
+            color: #0a1e2f;
+            margin-bottom: 6px;
+        }
+        .empty-state p {
+            font-size: 14px;
+            max-width: 400px;
+        }
+        .empty-state .examples {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin-top: 16px;
+            justify-content: center;
+        }
+        .empty-state .examples .ex {
+            padding: 8px 18px;
+            border-radius: 30px;
+            border: 1px solid #dce5ef;
+            font-size: 13px;
+            color: #5f7d95;
+            cursor: pointer;
+            background: white;
+            transition: 0.15s;
+        }
+        .empty-state .examples .ex:hover {
+            border-color: #4dabf7;
+            color: #2a7faa;
+            background: #f5f9fe;
+        }
+
+        /* ===== 响应式 ===== */
+        @media (max-width: 768px) {
+            .app-header { padding: 10px 16px; }
+            .app-header .logo { font-size: 16px; }
+            .app-header .logo i { font-size: 20px; padding: 6px; }
+            .app-header .status .btn span { display: none; }
+            .sidebar-chat { width: 200px; }
+            .sidebar-chat .chat-list { padding: 4px 8px; }
+            .chat-history-item { padding: 8px 10px; }
+            .chat-history-item .title { font-size: 13px; }
+            .chat-main-header { padding: 12px 16px; flex-wrap: wrap; gap: 6px; }
+            .messages { padding: 12px 16px; }
+            .message { max-width: 92%; }
+            .input-area { padding: 12px 16px 16px; flex-wrap: wrap; }
+            .input-area .input-wrap textarea { font-size: 13px; }
+            .empty-state i { font-size: 40px; }
+            .empty-state h3 { font-size: 17px; }
+        }
+        @media (max-width: 480px) {
+            .sidebar-chat { display: none; }
+            .app-header .status .btn span { display: none; }
+            .message { max-width: 96%; }
+            .message .bubble { font-size: 13px; padding: 10px 14px; }
+        }
+    </style>
+</head>
+<body>
+
+<!-- ===== 顶部导航 ===== -->
+<header class="app-header">
+    <div class="logo">
+        <i class="fas fa-bolt"></i>
+        智控电商 · <span>AI 助手</span>
+    </div>
+    <div class="status">
+        <span><span class="dot"></span> 在线 · 已接入店匠 Athena</span>
+        <span class="btn"><i class="fas fa-sync-alt"></i> <span>同步数据</span></span>
+        <span class="btn"><i class="fas fa-cog"></i> <span>设置</span></span>
+    </div>
+</header>
+
+<!-- ===== 主体 ===== -->
+<div class="app-body">
+
+    <!-- 左侧：对话历史 -->
+    <aside class="sidebar-chat">
+        <div class="sidebar-header">
+            <h3><i class="fas fa-history" style="color:#4dabf7; margin-right:6px;"></i> 对话历史</h3>
+            <button class="new-btn" onclick="newChat()" title="新建对话"><i class="fas fa-plus"></i></button>
+        </div>
+        <div class="chat-list" id="chatHistoryList">
+            <!-- 由JS动态渲染 -->
+        </div>
+    </aside>
+
+    <!-- 主对话区 -->
+    <main class="chat-main">
+
+        <!-- 对话头部 -->
+        <div class="chat-main-header">
+            <div class="info">
+                <h4 id="chatTitle">AI 经营助手</h4>
+                <p id="chatSubtitle">基于店匠 Athena · 自然语言驱动运营</p>
+            </div>
+            <div class="actions">
+                <span class="btn-sm" onclick="clearMessages()"><i class="fas fa-eraser"></i> 清空</span>
+                <span class="btn-sm" onclick="exportChat()"><i class="fas fa-file-export"></i> 导出</span>
+            </div>
+        </div>
+
+        <!-- 消息列表 -->
+        <div class="messages" id="messageContainer">
+            <!-- 空状态 -->
+            <div class="empty-state" id="emptyState">
+                <i class="fas fa-robot"></i>
+                <h3>👋 你好，我是 AI 经营助手</h3>
+                <p>我可以帮你完成商品上架、数据查询、营销活动等经营任务。<br>试试在下方输入你的需求，就像和同事聊天一样自然。</p>
+                <div class="examples">
+                    <span class="ex" onclick="sendExample('帮我上架3款新品茶叶礼盒，价格定在128元')">📦 上架商品</span>
+                    <span class="ex" onclick="sendExample('上周转化率下降了，帮我分析一下原因')">📊 数据诊断</span>
+                    <span class="ex" onclick="sendExample('创建一个满200减30的优惠券活动')">🎯 创建营销</span>
+                    <span class="ex" onclick="sendExample('把库存少于50件的商品列出来')">📋 库存盘点</span>
+                </div>
+            </div>
+            <!-- 消息动态插入这里 -->
+            <div id="messagesList"></div>
+            <!-- 打字指示器 -->
+            <div class="typing-indicator" id="typingIndicator">
+                <div class="avatar ai" style="width:28px;height:28px;font-size:12px;"><i class="fas fa-robot"></i></div>
+                <div class="dots"><span></span><span></span><span></span></div>
+            </div>
+        </div>
+
+        <!-- 输入区 -->
+        <div class="input-area">
+            <div class="input-wrap">
+                <textarea id="chatInput" rows="1" placeholder="输入你的经营需求，例如：帮我上架一批新品..." onkeydown="handleKeyDown(event)" oninput="autoResize(this)"></textarea>
+                <span class="char-count" id="charCount">0/500</span>
+            </div>
+            <button class="send-btn" id="sendBtn" onclick="sendMessage()"><i class="fas fa-paper-plane"></i></button>
+        </div>
+
+    </main>
+</div>
+
+<!-- ============================================================ -->
+<!-- JavaScript -->
+<!-- ============================================================ -->
+<script>
+    // ===== 状态管理 =====
+    const state = {
+        chatHistory: [],
+        currentChatId: null,
+        isProcessing: false,
+        messageCounter: 0,
+    };
+
+    // ===== 历史对话数据 =====
+    const historyData = [
+        { id: 'h1', title: '上架3款新品茶叶', preview: '已生成商品草稿，请确认', time: '14:32', tag: '商品' },
+        { id: 'h2', title: '转化率下降分析', preview: '主要原因是详情页跳出率上升', time: '13:50', tag: '数据' },
+        { id: 'h3', title: '创建满200减30活动', preview: '优惠券已创建，等待发布', time: '12:10', tag: '营销' },
+        { id: 'h4', title: '库存盘点-低于50件', preview: '共3个商品需要补货', time: '11:20', tag: '库存' },
+        { id: 'h5', title: '店铺风格设计建议', preview: '已生成3套设计方案', time: '09:45', tag: '设计' },
+    ];
+
+    // ===== 模拟AI回复库 =====
+    const replyTemplates = {
+        '上架': {
+            text: '好的，我已经帮你准备好了商品草稿。以下是待上架的商品信息，请确认后一键发布：',
+            card: {
+                title: '📦 新品茶叶礼盒 (3款)',
+                desc: '价格: ¥128/¥168/¥228 · 库存: 各200件 · 已生成标题和描述',
+                actions: ['确认发布', '修改价格', '查看详情']
+            }
+        },
+        '转化率': {
+            text: '📊 根据近7天数据分析，转化率下降的主要原因如下：',
+            card: {
+                title: '转化率诊断报告',
+                desc: '1. 详情页跳出率上升 12%（云山茶叶礼盒）\n2. 用户停留时长 45s → 32s\n3. 建议优化主图及详情页结构',
+                actions: ['查看详情', '优化建议', '忽略']
+            }
+        },
+        '优惠券': {
+            text: '🎯 优惠券活动已创建完成，以下是活动详情：',
+            card: {
+                title: '满200减30 优惠券',
+                desc: '优惠券码: VIP20030 · 有效期限: 7天 · 适用商品: 全店商品\n预计提升客单价 ¥15-25',
+                actions: ['立即发布', '修改规则', '预览效果']
+            }
+        },
+        '库存': {
+            text: '📋 以下商品库存低于安全线（50件），建议尽快补货：',
+            card: {
+                title: '库存预警清单',
+                desc: '1. 云山手工皂套装 — 89件（需补货）\n2. 云山陶瓷杯 — 143件\n3. 山核桃仁 250g — 156件',
+                actions: ['一键补货', '查看详情', '设置预警']
+            }
+        },
+        '设计': {
+            text: '🎨 根据你的店铺定位，我为你生成了3套设计方案：',
+            card: {
+                title: '店铺风格方案',
+                desc: '方案1: 清新自然风 · 方案2: 国潮典雅风 · 方案3: 简约现代风',
+                actions: ['预览方案1', '预览方案2', '预览方案3']
+            }
+        },
+        'default': {
+            text: '收到你的需求，我来帮你处理。',
+            card: {
+                title: '正在处理中...',
+                desc: '你的需求已提交，预计 3-5 秒完成。如果有更多信息，请告诉我。',
+                actions: ['查看进度', '取消']
+            }
+        }
+    };
+
+    // ===== 获取回复模板 =====
+    function getReply(input) {
+        const lower = input.toLowerCase();
+        let key = 'default';
+        if (lower.includes('上架') || lower.includes('商品') || lower.includes('新品') || lower.includes('茶叶')) key = '上架';
+        else if (lower.includes('转化') || lower.includes('下降') || lower.includes('分析') || lower.includes('数据') || lower.includes('诊断')) key = '转化率';
+        else if (lower.includes('优惠') || lower.includes('券') || lower.includes('满减') || lower.includes('营销')) key = '优惠券';
+        else if (lower.includes('库存') || lower.includes('补货') || lower.includes('盘点') || lower.includes('少于') || lower.includes('低于')) key = '库存';
+        else if (lower.includes('设计') || lower.includes('风格') || lower.includes('店铺')) key = '设计';
+        return replyTemplates[key] || replyTemplates['default'];
+    }
+
+    // ===== 渲染对话历史列表 =====
+    function renderHistory() {
+        const container = document.getElementById('chatHistoryList');
+        container.innerHTML = historyData.map(item => `
+            <div class="chat-history-item ${item.id === state.currentChatId ? 'active' : ''}" onclick="loadHistory('${item.id}')">
+                <div class="title">${item.title}</div>
+                <div class="meta">
+                    <span>${item.preview}</span>
+                    <span class="tag">${item.tag}</span>
+                </div>
+                <div class="meta" style="margin-top:2px;"><span>${item.time}</span></div>
+            </div>
+        `).join('');
+    }
+
+    // ===== 加载历史对话 =====
+    function loadHistory(id) {
+        const item = historyData.find(h => h.id === id);
+        if (!item) return;
+        state.currentChatId = id;
+        renderHistory();
+        document.getElementById('chatTitle').textContent = item.title;
+        document.getElementById('chatSubtitle').textContent = '加载历史对话 · ' + item.time;
+
+        // 清空消息并模拟历史消息
+        const list = document.getElementById('messagesList');
+        list.innerHTML = '';
+        document.getElementById('emptyState').style.display = 'none';
+
+        const msgs = [
+            { role: 'user', text: item.title, time: item.time },
+            { role: 'ai', text: item.preview + '。需要我帮你进一步处理吗？', time: item.time, card: getReply(item.title).card }
+        ];
+        msgs.forEach(msg => appendMessage(msg));
+        document.getElementById('messageContainer').scrollTop = document.getElementById('messageContainer').scrollHeight;
+    }
+
+    // ===== 新建对话 =====
+    function newChat() {
+        state.currentChatId = null;
+        renderHistory();
+        document.getElementById('chatTitle').textContent = 'AI 经营助手';
+        document.getElementById('chatSubtitle').textContent = '基于店匠 Athena · 自然语言驱动运营';
+        document.getElementById('messagesList').innerHTML = '';
+        document.getElementById('emptyState').style.display = 'flex';
+        document.getElementById('chatInput').value = '';
+        updateCharCount();
+        document.getElementById('chatInput').focus();
+    }
+
+    // ===== 添加消息 =====
+    function appendMessage(msg) {
+        const list = document.getElementById('messagesList');
+        const empty = document.getElementById('emptyState');
+        if (empty) empty.style.display = 'none';
+
+        const div = document.createElement('div');
+        div.className = `message ${msg.role}`;
+
+        const avatarLabel = msg.role === 'user' ? '你' : 'AI';
+        const avatarIcon = msg.role === 'user' ? '<i class="fas fa-user"></i>' : '<i class="fas fa-robot"></i>';
+        const avatarClass = msg.role === 'user' ? 'user' : 'ai';
+
+        let bubbleContent = `<div class="bubble">`;
+        if (msg.text) {
+            bubbleContent += `<p>${msg.text.replace(/\n/g, '<br>')}</p>`;
+        }
+        if (msg.card) {
+            bubbleContent += `
+                <div class="action-card">
+                    <div class="title">${msg.card.title}</div>
+                    <div class="desc">${msg.card.desc.replace(/\n/g, '<br>')}</div>
+                    <div class="btn-group">
+                        ${msg.card.actions.map(a => `<span class="btn-sm primary" onclick="showToast('执行操作: ${a}')">${a}</span>`).join('')}
+                    </div>
+                </div>
+            `;
+        }
+        if (msg.quickReplies) {
+            bubbleContent += `<div class="quick-tags">${msg.quickReplies.map(q => `<span class="tag" onclick="sendQuickReply('${q}')">${q}</span>`).join('')}</div>`;
+        }
+        bubbleContent += `<span class="time">${msg.time || new Date().toLocaleTimeString('zh-CN', {hour:'2-digit',minute:'2-digit'})}</span>`;
+        bubbleContent += `</div>`;
+
+        div.innerHTML = `
+            <div class="avatar ${avatarClass}">${avatarIcon}</div>
+            ${bubbleContent}
+        `;
+        list.appendChild(div);
+
+        // 滚动到底部
+        const container = document.getElementById('messageContainer');
+        setTimeout(() => { container.scrollTop = container.scrollHeight; }, 50);
+    }
+
+    // ===== 发送消息 =====
+    function sendMessage() {
+        const input = document.getElementById('chatInput');
+        const text = input.value.trim();
+        if (!text || state.isProcessing) return;
+        if (text.length > 500) {
+            showToast('⚠️ 输入内容不能超过500字');
+            return;
+        }
+
+        // 添加用户消息
+        const userMsg = { role: 'user', text: text, time: new Date().toLocaleTimeString('zh-CN', {hour:'2-digit',minute:'2-digit'}) };
+        appendMessage(userMsg);
+        input.value = '';
+        updateCharCount();
+        state.isProcessing = true;
+        document.getElementById('sendBtn').disabled = true;
+
+        // 显示打字指示器
+        document.getElementById('typingIndicator').classList.add('show');
+        document.getElementById('messageContainer').scrollTop = document.getElementById('messageContainer').scrollHeight;
+
+        // 模拟AI思考和回复
+        setTimeout(() => {
+            document.getElementById('typingIndicator').classList.remove('show');
+
+            const reply = getReply(text);
+            const aiMsg = {
+                role: 'ai',
+                text: reply.text,
+                time: new Date().toLocaleTimeString('zh-CN', {hour:'2-digit',minute:'2-digit'}),
+                card: reply.card,
+                quickReplies: ['👍 好的', '📊 查看更多', '🔄 重新生成']
+            };
+            appendMessage(aiMsg);
+
+            state.isProcessing = false;
+            document.getElementById('sendBtn').disabled = false;
+
+            // 自动更新对话历史
+            const title = text.length > 20 ? text.slice(0, 20) + '...' : text;
+            const preview = reply.text.slice(0, 30) + '...';
+            const now = new Date();
+            const timeStr = now.getHours().toString().padStart(2,'0') + ':' + now.getMinutes().toString().padStart(2,'0');
+            if (historyData.length > 0) {
+                const first = historyData[0];
+                historyData.unshift({
+                    id: 'h' + Date.now(),
+                    title: title,
+                    preview: preview,
+                    time: timeStr,
+                    tag: text.includes('上架') ? '商品' : text.includes('转化') || text.includes('分析') ? '数据' : text.includes('优惠') || text.includes('券') ? '营销' : '运营'
+                });
+                if (historyData.length > 20) historyData.pop();
+                renderHistory();
+            }
+        }, 1200 + Math.random() * 800);
+    }
+
+    // ===== 发送示例 =====
+    function sendExample(text) {
+        document.getElementById('chatInput').value = text;
+        updateCharCount();
+        sendMessage();
+    }
+
+    // ===== 快捷回复 =====
+    function sendQuickReply(text) {
+        document.getElementById('chatInput').value = text;
+        updateCharCount();
+        sendMessage();
+    }
+
+    // ===== 清空消息 =====
+    function clearMessages() {
+        if (document.getElementById('messagesList').children.length === 0) return;
+        if (!confirm('确定要清空当前对话吗？')) return;
+        document.getElementById('messagesList').innerHTML = '';
+        document.getElementById('emptyState').style.display = 'flex';
+        document.getElementById('chatTitle').textContent = 'AI 经营助手';
+        document.getElementById('chatSubtitle').textContent = '基于店匠 Athena · 自然语言驱动运营';
+        state.currentChatId = null;
+        renderHistory();
+        showToast('🗑️ 已清空对话');
+    }
+
+    // ===== 导出对话 =====
+    function exportChat() {
+        const msgs = document.querySelectorAll('#messagesList .message');
+        if (msgs.length === 0) {
+            showToast('⚠️ 暂无对话可导出');
+            return;
+        }
+        let text = '智控电商 · AI助手对话记录\n';
+        text += '='.repeat(50) + '\n';
+        msgs.forEach(m => {
+            const role = m.classList.contains('user') ? '用户' : 'AI助手';
+            const bubble = m.querySelector('.bubble');
+            const content = bubble ? bubble.textContent.replace(/\d{2}:\d{2}/, '').trim() : '';
+            text += `[${role}] ${content}\n`;
+        });
+        text += '='.repeat(50) + '\n导出时间: ' + new Date().toLocaleString();
+
+        const blob = new Blob([text], { type: 'text/plain' });
+        const a = document.createElement('a');
+        a.href = URL.createObjectURL(blob);
+        a.download = 'AI助手对话记录_' + new Date().toISOString().slice(0,10) + '.txt';
+        a.click();
+        URL.revokeObjectURL(a.href);
+        showToast('📥 对话已导出');
+    }
+
+    // ===== Toast 提示 =====
+    function showToast(msg) {
+        let toast = document.getElementById('toast');
+        if (!toast) {
+            toast = document.createElement('div');
+            toast.id = 'toast';
+            toast.style.cssText = `
+                position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%);
+                background: #0a1e2f; color: white; padding: 12px 28px;
+                border-radius: 40px; font-size: 14px; box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+                z-index: 999; white-space: nowrap; display: none;
+                font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'PingFang SC', 'Microsoft YaHei', sans-serif;
+            `;
+            document.body.appendChild(toast);
+        }
+        toast.innerHTML = msg;
+        toast.style.display = 'block';
+        clearTimeout(toast._timer);
+        toast._timer = setTimeout(() => { toast.style.display = 'none'; }, 2500);
+    }
+
+    // ===== 输入框自动调整高度 =====
+    function autoResize(el) {
+        el.style.height = 'auto';
+        el.style.height = Math.min(el.scrollHeight, 120) + 'px';
+        updateCharCount();
+    }
+
+    function updateCharCount() {
+        const input = document.getElementById('chatInput');
+        const count = document.getElementById('charCount');
+        const len = input.value.length;
+        count.textContent = len + '/500';
+        count.style.color = len > 450 ? '#b51a3f' : '#94a3b8';
+    }
+
+    // ===== 键盘事件 =====
+    function handleKeyDown(e) {
+        if (e.key === 'Enter' && !e.shiftKey) {
+            e.preventDefault();
+            sendMessage();
+        }
+    }
+
+    // ===== 初始化 =====
+    document.addEventListener('DOMContentLoaded', function() {
+        renderHistory();
+        // 设置默认第一个对话为激活
+        if (historyData.length > 0) {
+            state.currentChatId = historyData[0].id;
+            renderHistory();
+        }
+        document.getElementById('chatInput').focus();
+
+        // 点击空白区域恢复焦点
+        document.getElementById('messageContainer').addEventListener('click', () => {
+            document.getElementById('chatInput').focus();
+        });
+    });
+
+    console.log('🤖 智控电商 · AI助手已加载');
+    console.log('💡 支持功能: 商品上架、数据诊断、营销活动、库存管理、店铺设计');
+    console.log('📌 基于店匠 Athena 对话式经营理念设计');
+</script>
+</body>
+</html>
