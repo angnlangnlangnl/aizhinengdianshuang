@@ -523,6 +523,7 @@
         .btn-sm.danger { background: #fde8ed; color: #b51a3f; }
         .btn-sm.blue { background: rgba(77,171,247,0.12); color: #2a7faa; }
         .btn-sm.orange { background: #fef0e6; color: #b55a1a; }
+        .btn-sm.green { background: #e6f7ec; color: #0d7c4f; }
         .btn-sm:active { transform: scale(0.95); }
         .settings-group {
             border-bottom: 1px solid #e8edf4;
@@ -655,6 +656,49 @@
             margin-top: 12px;
             flex-wrap: wrap;
         }
+        /* ===== 智能采购样式 ===== */
+        .procurement-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 16px;
+            margin-bottom: 16px;
+        }
+        .procurement-card {
+            background: #f8fafc;
+            border-radius: 12px;
+            padding: 16px;
+            border: 1px solid #e8edf4;
+            text-align: center;
+            transition: 0.15s;
+        }
+        .procurement-card:hover { border-color: #c8d8e8; box-shadow: 0 4px 12px rgba(0,0,0,0.03); }
+        .procurement-card .icon {
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 8px;
+            font-size: 20px;
+            color: white;
+        }
+        .procurement-card .name { font-weight: 600; color: #0a1e2f; font-size: 14px; }
+        .procurement-card .desc { font-size: 13px; color: #5f7d95; margin-top: 4px; }
+        .procurement-card .count { font-size: 22px; font-weight: 700; color: #0a1e2f; margin-top: 6px; }
+        .procurement-card .sub { font-size: 12px; color: #5f7d95; }
+        .procurement-item {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            padding: 10px 0;
+            border-bottom: 1px solid #f0f4f9;
+        }
+        .procurement-item:last-child { border: none; }
+        .procurement-item .info { flex: 1; }
+        .procurement-item .info .name { font-weight: 600; color: #0a1e2f; font-size: 14px; }
+        .procurement-item .info .meta { font-size: 13px; color: #5f7d95; display: flex; gap: 12px; flex-wrap: wrap; margin-top: 2px; }
+        .procurement-item .right { text-align: right; flex-shrink: 0; }
         /* ===== AI客服 & 对话样式 ===== */
         .platform-card {
             border: 1px solid #e8edf4;
@@ -1310,6 +1354,7 @@
             .row-two { grid-template-columns: 1fr; }
             .row-three { grid-template-columns: 1fr 1fr; }
             .row-four { grid-template-columns: 1fr 1fr; }
+            .procurement-grid { grid-template-columns: repeat(2, 1fr); }
         }
         @media (max-width: 768px) {
             .sidebar { width: 60px; }
@@ -1347,6 +1392,7 @@
             .category-level .level-label { min-width: 28px; font-size: 11px; }
             .category-level .cat-tag { font-size: 11px; padding: 2px 10px; }
             .source-detail-panel { margin-top: 16px; }
+            .procurement-grid { grid-template-columns: 1fr; }
         }
     </style>
 </head>
@@ -1379,6 +1425,7 @@
         <div class="item" data-page="page-logistics"><i class="fas fa-truck"></i><span>物流管理</span></div>
         <div class="item" data-page="page-sourcing"><i class="fas fa-store-alt"></i><span>素材生成</span></div>
         <div class="item" data-page="page-channels"><i class="fas fa-plug"></i><span>渠道货源</span></div>
+        <div class="item" data-page="page-procurement"><i class="fas fa-cart-plus"></i><span>智能采购</span><span class="tag">NEW</span></div>
 
         <div class="section-label">系统配置</div>
         <div class="item" data-page="page-channels-config"><i class="fas fa-plug"></i><span>渠道管理</span></div>
@@ -1638,7 +1685,7 @@
     </div>
 
     <!-- ============================================================ -->
-    <!-- 页面5：商品管理（完整产品信息） -->
+    <!-- 页面5：商品管理 -->
     <!-- ============================================================ -->
     <div id="page-products" class="page">
         <div class="topbar">
@@ -1654,7 +1701,6 @@
                 <div class="form-group"><label>分类</label><select id="productCategoryFilter" onchange="filterProducts()"><option value="all">全部分类</option><option value="茶叶">茶叶</option><option value="手工艺">手工艺</option><option value="食品">食品</option><option value="文创">文创</option></select></div>
             </div>
         </div>
-        <!-- 三级分类筛选 -->
         <div class="card" style="margin-bottom:16px; padding:12px 20px;">
             <div style="display:flex; align-items:center; gap:10px; flex-wrap:wrap; margin-bottom:6px;">
                 <span style="font-weight:600; color:#0a1e2f; font-size:13px;"><i class="fas fa-tags" style="color:#4dabf7;"></i> 分类筛选</span>
@@ -1691,7 +1737,6 @@
                 </div>
             </div>
         </div>
-        <!-- 商品列表 - 完整产品信息 -->
         <div class="card">
             <div class="card-header">
                 <h3><i class="fas fa-list"></i> 商品列表</h3>
@@ -1855,7 +1900,7 @@
     </div>
 
     <!-- ============================================================ -->
-    <!-- 页面6：库存管理（新增平台选择和产品搜索） -->
+    <!-- 页面6：库存管理 -->
     <!-- ============================================================ -->
     <div id="page-inventory" class="page">
         <div class="topbar">
@@ -1868,7 +1913,6 @@
             <div class="stat-card"><div class="label"><i class="fas fa-check-circle" style="color:#0d7c4f;"></i> 正常库存</div><div class="value">5</div><div class="sub">库存充足</div></div>
             <div class="stat-card"><div class="label"><i class="fas fa-clock" style="color:#4dabf7;"></i> 补货计划</div><div class="value">2</div><div class="sub">待执行</div></div>
         </div>
-        <!-- 平台选择和产品搜索 - 在分类筛选卡片上方 -->
         <div class="card" style="margin-bottom:16px; padding:14px 20px;">
             <div style="display:flex; gap:14px; flex-wrap:wrap; align-items:center;">
                 <div style="display:flex; align-items:center; gap:8px;">
@@ -1888,7 +1932,6 @@
                 <span style="font-size:13px; color:#5f7d95; margin-left:auto;" id="inventoryCount">共 6 个商品</span>
             </div>
         </div>
-        <!-- 三级分类筛选 -->
         <div class="card" style="margin-bottom:16px; padding:12px 20px;">
             <div style="display:flex; align-items:center; gap:10px; flex-wrap:wrap; margin-bottom:6px;">
                 <span style="font-weight:600; color:#0a1e2f; font-size:13px;"><i class="fas fa-tags" style="color:#4dabf7;"></i> 分类筛选</span>
@@ -1923,7 +1966,6 @@
                 </div>
             </div>
         </div>
-        <!-- 库存列表 -->
         <div class="card">
             <div class="card-header"><h3><i class="fas fa-list"></i> 库存列表</h3><span class="action" id="inventoryListCount">共 6 个商品</span></div>
             <div class="table-wrap">
@@ -2593,7 +2635,7 @@
     </div>
 
     <!-- ============================================================ -->
-    <!-- 页面12：渠道货源（点击左侧产品右侧显示详情） -->
+    <!-- 页面12：渠道货源（选品按钮旁新增铺货按钮） -->
     <!-- ============================================================ -->
     <div id="page-channels" class="page">
         <div class="topbar">
@@ -2624,7 +2666,6 @@
                 <span style="margin-left:auto; font-size:13px; color:#5f7d95;">共 234 个供应商</span>
             </div>
         </div>
-        <!-- 三级分类筛选 -->
         <div class="card" style="margin-bottom:16px; padding:12px 20px;">
             <div style="display:flex; align-items:center; gap:10px; flex-wrap:wrap; margin-bottom:6px;">
                 <span style="font-weight:600; color:#0a1e2f; font-size:13px;"><i class="fas fa-tags" style="color:#4dabf7;"></i> 分类筛选</span>
@@ -2683,6 +2724,7 @@
                             <div class="price">¥68.00 <small>起批</small></div>
                             <div class="actions">
                                 <span class="btn-sm blue" onclick="event.stopPropagation();showToast('✅ 已加入铺货清单')"><i class="fas fa-plus"></i> 选品</span>
+                                <span class="btn-sm green" onclick="event.stopPropagation();showToast('🚀 正在铺货到选中平台...')"><i class="fas fa-rocket"></i> 铺货</span>
                             </div>
                         </div>
                     </div>
@@ -2701,6 +2743,7 @@
                             <div class="price">¥45.00 <small>起批</small></div>
                             <div class="actions">
                                 <span class="btn-sm blue" onclick="event.stopPropagation();showToast('✅ 已加入铺货清单')"><i class="fas fa-plus"></i> 选品</span>
+                                <span class="btn-sm green" onclick="event.stopPropagation();showToast('🚀 正在铺货到选中平台...')"><i class="fas fa-rocket"></i> 铺货</span>
                             </div>
                         </div>
                     </div>
@@ -2719,6 +2762,7 @@
                             <div class="price">¥35.00 <small>起批</small></div>
                             <div class="actions">
                                 <span class="btn-sm blue" onclick="event.stopPropagation();showToast('✅ 已加入铺货清单')"><i class="fas fa-plus"></i> 选品</span>
+                                <span class="btn-sm green" onclick="event.stopPropagation();showToast('🚀 正在铺货到选中平台...')"><i class="fas fa-rocket"></i> 铺货</span>
                             </div>
                         </div>
                     </div>
@@ -2748,7 +2792,144 @@
     </div>
 
     <!-- ============================================================ -->
-    <!-- 页面13：渠道管理 -->
+    <!-- 页面13：智能采购（新增） -->
+    <!-- ============================================================ -->
+    <div id="page-procurement" class="page">
+        <div class="topbar">
+            <div class="left"><h2><i class="fas fa-cart-plus" style="color:#4dabf7; margin-right:8px;"></i>智能采购</h2><p>AI驱动的采购决策 · 供应商智能推荐 · 库存预警自动补货</p></div>
+            <div class="right">
+                <span class="btn"><i class="fas fa-sync-alt"></i> 刷新</span>
+                <span class="btn btn-primary" onclick="showToast('🤖 AI正在分析采购需求...')"><i class="fas fa-robot"></i> AI 智能分析</span>
+            </div>
+        </div>
+        <!-- 统计卡片 -->
+        <div class="stats-grid">
+            <div class="stat-card"><div class="label"><i class="fas fa-clock" style="color:#4dabf7;"></i> 待补货商品</div><div class="value">3</div><div class="sub">需紧急处理 1</div></div>
+            <div class="stat-card"><div class="label"><i class="fas fa-truck" style="color:#4dabf7;"></i> 采购中</div><div class="value">2</div><div class="sub">预计 3 天到货</div></div>
+            <div class="stat-card"><div class="label"><i class="fas fa-check-circle" style="color:#0d7c4f;"></i> 已采购</div><div class="value">156</div><div class="sub">本月累计</div></div>
+            <div class="stat-card"><div class="label"><i class="fas fa-robot" style="color:#4dabf7;"></i> AI 推荐供应商</div><div class="value">8</div><div class="sub">匹配度 92%</div></div>
+        </div>
+        <!-- 智能采购卡片 -->
+        <div class="procurement-grid">
+            <div class="procurement-card">
+                <div class="icon" style="background:#4dabf7;"><i class="fas fa-robot"></i></div>
+                <div class="name">AI 智能补货建议</div>
+                <div class="desc">基于销售预测自动生成</div>
+                <div class="count">3</div>
+                <div class="sub">个商品建议补货</div>
+                <span class="btn-sm primary" style="margin-top:8px;display:inline-block;" onclick="showToast('📋 正在生成补货清单...')">查看建议</span>
+            </div>
+            <div class="procurement-card">
+                <div class="icon" style="background:#0d7c4f;"><i class="fas fa-store"></i></div>
+                <div class="name">供应商智能推荐</div>
+                <div class="desc">AI 匹配最优供应商</div>
+                <div class="count">8</div>
+                <div class="sub">家供应商可对接</div>
+                <span class="btn-sm primary" style="margin-top:8px;display:inline-block;" onclick="showToast('🏭 正在加载供应商列表...')">查看供应商</span>
+            </div>
+            <div class="procurement-card">
+                <div class="icon" style="background:#b55a1a;"><i class="fas fa-chart-line"></i></div>
+                <div class="name">采购成本分析</div>
+                <div class="desc">对比历史采购价格</div>
+                <div class="count">↓12%</div>
+                <div class="sub">较上月降低</div>
+                <span class="btn-sm primary" style="margin-top:8px;display:inline-block;" onclick="showToast('📊 正在生成成本分析报告...')">查看分析</span>
+            </div>
+            <div class="procurement-card">
+                <div class="icon" style="background:#7b4fa0;"><i class="fas fa-clock"></i></div>
+                <div class="name">采购进度追踪</div>
+                <div class="desc">实时查看采购状态</div>
+                <div class="count">2</div>
+                <div class="sub">个采购中订单</div>
+                <span class="btn-sm primary" style="margin-top:8px;display:inline-block;" onclick="showToast('📦 正在加载采购进度...')">查看进度</span>
+            </div>
+        </div>
+        <!-- 采购列表 -->
+        <div class="card">
+            <div class="card-header">
+                <h3><i class="fas fa-list"></i> 采购建议列表</h3>
+                <span class="action"><i class="fas fa-robot"></i> AI 自动生成 · 今日更新</span>
+            </div>
+            <div>
+                <div class="procurement-item">
+                    <div class="info">
+                        <div class="name">云山手工皂套装</div>
+                        <div class="meta">
+                            <span><i class="fas fa-box"></i> 当前库存: 89件</span>
+                            <span><i class="fas fa-exclamation-triangle" style="color:#b55a1a;"></i> 安全线: 50件</span>
+                            <span><i class="fas fa-calendar-alt"></i> 预计售罄: 7天后</span>
+                        </div>
+                    </div>
+                    <div class="right">
+                        <span class="badge warning">需补货</span>
+                        <div style="margin-top:4px;"><span class="btn-sm primary" onclick="showToast('📦 正在生成采购单...')">生成采购单</span></div>
+                    </div>
+                </div>
+                <div class="procurement-item">
+                    <div class="info">
+                        <div class="name">手写书法折扇</div>
+                        <div class="meta">
+                            <span><i class="fas fa-box"></i> 当前库存: 0件</span>
+                            <span><i class="fas fa-exclamation-triangle" style="color:#b51a3f;"></i> 安全线: 50件</span>
+                            <span><i class="fas fa-calendar-alt"></i> 已售罄</span>
+                        </div>
+                    </div>
+                    <div class="right">
+                        <span class="badge danger">紧急补货</span>
+                        <div style="margin-top:4px;"><span class="btn-sm danger" onclick="showToast('🚨 正在创建紧急采购单...')">紧急采购</span></div>
+                    </div>
+                </div>
+                <div class="procurement-item">
+                    <div class="info">
+                        <div class="name">云山陶瓷杯</div>
+                        <div class="meta">
+                            <span><i class="fas fa-box"></i> 当前库存: 143件</span>
+                            <span><i class="fas fa-check-circle" style="color:#0d7c4f;"></i> 安全线: 50件</span>
+                            <span><i class="fas fa-calendar-alt"></i> 预计售罄: 21天后</span>
+                        </div>
+                    </div>
+                    <div class="right">
+                        <span class="badge success">充足</span>
+                        <div style="margin-top:4px;"><span class="btn-sm outline" onclick="showToast('📊 查看预测详情')">查看预测</span></div>
+                    </div>
+                </div>
+            </div>
+            <div style="margin-top:14px; padding-top:14px; border-top:1px solid #e8edf4; display:flex; justify-content:space-between; flex-wrap:wrap; gap:10px;">
+                <span style="font-size:13px; color:#5f7d95;">共 6 个商品 · 2 个需补货</span>
+                <div style="display:flex; gap:8px; flex-wrap:wrap;">
+                    <span class="btn-sm outline" onclick="showToast('📋 正在导出采购计划...')"><i class="fas fa-file-export"></i> 导出计划</span>
+                    <span class="btn-sm primary" onclick="showToast('✅ 已批量生成采购单')"><i class="fas fa-check"></i> 批量生成采购单</span>
+                </div>
+            </div>
+        </div>
+        <!-- AI 采购建议 -->
+        <div class="card" style="margin-top:16px;">
+            <div class="card-header">
+                <h3><i class="fas fa-lightbulb" style="color:#f5b342;"></i> AI 采购建议</h3>
+                <span class="action">基于销售趋势与库存分析</span>
+            </div>
+            <div class="row-three">
+                <div style="background:#f8fafc; border-radius:12px; padding:14px; border:1px solid #e8edf4;">
+                    <div style="font-weight:600; color:#0a1e2f;"><i class="fas fa-arrow-up" style="color:#0d7c4f;"></i> 销量上升趋势</div>
+                    <div style="font-size:14px; color:#5f7d95; margin-top:4px;">云山茶叶礼盒近7日销量增长 12%，建议提前备货</div>
+                    <span class="badge success" style="margin-top:6px;">建议采购 500件</span>
+                </div>
+                <div style="background:#f8fafc; border-radius:12px; padding:14px; border:1px solid #e8edf4;">
+                    <div style="font-weight:600; color:#0a1e2f;"><i class="fas fa-tag" style="color:#b55a1a;"></i> 供应商比价</div>
+                    <div style="font-size:14px; color:#5f7d95; margin-top:4px;">3家供应商报价对比，云山茶厂价格最优</div>
+                    <span class="badge info" style="margin-top:6px;">推荐云山茶厂</span>
+                </div>
+                <div style="background:#f8fafc; border-radius:12px; padding:14px; border:1px solid #e8edf4;">
+                    <div style="font-weight:600; color:#0a1e2f;"><i class="fas fa-clock" style="color:#4dabf7;"></i> 采购时机建议</div>
+                    <div style="font-size:14px; color:#5f7d95; margin-top:4px;">未来7天预计价格稳定，建议今日下单</div>
+                    <span class="badge success" style="margin-top:6px;">最佳采购日: 今日</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ============================================================ -->
+    <!-- 页面14：渠道管理 -->
     <!-- ============================================================ -->
     <div id="page-channels-config" class="page">
         <div class="topbar">
@@ -2773,7 +2954,7 @@
     </div>
 
     <!-- ============================================================ -->
-    <!-- 页面14：服务商管理 -->
+    <!-- 页面15：服务商管理 -->
     <!-- ============================================================ -->
     <div id="page-agents" class="page">
         <div class="topbar">
@@ -2793,7 +2974,7 @@
     </div>
 
     <!-- ============================================================ -->
-    <!-- 页面15：系统设置 -->
+    <!-- 页面16：系统设置 -->
     <!-- ============================================================ -->
     <div id="page-settings" class="page">
         <div class="topbar">
@@ -3011,14 +3192,12 @@
                 if (!firstVisible) firstVisible = item;
             }
         });
-        // 如果有可见项且当前没有选中项，自动选中第一个
         var activeItem = document.querySelector('#channelSourceList .product-pick-item.active');
         if (!activeItem || activeItem.style.display === 'none') {
             if (firstVisible) {
                 firstVisible.classList.add('active');
                 showChannelDetail(firstVisible, Array.from(document.querySelectorAll('#channelSourceList .product-pick-item')).indexOf(firstVisible));
             } else {
-                // 无可见项，显示空状态
                 document.getElementById('detailContent').innerHTML = `
                     <div class="empty-state">
                         <i class="fas fa-box-open"></i>
