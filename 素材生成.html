@@ -1,0 +1,1129 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>智控电商 · 智能素材生成</title>
+    <!-- Font Awesome 6 -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'PingFang SC', 'Microsoft YaHei', sans-serif;
+            background: #eef2f8;
+            color: #0a1a2b;
+            display: flex;
+            min-height: 100vh;
+        }
+        /* ===== 左侧导航 ===== */
+        .sidebar {
+            width: 220px;
+            background: #0a1e2f;
+            color: #b8cfe0;
+            display: flex;
+            flex-direction: column;
+            flex-shrink: 0;
+            height: 100vh;
+            position: sticky;
+            top: 0;
+            overflow-y: auto;
+            box-shadow: 2px 0 20px rgba(10,30,47,0.08);
+            z-index: 100;
+            transition: 0.2s;
+        }
+        .sidebar::-webkit-scrollbar { width: 3px; }
+        .sidebar::-webkit-scrollbar-track { background: rgba(255,255,255,0.02); }
+        .sidebar::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.15); border-radius: 10px; }
+        .sidebar .logo {
+            padding: 22px 20px 28px 20px;
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        .sidebar .logo i {
+            font-size: 26px;
+            color: #4dabf7;
+            background: rgba(77,171,247,0.12);
+            padding: 8px;
+            border-radius: 12px;
+        }
+        .sidebar .logo span {
+            font-size: 18px;
+            font-weight: 700;
+            color: white;
+            letter-spacing: 0.5px;
+        }
+        .sidebar .logo .badge {
+            font-size: 10px;
+            background: #4dabf7;
+            color: #0a1e2f;
+            padding: 2px 10px;
+            border-radius: 30px;
+            font-weight: 600;
+            margin-left: auto;
+        }
+        .sidebar .nav {
+            flex: 1;
+            padding: 16px 12px 20px;
+        }
+        .sidebar .nav .section-label {
+            font-size: 10px;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            color: #5a7f99;
+            padding: 14px 12px 6px 12px;
+            font-weight: 600;
+            margin-top: 4px;
+        }
+        .sidebar .nav .item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 10px 14px;
+            border-radius: 10px;
+            color: #9bb4cc;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: 0.15s;
+            margin-bottom: 2px;
+            position: relative;
+        }
+        .sidebar .nav .item i { width: 18px; font-size: 15px; text-align: center; color: #5a7f99; }
+        .sidebar .nav .item:hover { background: rgba(255,255,255,0.05); color: #d4e4f0; }
+        .sidebar .nav .item:hover i { color: #7aaed9; }
+        .sidebar .nav .item.active { background: rgba(77,171,247,0.12); color: white; }
+        .sidebar .nav .item.active i { color: #4dabf7; }
+        .sidebar .nav .item.active::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 20%;
+            height: 60%;
+            width: 3px;
+            background: #4dabf7;
+            border-radius: 0 4px 4px 0;
+        }
+        .sidebar .nav .item .tag {
+            margin-left: auto;
+            background: rgba(77,171,247,0.15);
+            color: #4dabf7;
+            font-size: 10px;
+            padding: 2px 10px;
+            border-radius: 30px;
+            font-weight: 600;
+        }
+        .sidebar .bottom {
+            padding: 16px 20px 20px;
+            border-top: 1px solid rgba(255,255,255,0.05);
+            font-size: 13px;
+            color: #5a7f99;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .sidebar .bottom i { font-size: 16px; }
+        /* ===== 主内容 ===== */
+        .main { flex: 1; padding: 20px 28px 40px; max-width: calc(100% - 220px); min-width: 0; }
+        .topbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 22px;
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+        .topbar .left h2 { font-size: 20px; font-weight: 600; color: #0a1e2f; }
+        .topbar .left p { font-size: 13px; color: #5f7d95; margin-top: 2px; }
+        .topbar .right { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+        .topbar .right .btn {
+            padding: 6px 18px;
+            border-radius: 30px;
+            border: 1px solid #dce5ef;
+            background: white;
+            font-size: 13px;
+            font-weight: 500;
+            color: #1e3a5f;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            cursor: pointer;
+            transition: 0.1s;
+        }
+        .topbar .right .btn:hover { background: #f5f8fc; }
+        .topbar .right .btn-primary { background: #0a1e2f; border-color: #0a1e2f; color: white; }
+        .topbar .right .btn-primary:hover { background: #1a3a5a; }
+        .topbar .right .btn-success { background: #0d7c4f; border-color: #0d7c4f; color: white; }
+        .topbar .right .btn-success:hover { background: #0e9a5a; }
+        .topbar .right .avatar {
+            width: 36px; height: 36px; border-radius: 50%; background: #4dabf7;
+            color: white; display: flex; align-items: center; justify-content: center;
+            font-size: 16px; font-weight: 600;
+        }
+        /* ===== 页面容器 ===== */
+        .page { display: none; animation: fadeIn 0.25s ease; }
+        .page.active { display: block; }
+        @keyframes fadeIn { from { opacity: 0.6; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
+        /* ===== 统计卡片 ===== */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+        .stat-card {
+            background: white;
+            padding: 16px 18px;
+            border-radius: 14px;
+            border: 1px solid #e8edf4;
+            box-shadow: 0 2px 8px rgba(10,30,47,0.02);
+            transition: 0.15s;
+        }
+        .stat-card:hover { box-shadow: 0 6px 20px rgba(10,30,47,0.06); border-color: #c8d8e8; }
+        .stat-card .label { font-size: 12px; font-weight: 500; color: #5f7d95; display: flex; align-items: center; gap: 6px; margin-bottom: 4px; }
+        .stat-card .value { font-size: 26px; font-weight: 700; color: #0a1e2f; letter-spacing: -0.02em; }
+        .stat-card .sub { font-size: 12px; color: #5f7d95; margin-top: 2px; display: flex; gap: 12px; flex-wrap: wrap; }
+        .stat-card .trend {
+            font-size: 11px;
+            font-weight: 500;
+            margin-left: 8px;
+            background: #e6f7ec;
+            color: #0d7c4f;
+            padding: 2px 10px;
+            border-radius: 40px;
+            display: inline-block;
+        }
+        .stat-card .trend.down { background: #fde8ed; color: #b51a3f; }
+        /* ===== 卡片 ===== */
+        .card {
+            background: white;
+            border-radius: 14px;
+            padding: 16px 18px;
+            border: 1px solid #e8edf4;
+            box-shadow: 0 2px 8px rgba(10,30,47,0.02);
+            transition: 0.15s;
+            margin-bottom: 16px;
+        }
+        .card:hover { border-color: #c8d8e8; }
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+        .card-header h3 { font-size: 15px; font-weight: 600; color: #0a1e2f; display: flex; align-items: center; gap: 6px; }
+        .card-header h3 i { color: #4dabf7; }
+        .card-header .action { font-size: 12px; color: #4dabf7; font-weight: 500; cursor: pointer; }
+        .card-header .action:hover { color: #2a7faa; }
+        /* ===== 表单 ===== */
+        .form-group { margin-bottom: 12px; }
+        .form-group label { display: block; font-size: 13px; font-weight: 500; color: #0a1e2f; margin-bottom: 4px; }
+        .form-group input, .form-group select, .form-group textarea {
+            width: 100%; padding: 8px 14px; border: 1px solid #dce5ef; border-radius: 8px;
+            font-size: 14px; background: #fafcfe; font-family: inherit; transition: 0.15s;
+        }
+        .form-group input:focus, .form-group select:focus, .form-group textarea:focus {
+            outline: none; border-color: #4dabf7; box-shadow: 0 0 0 3px rgba(77,171,247,0.08);
+        }
+        .form-group textarea { min-height: 60px; resize: vertical; }
+        .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+        /* ===== 素材展示 ===== */
+        .material-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 12px;
+        }
+        .material-item {
+            border-radius: 10px;
+            border: 1px solid #e8edf4;
+            overflow: hidden;
+            background: white;
+            transition: 0.15s;
+        }
+        .material-item:hover { border-color: #4dabf7; box-shadow: 0 4px 12px rgba(77,171,247,0.08); }
+        .material-item .preview {
+            height: 140px;
+            background: #f5f7fa;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 48px;
+            color: #94a3b8;
+            position: relative;
+        }
+        .material-item .preview .badge-pos {
+            position: absolute;
+            top: 8px;
+            left: 8px;
+            font-size: 10px;
+            padding: 2px 10px;
+            border-radius: 30px;
+            background: rgba(10,30,47,0.7);
+            color: white;
+        }
+        .material-item .info {
+            padding: 10px 12px;
+        }
+        .material-item .info .name { font-weight: 600; font-size: 13px; color: #0a1e2f; }
+        .material-item .info .meta { font-size: 12px; color: #94a3b8; margin-top: 2px; display: flex; gap: 8px; flex-wrap: wrap; }
+        .material-item .info .actions { margin-top: 6px; display: flex; gap: 4px; flex-wrap: wrap; }
+        /* ===== 文案版本卡片 ===== */
+        .copy-version {
+            padding: 10px 14px;
+            border: 1px solid #e8edf4;
+            border-radius: 8px;
+            margin-bottom: 8px;
+            background: white;
+            transition: 0.15s;
+        }
+        .copy-version:hover { border-color: #c8d8e8; }
+        .copy-version.recommended { border-color: #4dabf7; background: #f0f7fe; }
+        .copy-version .header { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 6px; }
+        .copy-version .header .name { font-weight: 600; font-size: 14px; }
+        .copy-version .header .badge { font-size: 10px; padding: 1px 10px; border-radius: 30px; }
+        .copy-version .content { font-size: 13px; color: #0a1e2f; margin-top: 4px; line-height: 1.6; white-space: pre-line; }
+        .copy-version .actions { margin-top: 6px; display: flex; gap: 4px; flex-wrap: wrap; }
+        /* ===== 通用 ===== */
+        .badge {
+            padding: 2px 12px;
+            border-radius: 30px;
+            font-size: 11px;
+            font-weight: 500;
+            white-space: nowrap;
+            display: inline-block;
+        }
+        .badge.success { background: #e6f7ec; color: #0d7c4f; }
+        .badge.warning { background: #fef0e6; color: #b55a1a; }
+        .badge.danger { background: #fde8ed; color: #b51a3f; }
+        .badge.info { background: #e9f0ff; color: #1a5bb5; }
+        .badge.blue { background: rgba(77,171,247,0.12); color: #2a7faa; }
+        .badge.gold { background: #fef3e2; color: #a67c00; }
+        .badge.purple { background: #f0edf7; color: #6b4fa0; }
+        .badge.pink { background: #fde8f0; color: #b51a5a; }
+        .btn-sm {
+            padding: 4px 12px;
+            border-radius: 20px;
+            border: none;
+            font-size: 12px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: 0.1s;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+        }
+        .btn-sm:active { transform: scale(0.95); }
+        .btn-sm.primary { background: #0a1e2f; color: white; }
+        .btn-sm.primary:hover { background: #1a3a5a; }
+        .btn-sm.success { background: #e6f7ec; color: #0d7c4f; }
+        .btn-sm.success:hover { background: #c8f0d8; }
+        .btn-sm.danger { background: #fde8ed; color: #b51a3f; }
+        .btn-sm.danger:hover { background: #fcd0d9; }
+        .btn-sm.outline { background: transparent; border: 1px solid #dce5ef; color: #1e3a5f; }
+        .btn-sm.outline:hover { background: #f5f8fc; }
+        .btn-sm.blue { background: rgba(77,171,247,0.12); color: #2a7faa; }
+        .btn-sm.blue:hover { background: rgba(77,171,247,0.2); }
+        .btn-sm.warning { background: #fef0e6; color: #b55a1a; }
+        .btn-sm.warning:hover { background: #fde8d0; }
+        .btn-sm.gold { background: #fef3e2; color: #a67c00; }
+        .btn-sm.gold:hover { background: #fde8c8; }
+        .flex { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+        .mt-2 { margin-top: 10px; }
+        .row-two { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px; }
+        .row-three { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; margin-bottom: 16px; }
+        .scroll-list { max-height: 320px; overflow-y: auto; padding-right: 4px; }
+        .scroll-list::-webkit-scrollbar { width: 4px; }
+        .scroll-list::-webkit-scrollbar-track { background: #f0f4f9; border-radius: 10px; }
+        .scroll-list::-webkit-scrollbar-thumb { background: #c8d8e8; border-radius: 10px; }
+        .border-left-primary { border-left: 4px solid #4dabf7; }
+        .border-left-success { border-left: 4px solid #0d7c4f; }
+        .border-left-warning { border-left: 4px solid #f5b342; }
+        .border-left-pink { border-left: 4px solid #b51a5a; }
+        .border-left-purple { border-left: 4px solid #6b4fa0; }
+        /* ===== 上传区域 ===== */
+        .upload-zone {
+            border: 2px dashed #dce5ef;
+            border-radius: 10px;
+            padding: 20px;
+            text-align: center;
+            color: #94a3b8;
+            transition: 0.15s;
+            cursor: pointer;
+        }
+        .upload-zone:hover { border-color: #4dabf7; background: #fafcfe; }
+        .upload-zone i { font-size: 32px; display: block; margin-bottom: 8px; color: #4dabf7; }
+        .upload-zone .hint { font-size: 13px; }
+        /* ===== Toast ===== */
+        .toast {
+            position: fixed;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #0a1e2f;
+            color: white;
+            padding: 12px 28px;
+            border-radius: 40px;
+            font-size: 14px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+            display: none;
+            z-index: 999;
+            white-space: nowrap;
+            max-width: 90%;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        .toast.show { display: block; animation: fadeUp 0.3s ease; }
+        @keyframes fadeUp { from { opacity: 0; transform: translateX(-50%) translateY(20px); } to { opacity: 1; transform: translateX(-50%) translateY(0); } }
+        .toast i { margin-right: 8px; }
+        /* ===== 响应式 ===== */
+        @media (max-width: 1200px) {
+            .stats-grid { grid-template-columns: repeat(2, 1fr); }
+            .row-two { grid-template-columns: 1fr; }
+            .row-three { grid-template-columns: 1fr 1fr; }
+            .material-grid { grid-template-columns: repeat(2, 1fr); }
+        }
+        @media (max-width: 768px) {
+            .sidebar { width: 60px; }
+            .sidebar .logo span, .sidebar .logo .badge, .sidebar .nav .item span,
+            .sidebar .nav .section-label, .sidebar .bottom span, .sidebar .nav .item .tag { display: none; }
+            .sidebar .logo { padding: 16px 12px; justify-content: center; }
+            .sidebar .logo i { font-size: 20px; padding: 6px; }
+            .sidebar .nav .item { justify-content: center; padding: 12px; }
+            .sidebar .nav .item i { font-size: 18px; width: auto; }
+            .sidebar .bottom { justify-content: center; }
+            .main { max-width: calc(100% - 60px); padding: 14px; }
+            .stats-grid { grid-template-columns: 1fr 1fr; }
+            .row-three { grid-template-columns: 1fr; }
+            .form-row { grid-template-columns: 1fr; }
+            .material-grid { grid-template-columns: 1fr 1fr; }
+            .topbar { flex-direction: column; align-items: flex-start; }
+        }
+        @media (max-width: 480px) {
+            .stats-grid { grid-template-columns: 1fr; }
+            .material-grid { grid-template-columns: 1fr; }
+        }
+        /* ===== 生成进度 ===== */
+        .generating-overlay {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0,0,0,0.4);
+            backdrop-filter: blur(4px);
+            z-index: 999;
+            align-items: center;
+            justify-content: center;
+        }
+        .generating-overlay.show { display: flex; }
+        .generating-box {
+            background: white;
+            border-radius: 20px;
+            padding: 40px 50px;
+            max-width: 420px;
+            width: 90%;
+            text-align: center;
+            animation: dialogIn 0.25s ease;
+        }
+        @keyframes dialogIn { from { opacity: 0; transform: scale(0.95) translateY(20px); } to { opacity: 1; transform: scale(1) translateY(0); } }
+        .generating-box .spinner {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            border: 4px solid #e8edf4;
+            border-top-color: #4dabf7;
+            animation: spin 0.8s linear infinite;
+            margin: 0 auto 16px;
+        }
+        @keyframes spin { to { transform: rotate(360deg); } }
+        .generating-box .title { font-size: 18px; font-weight: 600; color: #0a1e2f; }
+        .generating-box .desc { font-size: 14px; color: #5f7d95; margin-top: 4px; }
+        .generating-box .progress-bar {
+            margin-top: 16px;
+            height: 4px;
+            background: #e8edf4;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+        .generating-box .progress-bar .fill {
+            height: 100%;
+            background: linear-gradient(90deg, #4dabf7, #0d7c4f);
+            border-radius: 10px;
+            width: 0%;
+            transition: width 0.5s;
+        }
+        .platform-tag {
+            display: inline-block;
+            padding: 1px 10px;
+            border-radius: 30px;
+            font-size: 11px;
+            font-weight: 500;
+        }
+        .platform-tag.taobao { background: #fef0e6; color: #b55a1a; }
+        .platform-tag.douyin { background: #e9f0ff; color: #1a5bb5; }
+        .platform-tag.pdd { background: #fde8ed; color: #b51a3f; }
+        .platform-tag.jd { background: #e6f7ec; color: #0d7c4f; }
+        .platform-tag.other { background: #f0f4f9; color: #5f7d95; }
+    </style>
+</head>
+<body>
+    <!-- ===== 左侧导航 ===== -->
+    <div class="sidebar">
+        <div class="logo">
+            <i class="fas fa-bolt"></i>
+            <span>智控电商</span>
+            <span class="badge">v3.0</span>
+        </div>
+        <div class="nav">
+            <div class="section-label">经营总览</div>
+            <div class="item" data-page="page-dashboard"><i class="fas fa-chart-pie"></i><span>数据总览</span></div>
+            <div class="item" data-page="page-ai"><i class="fas fa-stethoscope"></i><span>店铺经营诊断</span></div>
+            <div class="item" data-page="page-competitor"><i class="fas fa-eye"></i><span>同行竞品分析</span></div>
+            <div class="section-label">交易核心</div>
+            <div class="item" data-page="page-orders"><i class="fas fa-shopping-cart"></i><span>订单管理</span><span class="tag">23</span></div>
+            <div class="item" data-page="page-products"><i class="fas fa-box"></i><span>商品管理</span></div>
+            <div class="item" data-page="page-inventory"><i class="fas fa-warehouse"></i><span>库存管理</span></div>
+            <div class="section-label">AI 智能赋能</div>
+            <div class="item" data-page="page-ai-service"><i class="fas fa-headset"></i><span>AI 客服</span><span class="tag">NEW</span></div>
+            <div class="item" data-page="page-ai-assistant"><i class="fas fa-robot"></i><span>AI 助手</span></div>
+            <div class="item" data-page="page-customer"><i class="fas fa-users"></i><span>客资聚合</span><span class="tag">89</span></div>
+            <div class="section-label">运营支持</div>
+            <div class="item" data-page="page-logistics"><i class="fas fa-truck"></i><span>物流管理</span></div>
+            <div class="item active" data-page="page-sourcing"><i class="fas fa-store-alt"></i><span>素材生成</span></div>
+            <div class="item" data-page="page-channels"><i class="fas fa-plug"></i><span>渠道货源</span></div>
+            <div class="item" data-page="page-procurement"><i class="fas fa-cart-plus"></i><span>智能采购</span><span class="tag">NEW</span></div>
+            <div class="section-label">系统配置</div>
+            <div class="item" data-page="page-channels-config"><i class="fas fa-plug"></i><span>渠道管理</span></div>
+            <div class="item" data-page="page-agents"><i class="fas fa-handshake"></i><span>服务商管理</span></div>
+            <div class="item" data-page="page-settings"><i class="fas fa-cog"></i><span>系统设置</span></div>
+        </div>
+        <div class="bottom">
+            <i class="fas fa-shield-alt"></i>
+            <span>数据加密 · 安全</span>
+        </div>
+    </div>
+
+    <!-- ===== 主内容 ===== -->
+    <div class="main">
+        <div id="page-sourcing" class="page active">
+            <!-- 顶部栏 -->
+            <div class="topbar">
+                <div class="left">
+                    <h2><i class="fas fa-store-alt" style="color:#4dabf7; margin-right:8px;"></i>智能素材生成</h2>
+                    <p>AI驱动 · 一键生成主图/详情/视频/文案 · 多平台适配 · 转化率预测</p>
+                </div>
+                <div class="right">
+                    <span class="btn"><i class="fas fa-history"></i> 生成历史</span>
+                    <span class="btn btn-primary" onclick="openGenerateModal()"><i class="fas fa-plus"></i> 新建生成</span>
+                    <span class="avatar">M</span>
+                </div>
+            </div>
+
+            <!-- 统计卡片 -->
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="label"><i class="fas fa-images" style="color:#4dabf7;"></i> 素材总数</div>
+                    <div class="value" id="materialTotal">1,283</div>
+                    <div class="sub">覆盖 156 个商品</div>
+                </div>
+                <div class="stat-card">
+                    <div class="label"><i class="fas fa-clock" style="color:#f5b342;"></i> 待生成</div>
+                    <div class="value" id="pendingGenerate">23</div>
+                    <div class="sub">今日新增 <span class="trend"><i class="fas fa-arrow-up"></i> 12</span></div>
+                </div>
+                <div class="stat-card">
+                    <div class="label"><i class="fas fa-check-circle" style="color:#0d7c4f;"></i> 已优化</div>
+                    <div class="value" id="optimizedCount">156</div>
+                    <div class="sub">今日 +12 · 转化率提升 <span class="trend"><i class="fas fa-arrow-up"></i> 8%</span></div>
+                </div>
+                <div class="stat-card">
+                    <div class="label"><i class="fas fa-robot" style="color:#4dabf7;"></i> AI 评分</div>
+                    <div class="value" id="aiScore">92<span style="font-size:16px;color:#5f7d95;">/100</span></div>
+                    <div class="sub">素材质量 · 较昨日 <span class="trend"><i class="fas fa-arrow-up"></i> 3%</span></div>
+                </div>
+            </div>
+
+            <!-- 生成入口卡片 -->
+            <div class="card border-left-primary">
+                <div class="card-header">
+                    <h3><i class="fas fa-wand-magic-sparkles" style="color:#4dabf7;"></i> AI 一键生成 · 输入即所得</h3>
+                    <span class="action">5分钟完成全套素材</span>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label><i class="fas fa-tag" style="color:#4dabf7;"></i> 商品名称</label>
+                        <input type="text" id="productName" placeholder="例如: 云山茶叶礼盒" value="云山茶叶礼盒">
+                    </div>
+                    <div class="form-group">
+                        <label><i class="fas fa-list" style="color:#4dabf7;"></i> 商品类别</label>
+                        <select id="productCategory">
+                            <option value="茶叶">🍃 茶叶</option>
+                            <option value="手工艺">🎨 手工艺</option>
+                            <option value="食品">🍜 食品</option>
+                            <option value="文创">📚 文创</option>
+                            <option value="服饰">👗 服饰</option>
+                            <option value="家居">🏠 家居</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label><i class="fas fa-bullseye" style="color:#f5b342;"></i> 核心卖点 (逗号分隔)</label>
+                        <input type="text" id="productFeatures" placeholder="例如: 明前采摘, 特级龙井, 礼盒包装" value="明前采摘, 特级龙井, 礼盒包装, 一件代发">
+                    </div>
+                    <div class="form-group">
+                        <label><i class="fas fa-palette" style="color:#7b4fa0;"></i> 设计风格</label>
+                        <select id="designStyle">
+                            <option value="简约风">✨ 简约风</option>
+                            <option value="自然风" selected>🌿 自然风</option>
+                            <option value="礼品风">🎁 礼品风</option>
+                            <option value="热卖风">🔥 热卖风</option>
+                            <option value="爆款风">💎 爆款风</option>
+                            <option value="国潮风">🏮 国潮风</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label><i class="fas fa-images" style="color:#4dabf7;"></i> 上传商品图片</label>
+                        <div class="upload-zone" onclick="document.getElementById('fileUpload').click()">
+                            <i class="fas fa-cloud-upload-alt"></i>
+                            <div class="hint">点击上传 3-5 张商品图片</div>
+                            <div style="font-size:12px;color:#94a3b8;">支持 JPG, PNG, WEBP</div>
+                            <input type="file" id="fileUpload" multiple accept="image/*" style="display:none;" onchange="handleFileUpload(event)">
+                        </div>
+                        <div id="uploadPreview" style="display:flex;gap:6px;flex-wrap:wrap;margin-top:6px;"></div>
+                    </div>
+                    <div class="form-group">
+                        <label><i class="fas fa-globe" style="color:#4dabf7;"></i> 目标平台</label>
+                        <div style="display:flex;gap:8px;flex-wrap:wrap;padding:4px 0;">
+                            <span class="platform-tag taobao active" onclick="togglePlatform(this)">🛒 淘宝</span>
+                            <span class="platform-tag douyin active" onclick="togglePlatform(this)">🎵 抖音</span>
+                            <span class="platform-tag pdd active" onclick="togglePlatform(this)">🛍️ 拼多多</span>
+                            <span class="platform-tag jd active" onclick="togglePlatform(this)">📦 京东</span>
+                        </div>
+                        <div style="font-size:12px;color:#94a3b8;margin-top:4px;">点击切换，选中平台将自动适配尺寸</div>
+                    </div>
+                </div>
+                <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:6px;">
+                    <span class="btn-sm primary" onclick="startGenerate()" style="padding:8px 24px;font-size:14px;"><i class="fas fa-wand-magic-sparkles"></i> 🚀 AI 生成全套素材</span>
+                    <span class="btn-sm outline" onclick="resetForm()"><i class="fas fa-undo"></i> 重置</span>
+                    <span style="margin-left:auto;font-size:12px;color:#94a3b8;"><i class="fas fa-clock"></i> 预计耗时 2-5 分钟</span>
+                </div>
+            </div>
+
+            <!-- 生成结果展示 -->
+            <div id="resultArea" style="display:none;">
+                <!-- 主图结果 -->
+                <div class="card border-left-primary">
+                    <div class="card-header">
+                        <h3><i class="fas fa-images" style="color:#4dabf7;"></i> 智能主图 · 5张</h3>
+                        <div class="flex" style="gap:8px;">
+                            <span class="action"><i class="fas fa-star" style="color:#f5b342;"></i> AI评分: <span id="imageScore">92</span>分</span>
+                            <span class="action"><i class="fas fa-chart-line"></i> 预估CTR: <span id="imageCtr">4.8%</span></span>
+                            <span class="btn-sm blue" onclick="showToast('📥 正在打包下载主图...')"><i class="fas fa-download"></i> 全部下载</span>
+                        </div>
+                    </div>
+                    <div class="material-grid" id="imageResults">
+                        <!-- 由JS动态渲染 -->
+                    </div>
+                </div>
+
+                <!-- 文案 + 详情页 两列 -->
+                <div class="row-two">
+                    <!-- 智能文案 -->
+                    <div class="card border-left-warning">
+                        <div class="card-header">
+                            <h3><i class="fas fa-pen-fancy" style="color:#f5b342;"></i> AI 智能文案</h3>
+                            <span class="action"><i class="fas fa-robot"></i> 5个版本</span>
+                        </div>
+                        <div class="scroll-list" id="copyResults">
+                            <!-- 由JS动态渲染 -->
+                        </div>
+                    </div>
+
+                    <!-- 详情页预览 -->
+                    <div class="card border-left-success">
+                        <div class="card-header">
+                            <h3><i class="fas fa-file-alt" style="color:#0d7c4f;"></i> 智能详情页</h3>
+                            <div class="flex" style="gap:6px;">
+                                <span class="btn-sm outline" onclick="previewDetail('mobile')"><i class="fas fa-mobile-alt"></i> 手机</span>
+                                <span class="btn-sm outline" onclick="previewDetail('desktop')"><i class="fas fa-desktop"></i> 电脑</span>
+                                <span class="btn-sm blue" onclick="showToast('📄 正在导出详情页HTML...')"><i class="fas fa-file-code"></i> 导出</span>
+                            </div>
+                        </div>
+                        <div id="detailPreview" style="background:#f8fafc;border-radius:8px;padding:14px;max-height:340px;overflow-y:auto;font-size:13px;line-height:1.8;">
+                            <!-- 由JS动态渲染 -->
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 短视频 + 素材统计 -->
+                <div class="row-two">
+                    <!-- 短视频 -->
+                    <div class="card border-left-pink">
+                        <div class="card-header">
+                            <h3><i class="fas fa-video" style="color:#b51a5a;"></i> AI 短视频</h3>
+                            <div class="flex" style="gap:6px;">
+                                <span class="action">15秒 · 9:16</span>
+                                <span class="btn-sm primary" onclick="showToast('🎬 正在生成视频...')"><i class="fas fa-sync-alt"></i> 生成</span>
+                                <span class="btn-sm blue" onclick="showToast('⬇️ 正在下载视频...')"><i class="fas fa-download"></i> 下载</span>
+                            </div>
+                        </div>
+                        <div id="videoPreview" style="background:#1a1a2e;border-radius:8px;padding:20px;text-align:center;color:white;min-height:180px;display:flex;flex-direction:column;align-items:center;justify-content:center;">
+                            <i class="fas fa-play-circle" style="font-size:48px;color:#4dabf7;margin-bottom:12px;"></i>
+                            <div style="font-size:14px;font-weight:500;">云山茶叶礼盒 · 15秒种草短视频</div>
+                            <div style="font-size:12px;color:#94a3b8;margin-top:4px;">🎵 轻快流行 · 竖屏9:16 · 适配抖音/快手</div>
+                            <div style="display:flex;gap:8px;margin-top:10px;">
+                                <span class="badge blue">📤 发布抖音</span>
+                                <span class="badge blue">📤 发布快手</span>
+                                <span class="badge blue">📤 发布视频号</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 素材统计 & AI建议 -->
+                    <div class="card border-left-purple">
+                        <div class="card-header">
+                            <h3><i class="fas fa-chart-bar" style="color:#6b4fa0;"></i> 素材分析 & AI建议</h3>
+                            <span class="action">实时更新</span>
+                        </div>
+                        <div style="margin-bottom:10px;">
+                            <div style="display:flex;justify-content:space-between;font-size:13px;margin-bottom:4px;">
+                                <span>素材综合质量</span>
+                                <span style="font-weight:600;color:#0d7c4f;">92分</span>
+                            </div>
+                            <div style="background:#eef2f6;border-radius:20px;height:5px;overflow:hidden;">
+                                <div style="background:linear-gradient(90deg,#4dabf7,#0d7c4f);width:92%;height:5px;border-radius:20px;"></div>
+                            </div>
+                        </div>
+                        <div style="margin-bottom:10px;">
+                            <div style="display:flex;justify-content:space-between;font-size:13px;margin-bottom:4px;">
+                                <span>预估转化提升</span>
+                                <span style="font-weight:600;color:#0d7c4f;">+15%</span>
+                            </div>
+                            <div style="background:#eef2f6;border-radius:20px;height:5px;overflow:hidden;">
+                                <div style="background:linear-gradient(90deg,#f5b342,#0d7c4f);width:75%;height:5px;border-radius:20px;"></div>
+                            </div>
+                        </div>
+                        <div style="background:#f0f7fe;border-radius:8px;padding:10px 14px;font-size:13px;color:#475569;border-left:3px solid #4dabf7;">
+                            <i class="fas fa-lightbulb" style="color:#f5b342;"></i> <strong>AI建议：</strong>当前素材品质优秀，建议优先使用"礼品风"主图版本进行A/B测试，预计可提升点击率 8-12%。
+                        </div>
+                        <div style="display:flex;gap:8px;margin-top:10px;flex-wrap:wrap;">
+                            <span class="btn-sm primary" onclick="showToast('📊 正在生成完整分析报告...')"><i class="fas fa-file-alt"></i> 完整报告</span>
+                            <span class="btn-sm outline" onclick="showToast('🔄 正在优化素材...')"><i class="fas fa-robot"></i> AI优化建议</span>
+                            <span class="btn-sm blue" onclick="showToast('📤 正在发布到选中平台...')"><i class="fas fa-rocket"></i> 一键发布</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 历史记录 -->
+            <div class="card border-left-info" style="margin-top:16px;">
+                <div class="card-header">
+                    <h3><i class="fas fa-history" style="color:#4dabf7;"></i> 最近生成记录</h3>
+                    <span class="action">共 156 条</span>
+                </div>
+                <div style="max-height:200px;overflow-y:auto;">
+                    <table style="width:100%;border-collapse:collapse;font-size:13px;">
+                        <thead>
+                            <tr style="border-bottom:1px solid #e8edf4;">
+                                <th style="text-align:left;padding:6px 4px;color:#5f7d95;font-weight:500;">商品</th>
+                                <th style="text-align:left;padding:6px 4px;color:#5f7d95;font-weight:500;">风格</th>
+                                <th style="text-align:left;padding:6px 4px;color:#5f7d95;font-weight:500;">平台</th>
+                                <th style="text-align:left;padding:6px 4px;color:#5f7d95;font-weight:500;">AI评分</th>
+                                <th style="text-align:left;padding:6px 4px;color:#5f7d95;font-weight:500;">时间</th>
+                                <th style="text-align:left;padding:6px 4px;color:#5f7d95;font-weight:500;">状态</th>
+                            </tr>
+                        </thead>
+                        <tbody id="historyTable">
+                            <!-- 由JS动态渲染 -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== 生成进度弹窗 ===== -->
+    <div class="generating-overlay" id="generatingOverlay">
+        <div class="generating-box">
+            <div class="spinner"></div>
+            <div class="title">🎨 AI 正在生成素材...</div>
+            <div class="desc" id="generateStatus">正在生成主图 (1/4)</div>
+            <div class="progress-bar">
+                <div class="fill" id="generateProgress" style="width:0%;"></div>
+            </div>
+            <div style="margin-top:12px;font-size:13px;color:#94a3b8;" id="generateTime">预计剩余 2-3 分钟</div>
+        </div>
+    </div>
+
+    <!-- ===== Toast ===== -->
+    <div id="toast" class="toast"></div>
+
+    <script>
+        // ================================================================
+        // ===== Toast =====
+        // ================================================================
+        function showToast(msg) {
+            var toast = document.getElementById('toast');
+            toast.innerHTML = msg;
+            toast.classList.add('show');
+            clearTimeout(toast._timer);
+            toast._timer = setTimeout(function() { toast.classList.remove('show'); }, 3500);
+        }
+
+        // ================================================================
+        // ===== 页面切换 =====
+        // ================================================================
+        document.querySelectorAll('.sidebar .item').forEach(function(item) {
+            item.addEventListener('click', function() {
+                document.querySelectorAll('.sidebar .item').forEach(function(i) { i.classList.remove('active'); });
+                this.classList.add('active');
+                var pageId = this.dataset.page;
+                document.querySelectorAll('.page').forEach(function(p) { p.classList.remove('active'); });
+                var target = document.getElementById(pageId);
+                if (target) target.classList.add('active');
+                if (pageId !== 'page-sourcing') {
+                    showToast('📌 其他模块已精简，仅保留「素材生成」内容');
+                }
+            });
+        });
+
+        // ================================================================
+        // ===== 平台切换 =====
+        // ================================================================
+        function togglePlatform(el) {
+            el.classList.toggle('active');
+        }
+
+        // ================================================================
+        // ===== 文件上传 =====
+        // ================================================================
+        var uploadedFiles = [];
+
+        function handleFileUpload(event) {
+            var files = event.target.files;
+            var preview = document.getElementById('uploadPreview');
+            for (var i = 0; i < files.length; i++) {
+                uploadedFiles.push(files[i]);
+                var reader = new FileReader();
+                reader.onload = function(e) {
+                    var div = document.createElement('div');
+                    div.style.cssText = 'width:60px;height:60px;border-radius:6px;border:1px solid #e8edf4;overflow:hidden;background:#f5f7fa;display:flex;align-items:center;justify-content:center;font-size:20px;color:#94a3b8;';
+                    div.innerHTML = '<img src="' + e.target.result + '" style="width:100%;height:100%;object-fit:cover;">';
+                    preview.appendChild(div);
+                };
+                reader.readAsDataURL(files[i]);
+            }
+            showToast('📤 已上传 ' + files.length + ' 张图片');
+        }
+
+        // ================================================================
+        // ===== 表单操作 =====
+        // ================================================================
+        function resetForm() {
+            document.getElementById('productName').value = '';
+            document.getElementById('productFeatures').value = '';
+            document.getElementById('uploadPreview').innerHTML = '';
+            uploadedFiles = [];
+            document.getElementById('fileUpload').value = '';
+            showToast('🔄 已重置表单');
+        }
+
+        function openGenerateModal() {
+            document.getElementById('productName').focus();
+            showToast('📝 请填写商品信息后点击生成');
+        }
+
+        // ================================================================
+        // ===== 核心生成逻辑 =====
+        // ================================================================
+
+        var generateTimer = null;
+        var progress = 0;
+        var statusTexts = ['正在生成主图 (1/4)', '正在生成文案 (2/4)', '正在生成详情页 (3/4)', '正在生成视频 (4/4)'];
+
+        function startGenerate() {
+            var name = document.getElementById('productName').value.trim();
+            if (!name) {
+                showToast('⚠️ 请输入商品名称');
+                return;
+            }
+
+            // 显示进度
+            var overlay = document.getElementById('generatingOverlay');
+            overlay.classList.add('show');
+            progress = 0;
+            document.getElementById('generateProgress').style.width = '0%';
+            document.getElementById('generateStatus').textContent = '正在启动AI引擎...';
+            document.getElementById('generateTime').textContent = '预计剩余 2-3 分钟';
+
+            // 模拟生成进度
+            var step = 0;
+            if (generateTimer) clearInterval(generateTimer);
+            generateTimer = setInterval(function() {
+                progress += Math.random() * 8 + 2;
+                if (progress >= 100) {
+                    progress = 100;
+                    clearInterval(generateTimer);
+                    generateTimer = null;
+                    document.getElementById('generateProgress').style.width = '100%';
+                    document.getElementById('generateStatus').textContent = '✅ 生成完成！';
+                    document.getElementById('generateTime').textContent = '🎉 全套素材已就绪';
+                    setTimeout(function() {
+                        overlay.classList.remove('show');
+                        showResult(name);
+                    }, 800);
+                } else {
+                    document.getElementById('generateProgress').style.width = progress + '%';
+                    var idx = Math.floor(progress / 25);
+                    if (idx < statusTexts.length) {
+                        document.getElementById('generateStatus').textContent = statusTexts[idx];
+                    }
+                    var remaining = Math.ceil((100 - progress) / 100 * 150);
+                    document.getElementById('generateTime').textContent = '预计剩余 ' + Math.ceil(remaining / 60) + '-' + Math.ceil(remaining / 30) + ' 分钟';
+                }
+            }, 300);
+        }
+
+        // ================================================================
+        // ===== 显示结果 =====
+        // ================================================================
+
+        function showResult(productName) {
+            var area = document.getElementById('resultArea');
+            area.style.display = 'block';
+
+            // 滚动到结果区域
+            area.scrollIntoView({ behavior: 'smooth', block: 'start' });
+
+            // 生成主图
+            renderImages(productName);
+
+            // 生成文案
+            renderCopywriting(productName);
+
+            // 生成详情页
+            renderDetail(productName);
+
+            // 更新历史
+            addHistory(productName);
+
+            showToast('✅ 素材生成完成！');
+        }
+
+        // ================================================================
+        // ===== 渲染主图 =====
+        // ================================================================
+
+        function renderImages(productName) {
+            var container = document.getElementById('imageResults');
+            var styles = ['简约风', '自然风', '礼品风', '热卖风', '爆款风'];
+            var colors = ['4dabf7', '0d7c4f', 'b55a1a', 'b51a3f', '7b4fa0'];
+            var icons = ['fa-leaf', 'fa-tree', 'fa-gift', 'fa-fire', 'fa-gem'];
+
+            var html = '';
+            for (var i = 0; i < 5; i++) {
+                var score = 85 + Math.floor(Math.random() * 15);
+                html += `
+                    <div class="material-item">
+                        <div class="preview" style="background:linear-gradient(135deg, #${colors[i % colors.length]}22, #${colors[i % colors.length]}44);">
+                            <i class="fas ${icons[i % icons.length]}" style="font-size:36px;color:#${colors[i % colors.length]};"></i>
+                            <span class="badge-pos">${styles[i]}</span>
+                        </div>
+                        <div class="info">
+                            <div class="name">${productName}</div>
+                            <div class="meta">
+                                <span><i class="fas fa-star" style="color:#f5b342;"></i> ${score}分</span>
+                                <span><i class="fas fa-chart-line"></i> CTR ${(3 + Math.random() * 3).toFixed(1)}%</span>
+                            </div>
+                            <div class="meta">
+                                <span class="platform-tag taobao">淘宝</span>
+                                <span class="platform-tag douyin">抖音</span>
+                                <span class="platform-tag pdd">拼多多</span>
+                                <span class="platform-tag jd">京东</span>
+                            </div>
+                            <div class="actions">
+                                <span class="btn-sm blue" onclick="showToast('✏️ 正在编辑主图...')"><i class="fas fa-edit"></i> 编辑</span>
+                                <span class="btn-sm success" onclick="showToast('⬇️ 正在下载...')"><i class="fas fa-download"></i> 下载</span>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }
+            container.innerHTML = html;
+            document.getElementById('imageScore').textContent = 88 + Math.floor(Math.random() * 10);
+            document.getElementById('imageCtr').textContent = (3 + Math.random() * 3).toFixed(1) + '%';
+        }
+
+        // ================================================================
+        // ===== 渲染文案 =====
+        // ================================================================
+
+        function renderCopywriting(productName) {
+            var container = document.getElementById('copyResults');
+            var versions = [
+                { name: '🌟 高端送礼版', style: '尊贵', conversion: '4.8%', 
+                  content: '🌟 明前头采 · 特级龙井 · 送礼首选\n"一份来自西湖春天的味道，礼遇最尊贵的您"' },
+                { name: '🍃 品质自饮版', style: '品质', conversion: '3.2%',
+                  content: '🍃 2026明前春茶 · 手工炒制 · 鲜醇甘爽\n"每天一杯龙井，品味春天的味道"' },
+                { name: '💰 性价比版', style: '实惠', conversion: '3.8%',
+                  content: '💰 核心产区直供 · 礼盒装 · 一件代发\n"源头好茶，没有中间商赚差价"' },
+                { name: '💝 情感共鸣版', style: '温暖', conversion: '4.2%',
+                  content: '💝 来自云山的问候 · 明前龙井\n"把春天装进礼盒，送给最重要的人"' },
+                { name: '🏆 专业推荐版', style: '专业', conversion: '3.5%',
+                  content: '🏆 专家推荐 · 2026明前特级龙井\n"核心产区 · 手工炒制 · 品质保证"' }
+            ];
+
+            var html = '';
+            versions.forEach(function(v, idx) {
+                var isRecommended = idx === 0;
+                html += `
+                    <div class="copy-version ${isRecommended ? 'recommended' : ''}">
+                        <div class="header">
+                            <span class="name">${v.name}</span>
+                            <div style="display:flex;gap:4px;align-items:center;">
+                                ${isRecommended ? '<span class="badge gold"><i class="fas fa-star"></i> 推荐</span>' : ''}
+                                <span class="badge info">转化率 ${v.conversion}</span>
+                            </div>
+                        </div>
+                        <div class="content">${v.content}</div>
+                        <div class="actions">
+                            <span class="btn-sm success" onclick="showToast('✅ 已选择「${v.name}」')"><i class="fas fa-check"></i> 使用</span>
+                            <span class="btn-sm outline" onclick="showToast('✏️ 正在编辑文案...')"><i class="fas fa-edit"></i> 编辑</span>
+                            <span class="btn-sm blue" onclick="showToast('📊 查看A/B测试建议...')"><i class="fas fa-chart-bar"></i> 测试</span>
+                        </div>
+                    </div>
+                `;
+            });
+            container.innerHTML = html;
+        }
+
+        // ================================================================
+        // ===== 渲染详情页 =====
+        // ================================================================
+
+        function renderDetail(productName) {
+            var container = document.getElementById('detailPreview');
+            var features = document.getElementById('productFeatures').value.split(',').map(function(s) { return s.trim(); });
+            var category = document.getElementById('productCategory').value;
+
+            var html = `
+                <div style="font-weight:600;font-size:16px;color:#0a1e2f;border-bottom:2px solid #4dabf7;padding-bottom:8px;margin-bottom:10px;">
+                    🌟 ${productName}
+                </div>
+                <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;font-size:13px;margin-bottom:10px;">
+                    <div><span style="color:#94a3b8;">类别：</span>${category}</div>
+                    <div><span style="color:#94a3b8;">风格：</span>${document.getElementById('designStyle').value}</div>
+                </div>
+                <div style="margin-bottom:8px;">
+                    <span style="font-weight:600;">✨ 核心卖点</span>
+                    <div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:4px;">
+                        ${features.map(function(f) { return '<span class="badge blue">✅ ' + f + '</span>'; }).join('')}
+                    </div>
+                </div>
+                <div style="background:#f5f7fa;padding:10px;border-radius:6px;margin-bottom:8px;font-size:13px;">
+                    <div style="font-weight:600;">📖 品牌故事</div>
+                    <div style="color:#5f7d95;margin-top:2px;">云山茶厂 · 20年匠心制茶，源自核心产区，每一片茶叶都承载着春天的味道。</div>
+                </div>
+                <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px;font-size:12px;color:#5f7d95;background:#f8fafc;padding:8px;border-radius:6px;">
+                    <div>📦 规格: 500g×2</div>
+                    <div>⏳ 保质期: 18个月</div>
+                    <div>🛡️ 7天无理由退换</div>
+                </div>
+                <div style="margin-top:8px;display:flex;gap:6px;flex-wrap:wrap;">
+                    <span class="badge success">⭐ 4.9分 · 2345条好评</span>
+                    <span class="badge info">📤 一件代发</span>
+                    <span class="badge gold">🎁 礼盒包装</span>
+                </div>
+            `;
+            container.innerHTML = html;
+        }
+
+        // ================================================================
+        // ===== 预览详情页 =====
+        // ================================================================
+
+        function previewDetail(type) {
+            showToast('📱 正在切换' + (type === 'mobile' ? '手机' : '电脑') + '预览...');
+        }
+
+        // ================================================================
+        // ===== 历史记录 =====
+        // ================================================================
+
+        var historyData = [];
+
+        function addHistory(productName) {
+            var platforms = document.querySelectorAll('.platform-tag.active');
+            var platformNames = [];
+            platforms.forEach(function(p) { platformNames.push(p.textContent.trim()); });
+
+            historyData.unshift({
+                product: productName,
+                style: document.getElementById('designStyle').value,
+                platforms: platformNames.join(' '),
+                score: 85 + Math.floor(Math.random() * 15),
+                time: new Date().toLocaleString(),
+                status: '已完成'
+            });
+            if (historyData.length > 20) historyData.pop();
+            renderHistory();
+        }
+
+        function renderHistory() {
+            var container = document.getElementById('historyTable');
+            var html = '';
+            historyData.forEach(function(item) {
+                html += `
+                    <tr style="border-bottom:1px solid #f5f8fc;">
+                        <td style="padding:6px 4px;font-weight:500;">${item.product}</td>
+                        <td style="padding:6px 4px;color:#5f7d95;">${item.style}</td>
+                        <td style="padding:6px 4px;color:#5f7d95;font-size:12px;">${item.platforms}</td>
+                        <td style="padding:6px 4px;"><span class="badge info">${item.score}分</span></td>
+                        <td style="padding:6px 4px;color:#94a3b8;font-size:12px;">${item.time}</td>
+                        <td style="padding:6px 4px;"><span class="badge success">${item.status}</span></td>
+                    </tr>
+                `;
+            });
+            container.innerHTML = html || '<tr><td colspan="6" style="text-align:center;padding:20px;color:#94a3b8;">暂无生成记录</td></tr>';
+        }
+
+        // ================================================================
+        // ===== 初始化 =====
+        // ================================================================
+
+        document.addEventListener('DOMContentLoaded', function() {
+            // 初始化历史数据
+            var defaultHistory = [
+                { product: '云山茶叶礼盒', style: '自然风', platforms: '淘宝 抖音', score: 94, time: '2026-09-09 14:32:00', status: '已完成' },
+                { product: '手工竹编包', style: '简约风', platforms: '淘宝 拼多多', score: 88, time: '2026-09-09 13:20:00', status: '已完成' },
+                { product: '山核桃仁 250g', style: '热卖风', platforms: '拼多多 抖音', score: 91, time: '2026-09-09 11:45:00', status: '已完成' },
+                { product: '云山手工皂套装', style: '礼品风', platforms: '京东 淘宝', score: 86, time: '2026-09-09 10:10:00', status: '已完成' },
+                { product: '云山陶瓷杯', style: '国潮风', platforms: '淘宝 抖音', score: 89, time: '2026-09-08 16:30:00', status: '已完成' },
+            ];
+            historyData = defaultHistory;
+            renderHistory();
+
+            // 更新统计
+            document.getElementById('materialTotal').textContent = 1283;
+            document.getElementById('pendingGenerate').textContent = 23;
+            document.getElementById('optimizedCount').textContent = 156;
+            document.getElementById('aiScore').innerHTML = '92<span style="font-size:16px;color:#5f7d95;">/100</span>';
+
+            showToast('🎨 智能素材生成已就绪，输入商品信息即可开始');
+        });
+
+        // 暴露全局函数
+        window.startGenerate = startGenerate;
+        window.resetForm = resetForm;
+        window.openGenerateModal = openGenerateModal;
+        window.togglePlatform = togglePlatform;
+        window.handleFileUpload = handleFileUpload;
+        window.previewDetail = previewDetail;
+        window.showToast = showToast;
+    </script>
+</body>
+</html>
