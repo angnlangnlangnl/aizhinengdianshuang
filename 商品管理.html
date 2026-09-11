@@ -1,0 +1,2302 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>电商运营后台 · 商品管理（含新增/编辑弹窗）</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        /* ===== 全局重置 ===== */
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'PingFang SC', 'Microsoft YaHei', sans-serif;
+            background: #eef2f8;
+            color: #0a1a2b;
+            display: flex;
+            min-height: 100vh;
+        }
+        /* ===== 左侧导航 ===== */
+        .sidebar {
+            width: 220px;
+            background: #0a1e2f;
+            color: #b8cfe0;
+            display: flex;
+            flex-direction: column;
+            flex-shrink: 0;
+            height: 100vh;
+            position: sticky;
+            top: 0;
+            overflow-y: auto;
+            box-shadow: 2px 0 20px rgba(10,30,47,0.08);
+            z-index: 100;
+            transition: 0.2s;
+        }
+        .sidebar::-webkit-scrollbar { width: 3px; }
+        .sidebar::-webkit-scrollbar-track { background: rgba(255,255,255,0.02); }
+        .sidebar::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.15); border-radius: 10px; }
+        .sidebar .logo {
+            padding: 22px 20px 28px 20px;
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        .sidebar .logo i {
+            font-size: 26px;
+            color: #4dabf7;
+            background: rgba(77,171,247,0.12);
+            padding: 8px;
+            border-radius: 12px;
+        }
+        .sidebar .logo span {
+            font-size: 18px;
+            font-weight: 700;
+            color: white;
+            letter-spacing: 0.5px;
+        }
+        .sidebar .logo .badge {
+            font-size: 10px;
+            background: #4dabf7;
+            color: #0a1e2f;
+            padding: 2px 10px;
+            border-radius: 30px;
+            font-weight: 600;
+            margin-left: auto;
+        }
+        .sidebar .nav {
+            flex: 1;
+            padding: 16px 12px 20px;
+        }
+        .sidebar .nav .section-label {
+            font-size: 10px;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            color: #5a7f99;
+            padding: 14px 12px 6px 12px;
+            font-weight: 600;
+            margin-top: 4px;
+        }
+        .sidebar .nav .section-label:first-of-type { margin-top: 0; }
+        .sidebar .nav .item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 10px 14px;
+            border-radius: 10px;
+            color: #9bb4cc;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: 0.15s;
+            margin-bottom: 2px;
+            position: relative;
+        }
+        .sidebar .nav .item i {
+            width: 18px;
+            font-size: 15px;
+            text-align: center;
+            color: #5a7f99;
+            transition: 0.15s;
+        }
+        .sidebar .nav .item:hover {
+            background: rgba(255,255,255,0.05);
+            color: #d4e4f0;
+        }
+        .sidebar .nav .item:hover i { color: #7aaed9; }
+        .sidebar .nav .item.active {
+            background: rgba(77,171,247,0.12);
+            color: white;
+        }
+        .sidebar .nav .item.active i {
+            color: #4dabf7;
+        }
+        .sidebar .nav .item.active::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 20%;
+            height: 60%;
+            width: 3px;
+            background: #4dabf7;
+            border-radius: 0 4px 4px 0;
+        }
+        .sidebar .nav .item .tag {
+            margin-left: auto;
+            background: rgba(77,171,247,0.15);
+            color: #4dabf7;
+            font-size: 10px;
+            padding: 2px 10px;
+            border-radius: 30px;
+            font-weight: 600;
+        }
+        .sidebar .bottom {
+            padding: 16px 20px 20px;
+            border-top: 1px solid rgba(255,255,255,0.05);
+            font-size: 13px;
+            color: #5a7f99;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .sidebar .bottom i { font-size: 16px; }
+
+        /* ===== 主内容 ===== */
+        .main {
+            flex: 1;
+            padding: 20px 28px 40px;
+            max-width: calc(100% - 220px);
+            min-width: 0;
+        }
+
+        /* ===== 顶部栏 ===== */
+        .topbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 22px;
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+        .topbar .left h2 {
+            font-size: 20px;
+            font-weight: 600;
+            color: #0a1e2f;
+        }
+        .topbar .left p {
+            font-size: 13px;
+            color: #5f7d95;
+            margin-top: 2px;
+        }
+        .topbar .right {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+        .topbar .right .btn {
+            padding: 6px 18px;
+            border-radius: 30px;
+            border: 1px solid #dce5ef;
+            background: white;
+            font-size: 13px;
+            font-weight: 500;
+            color: #1e3a5f;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            cursor: pointer;
+            transition: 0.1s;
+        }
+        .topbar .right .btn:hover { background: #f5f8fc; }
+        .topbar .right .btn-primary {
+            background: #0a1e2f;
+            border-color: #0a1e2f;
+            color: white;
+        }
+        .topbar .right .btn-primary:hover { background: #1a3a5a; }
+        .topbar .right .btn-primary i { color: rgba(255,255,255,0.7); }
+        .topbar .right .btn i { color: #5f7d95; }
+        .topbar .right .avatar {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background: #4dabf7;
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+            font-weight: 600;
+        }
+
+        /* ===== 页面容器 ===== */
+        .page { display: none; animation: fadeIn 0.25s ease; }
+        .page.active { display: block; }
+        @keyframes fadeIn { from { opacity: 0.6; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
+
+        /* ===== 卡片 ===== */
+        .card {
+            background: white;
+            border-radius: 16px;
+            padding: 18px 20px;
+            border: 1px solid #e8edf4;
+            box-shadow: 0 2px 8px rgba(10,30,47,0.02);
+            transition: 0.15s;
+            margin-bottom: 16px;
+        }
+        .card:hover { border-color: #c8d8e8; }
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 14px;
+        }
+        .card-header h3 {
+            font-size: 15px;
+            font-weight: 600;
+            color: #0a1e2f;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .card-header h3 i { color: #4dabf7; }
+        .card-header .action {
+            font-size: 12px;
+            color: #4dabf7;
+            font-weight: 500;
+            cursor: pointer;
+        }
+        .card-header .action i { margin-right: 4px; }
+
+        /* ===== 表格 ===== */
+        .table-wrap { overflow-x: auto; }
+        .table-wrap table { width: 100%; border-collapse: collapse; font-size: 13px; }
+        .table-wrap th {
+            text-align: left;
+            padding: 10px 4px 8px 0;
+            font-weight: 600;
+            color: #5f7d95;
+            border-bottom: 1px solid #e8edf4;
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+        }
+        .table-wrap td {
+            padding: 10px 4px 10px 0;
+            border-bottom: 1px solid #f0f4f9;
+            color: #0a1e2f;
+        }
+        .table-wrap tr:last-child td { border: none; }
+        .table-wrap .product-img {
+            width: 40px;
+            height: 40px;
+            background: #e8edf4;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #7e9cb0;
+            font-size: 18px;
+        }
+
+        /* ===== 三级分类筛选 ===== */
+        .category-filter-container {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            padding: 10px 0 4px 0;
+            width: 100%;
+        }
+        .category-level {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            gap: 6px;
+        }
+        .category-level .level-label {
+            font-size: 12px;
+            font-weight: 600;
+            color: #5f7d95;
+            margin-right: 4px;
+            min-width: 36px;
+        }
+        .category-level .cat-tag {
+            padding: 3px 14px;
+            border-radius: 30px;
+            border: 1px solid #dce5ef;
+            font-size: 12px;
+            cursor: pointer;
+            background: white;
+            color: #5f7d95;
+            transition: 0.15s;
+            white-space: nowrap;
+        }
+        .category-level .cat-tag:hover {
+            border-color: #4dabf7;
+            color: #2a7faa;
+            background: #f5f9fe;
+        }
+        .category-level .cat-tag.active {
+            background: #0a1e2f;
+            border-color: #0a1e2f;
+            color: white;
+        }
+        .category-level .cat-tag .count {
+            font-size: 10px;
+            color: #94a3b8;
+            margin-left: 3px;
+        }
+        .category-level .cat-tag.active .count {
+            color: rgba(255,255,255,0.5);
+        }
+        .category-divider {
+            width: 100%;
+            height: 1px;
+            background: #e8edf4;
+            margin: 4px 0;
+        }
+
+        /* ===== 徽章 ===== */
+        .badge {
+            padding: 3px 12px;
+            border-radius: 30px;
+            font-size: 11px;
+            font-weight: 500;
+            white-space: nowrap;
+            display: inline-block;
+        }
+        .badge.taobao { background: #fef0e6; color: #b55a1a; }
+        .badge.douyin { background: #e9f0ff; color: #1a5bb5; }
+        .badge.pdd { background: #fde8ed; color: #b51a3f; }
+        .badge.jd { background: #e6f7ec; color: #0d7c4f; }
+        .badge.success { background: #e6f7ec; color: #0d7c4f; }
+        .badge.warning { background: #fef0e6; color: #b55a1a; }
+        .badge.danger { background: #fde8ed; color: #b51a3f; }
+        .badge.info { background: #e9f0ff; color: #1a5bb5; }
+        .badge.blue { background: rgba(77,171,247,0.12); color: #2a7faa; }
+        .badge.orange { background: #fef0e6; color: #b55a1a; }
+
+        /* ===== 表单 ===== */
+        .form-group { margin-bottom: 14px; }
+        .form-group label {
+            display: block;
+            font-size: 13px;
+            font-weight: 500;
+            color: #0a1e2f;
+            margin-bottom: 4px;
+        }
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 8px 14px;
+            border: 1px solid #dce5ef;
+            border-radius: 8px;
+            font-size: 14px;
+            background: #fafcfe;
+            transition: 0.15s;
+            font-family: inherit;
+        }
+        .form-group input:focus,
+        .form-group select:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: #4dabf7;
+            box-shadow: 0 0 0 3px rgba(77,171,247,0.08);
+        }
+        .form-group textarea { min-height: 70px; resize: vertical; }
+        .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+
+        /* 校验错误样式 */
+        .form-group.error input,
+        .form-group.error select,
+        .form-group.error textarea {
+            border-color: #b51a3f;
+            box-shadow: 0 0 0 3px rgba(181,26,63,0.08);
+            background: #fff8f9;
+        }
+        .form-group .error-msg {
+            display: none;
+            font-size: 12px;
+            color: #b51a3f;
+            margin-top: 4px;
+        }
+        .form-group.error .error-msg {
+            display: block;
+        }
+
+        /* ===== 按钮 ===== */
+        .btn-sm {
+            padding: 5px 14px;
+            border-radius: 20px;
+            border: none;
+            font-size: 12px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: 0.1s;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+        }
+        .btn-sm.primary { background: #0a1e2f; color: white; }
+        .btn-sm.primary:hover { background: #1a3a5a; }
+        .btn-sm.outline { background: transparent; border: 1px solid #dce5ef; color: #1e3a5f; }
+        .btn-sm.outline:hover { background: #f5f8fc; }
+        .btn-sm.blue { background: rgba(77,171,247,0.12); color: #2a7faa; }
+        .btn-sm.blue:hover { background: rgba(77,171,247,0.2); }
+        .btn-sm.success { background: #e6f7ec; color: #0d7c4f; }
+        .btn-sm.success:hover { background: #c8f0d8; }
+        .btn-sm.danger { background: #fde8ed; color: #b51a3f; }
+        .btn-sm.danger:hover { background: #fcd0d9; }
+        .btn-sm:active { transform: scale(0.95); }
+
+        .flex { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+        .text-muted { color: #5f7d95; }
+
+        /* ===== Toast ===== */
+        .toast {
+            position: fixed;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #0a1e2f;
+            color: white;
+            padding: 12px 28px;
+            border-radius: 40px;
+            font-size: 14px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+            display: none;
+            z-index: 9999;
+            white-space: nowrap;
+        }
+        .toast.show { display: block; animation: fadeUp 0.3s ease; }
+        @keyframes fadeUp { from { opacity: 0; transform: translateX(-50%) translateY(20px); } to { opacity: 1; transform: translateX(-50%) translateY(0); } }
+        .toast i { margin-right: 8px; }
+
+        /* ===== 弹窗通用 ===== */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0,0,0,0.5);
+            backdrop-filter: blur(4px);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+        .modal-overlay.show { display: flex; }
+        .modal-box {
+            background: white;
+            border-radius: 20px;
+            max-width: 860px;
+            width: 95%;
+            max-height: 90vh;
+            display: flex;
+            flex-direction: column;
+            box-shadow: 0 40px 80px rgba(0,0,0,0.3);
+            animation: dialogIn 0.25s ease;
+        }
+        @keyframes dialogIn { from { opacity: 0; transform: scale(0.95) translateY(20px); } to { opacity: 1; transform: scale(1) translateY(0); } }
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px 28px 16px;
+            border-bottom: 1px solid #e8edf4;
+            flex-shrink: 0;
+        }
+        .modal-header h3 {
+            font-size: 18px;
+            color: #0a1e2f;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .modal-header h3 i { color: #4dabf7; }
+        .modal-header .close {
+            font-size: 26px;
+            color: #94a3b8;
+            cursor: pointer;
+            background: none;
+            border: none;
+            padding: 0 8px;
+            line-height: 1;
+        }
+        .modal-header .close:hover { color: #0a1e2f; }
+
+        /* Tab 导航 */
+        .modal-tabs {
+            display: flex;
+            padding: 0 28px;
+            border-bottom: 1px solid #e8edf4;
+            flex-shrink: 0;
+            gap: 4px;
+            overflow-x: auto;
+        }
+        .modal-tabs::-webkit-scrollbar { height: 2px; }
+        .modal-tabs::-webkit-scrollbar-thumb { background: #c8d8e8; border-radius: 10px; }
+        .modal-tab {
+            padding: 12px 18px;
+            font-size: 13px;
+            font-weight: 500;
+            color: #5f7d95;
+            cursor: pointer;
+            border-bottom: 2px solid transparent;
+            transition: 0.15s;
+            white-space: nowrap;
+            background: none;
+            border-top: none;
+            border-left: none;
+            border-right: none;
+            font-family: inherit;
+        }
+        .modal-tab:hover { color: #0a1e2f; }
+        .modal-tab.active {
+            color: #0a1e2f;
+            border-bottom-color: #4dabf7;
+            font-weight: 600;
+        }
+        .modal-tab .tab-dot {
+            display: inline-block;
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: #b51a3f;
+            margin-left: 4px;
+            vertical-align: middle;
+        }
+
+        /* 弹窗主体 */
+        .modal-body {
+            flex: 1;
+            overflow-y: auto;
+            padding: 20px 28px;
+        }
+        .modal-body::-webkit-scrollbar { width: 4px; }
+        .modal-body::-webkit-scrollbar-track { background: #f0f4f9; border-radius: 10px; }
+        .modal-body::-webkit-scrollbar-thumb { background: #c8d8e8; border-radius: 10px; }
+
+        .tab-panel { display: none; }
+        .tab-panel.active { display: block; animation: fadeIn 0.2s ease; }
+
+        /* 弹窗底部 */
+        .modal-footer {
+            display: flex;
+            gap: 10px;
+            justify-content: flex-end;
+            padding: 16px 28px 20px;
+            border-top: 1px solid #e8edf4;
+            flex-shrink: 0;
+            flex-wrap: wrap;
+        }
+
+        /* 图片上传占位 */
+        .img-upload-grid {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 10px;
+            margin-top: 6px;
+        }
+        .img-upload-item {
+            aspect-ratio: 1/1;
+            border: 2px dashed #dce5ef;
+            border-radius: 10px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            color: #94a3b8;
+            font-size: 12px;
+            cursor: pointer;
+            transition: 0.15s;
+            background: #fafcfe;
+            position: relative;
+        }
+        .img-upload-item:hover { border-color: #4dabf7; background: #f0f7fe; color: #4dabf7; }
+        .img-upload-item i { font-size: 22px; margin-bottom: 4px; }
+        .img-upload-item.filled {
+            border-style: solid;
+            border-color: #e8edf4;
+            background: #f5f7fa;
+            color: #7e9cb0;
+        }
+        .img-upload-item .badge-pos {
+            position: absolute;
+            top: 4px;
+            left: 4px;
+            font-size: 9px;
+            padding: 1px 8px;
+            border-radius: 20px;
+            background: rgba(10,30,47,0.7);
+            color: white;
+        }
+
+        /* SKU 表格 */
+        .sku-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 13px;
+            margin-top: 8px;
+        }
+        .sku-table th {
+            text-align: left;
+            padding: 8px 6px;
+            font-weight: 600;
+            color: #5f7d95;
+            border-bottom: 1px solid #e8edf4;
+            font-size: 12px;
+        }
+        .sku-table td {
+            padding: 6px 6px;
+            border-bottom: 1px solid #f0f4f9;
+        }
+        .sku-table input {
+            width: 100%;
+            padding: 6px 10px;
+            border: 1px solid #dce5ef;
+            border-radius: 6px;
+            font-size: 13px;
+            background: #fafcfe;
+        }
+        .sku-table input:focus {
+            outline: none;
+            border-color: #4dabf7;
+        }
+        .sku-table input.error {
+            border-color: #b51a3f;
+            background: #fff8f9;
+        }
+
+        /* 多平台同步 */
+        .platform-sync-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+        }
+        .platform-sync-item {
+            border: 1px solid #e8edf4;
+            border-radius: 12px;
+            padding: 14px 16px;
+            background: #fafcfe;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            transition: 0.15s;
+        }
+        .platform-sync-item:hover { border-color: #c8d8e8; }
+        .platform-sync-item .plat-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            color: white;
+            flex-shrink: 0;
+        }
+        .platform-sync-item .plat-info { flex: 1; }
+        .platform-sync-item .plat-info .plat-name { font-weight: 600; font-size: 14px; color: #0a1e2f; }
+        .platform-sync-item .plat-info .plat-status { font-size: 12px; color: #5f7d95; }
+        .platform-sync-item .plat-toggle { flex-shrink: 0; }
+
+        .toggle {
+            width: 40px;
+            height: 22px;
+            background: #dce5ef;
+            border-radius: 30px;
+            position: relative;
+            cursor: pointer;
+            transition: 0.2s;
+            flex-shrink: 0;
+        }
+        .toggle.active { background: #4dabf7; }
+        .toggle .knob {
+            width: 16px;
+            height: 16px;
+            background: white;
+            border-radius: 16px;
+            position: absolute;
+            top: 3px;
+            left: 3px;
+            transition: 0.2s;
+            box-shadow: 0 1px 4px rgba(0,0,0,0.10);
+        }
+        .toggle.active .knob { left: 21px; }
+
+        /* 响应式 */
+        @media (max-width: 1200px) {
+            .form-row { grid-template-columns: 1fr; }
+            .platform-sync-grid { grid-template-columns: 1fr; }
+        }
+        @media (max-width: 768px) {
+            .sidebar { width: 60px; }
+            .sidebar .logo span,
+            .sidebar .logo .badge,
+            .sidebar .nav .item span,
+            .sidebar .nav .section-label,
+            .sidebar .bottom span,
+            .sidebar .nav .item .tag { display: none; }
+            .sidebar .logo { padding: 16px 12px; justify-content: center; }
+            .sidebar .logo i { font-size: 20px; padding: 6px; }
+            .sidebar .nav .item { justify-content: center; padding: 12px; }
+            .sidebar .nav .item i { font-size: 18px; width: auto; }
+            .sidebar .bottom { justify-content: center; }
+            .sidebar .bottom i { font-size: 18px; }
+            .main { max-width: calc(100% - 60px); padding: 14px; }
+            .topbar { flex-direction: column; align-items: flex-start; }
+            .category-level .level-label { min-width: 28px; font-size: 11px; }
+            .category-level .cat-tag { font-size: 11px; padding: 2px 10px; }
+            .modal-box { max-width: 100%; width: 100%; max-height: 100vh; border-radius: 0; }
+            .modal-header { padding: 16px 18px 12px; }
+            .modal-tabs { padding: 0 18px; }
+            .modal-tab { padding: 10px 12px; font-size: 12px; }
+            .modal-body { padding: 16px 18px; }
+            .modal-footer { padding: 12px 18px 16px; }
+            .img-upload-grid { grid-template-columns: repeat(3, 1fr); }
+            .form-row { grid-template-columns: 1fr; }
+            .sku-table { font-size: 12px; }
+        }
+        @media (max-width: 480px) {
+            .img-upload-grid { grid-template-columns: repeat(2, 1fr); }
+        }
+    </style>
+</head>
+<body>
+
+<!-- ===== 左侧导航 ===== -->
+<div class="sidebar">
+    <div class="logo">
+        <i class="fas fa-bolt"></i>
+        <span>智控电商</span>
+        <span class="badge">v3.0</span>
+    </div>
+    <div class="nav">
+        <div class="section-label">经营总览</div>
+        <div class="item" data-page="page-dashboard"><i class="fas fa-chart-pie"></i><span>数据总览</span></div>
+        <div class="item" data-page="page-ai"><i class="fas fa-stethoscope"></i><span>店铺经营诊断</span></div>
+        <div class="item" data-page="page-competitor"><i class="fas fa-eye"></i><span>同行竞品分析</span></div>
+
+        <div class="section-label">交易核心</div>
+        <div class="item" data-page="page-orders"><i class="fas fa-shopping-cart"></i><span>订单管理</span><span class="tag">23</span></div>
+        <div class="item active" data-page="page-products"><i class="fas fa-box"></i><span>商品管理</span></div>
+        <div class="item" data-page="page-inventory"><i class="fas fa-warehouse"></i><span>库存管理</span></div>
+
+        <div class="section-label">AI 智能赋能</div>
+        <div class="item" data-page="page-ai-service"><i class="fas fa-headset"></i><span>AI 客服</span><span class="tag">NEW</span></div>
+        <div class="item" data-page="page-ai-assistant"><i class="fas fa-robot"></i><span>AI 助手</span></div>
+        <div class="item" data-page="page-customer"><i class="fas fa-users"></i><span>客资聚合</span><span class="tag">89</span></div>
+
+        <div class="section-label">运营支持</div>
+        <div class="item" data-page="page-logistics"><i class="fas fa-truck"></i><span>物流管理</span></div>
+        <div class="item" data-page="page-sourcing"><i class="fas fa-store-alt"></i><span>素材生成</span></div>
+        <div class="item" data-page="page-channels"><i class="fas fa-plug"></i><span>渠道货源</span></div>
+        <div class="item" data-page="page-procurement"><i class="fas fa-cart-plus"></i><span>智能采购</span><span class="tag">NEW</span></div>
+
+        <div class="section-label">系统配置</div>
+        <div class="item" data-page="page-channels-config"><i class="fas fa-plug"></i><span>渠道管理</span></div>
+        <div class="item" data-page="page-agents"><i class="fas fa-handshake"></i><span>服务商管理</span></div>
+        <div class="item" data-page="page-settings"><i class="fas fa-cog"></i><span>系统设置</span></div>
+    </div>
+    <div class="bottom">
+        <i class="fas fa-shield-alt"></i>
+        <span>数据加密 · 安全</span>
+    </div>
+</div>
+
+<!-- ===== 主内容 ===== -->
+<div class="main">
+
+    <!-- ============================================================ -->
+    <!-- 商品管理 -->
+    <!-- ============================================================ -->
+    <div id="page-products" class="page active">
+        <div class="topbar">
+            <div class="left"><h2><i class="fas fa-box" style="color:#4dabf7;"></i> 商品管理</h2><p>跨平台商品发布 · 库存同步 · 价格管理</p></div>
+            <div class="right">
+                <span class="btn btn-primary" onclick="openAddModal()"><i class="fas fa-plus"></i> 新增商品</span>
+                <span class="btn" onclick="showToast('📤 批量发布功能演示')"><i class="fas fa-upload"></i> 批量发布</span>
+                <span class="avatar">T</span>
+            </div>
+        </div>
+
+        <!-- 商品筛选 -->
+        <div class="card">
+            <div class="card-header"><h3><i class="fas fa-search"></i> 商品筛选</h3><span class="action" onclick="resetProductFilters()"><i class="fas fa-undo"></i> 重置</span></div>
+            <div class="form-row">
+                <div class="form-group"><label>关键词</label><input type="text" placeholder="商品名称 / SKU" id="productSearch" onkeyup="filterProducts()"></div>
+                <div class="form-group"><label>平台</label><select id="productPlatformFilter" onchange="filterProducts()"><option value="all">全部</option><option>淘宝</option><option>抖音</option><option>拼多多</option><option>京东</option></select></div>
+                <div class="form-group"><label>状态</label><select id="productStatusFilter" onchange="filterProducts()"><option value="all">全部</option><option>在售</option><option>下架</option><option>待审核</option></select></div>
+                <div class="form-group"><label>分类</label><select id="productCategoryFilter" onchange="filterProducts()"><option value="all">全部分类</option><option value="茶叶">茶叶</option><option value="手工艺">手工艺</option><option value="食品">食品</option><option value="文创">文创</option></select></div>
+            </div>
+        </div>
+
+        <!-- 三级分类筛选 -->
+        <div class="card" style="padding:12px 20px;">
+            <div style="display:flex; align-items:center; gap:10px; flex-wrap:wrap; margin-bottom:6px;">
+                <span style="font-weight:600; color:#0a1e2f; font-size:13px;"><i class="fas fa-tags" style="color:#4dabf7;"></i> 分类筛选</span>
+                <span style="font-size:12px; color:#94a3b8;">三级分类 · 点击切换</span>
+                <span style="margin-left:auto; font-size:13px; color:#5f7d95;" id="productCount">共 8 件商品</span>
+            </div>
+            <div class="category-filter-container" id="productCategoryFilterContainer">
+                <div class="category-level">
+                    <span class="level-label">一级</span>
+                    <span class="cat-tag active" data-level="1" data-cat="all" onclick="filterProductCategory(1,'all',this)">全部 <span class="count">(8)</span></span>
+                    <span class="cat-tag" data-level="1" data-cat="食品" onclick="filterProductCategory(1,'食品',this)">🍜 食品 <span class="count">(2)</span></span>
+                    <span class="cat-tag" data-level="1" data-cat="手工艺" onclick="filterProductCategory(1,'手工艺',this)">🎨 手工艺 <span class="count">(2)</span></span>
+                    <span class="cat-tag" data-level="1" data-cat="茶叶" onclick="filterProductCategory(1,'茶叶',this)">🍃 茶叶 <span class="count">(1)</span></span>
+                    <span class="cat-tag" data-level="1" data-cat="文创" onclick="filterProductCategory(1,'文创',this)">📚 文创 <span class="count">(3)</span></span>
+                </div>
+                <div class="category-divider"></div>
+                <div class="category-level">
+                    <span class="level-label">二级</span>
+                    <span class="cat-tag active" data-level="2" data-cat="all" onclick="filterProductCategory(2,'all',this)">全部 <span class="count">(8)</span></span>
+                    <span class="cat-tag" data-level="2" data-cat="坚果" onclick="filterProductCategory(2,'坚果',this)">🥜 坚果 <span class="count">(1)</span></span>
+                    <span class="cat-tag" data-level="2" data-cat="茶饮" onclick="filterProductCategory(2,'茶饮',this)">🍵 茶饮 <span class="count">(2)</span></span>
+                    <span class="cat-tag" data-level="2" data-cat="编织" onclick="filterProductCategory(2,'编织',this)">🧶 编织 <span class="count">(2)</span></span>
+                    <span class="cat-tag" data-level="2" data-cat="陶瓷" onclick="filterProductCategory(2,'陶瓷',this)">🏺 陶瓷 <span class="count">(1)</span></span>
+                    <span class="cat-tag" data-level="2" data-cat="纸艺" onclick="filterProductCategory(2,'纸艺',this)">📄 纸艺 <span class="count">(2)</span></span>
+                </div>
+                <div class="category-divider"></div>
+                <div class="category-level">
+                    <span class="level-label">三级</span>
+                    <span class="cat-tag active" data-level="3" data-cat="all" onclick="filterProductCategory(3,'all',this)">全部 <span class="count">(8)</span></span>
+                    <span class="cat-tag" data-level="3" data-cat="礼盒装" onclick="filterProductCategory(3,'礼盒装',this)">🎁 礼盒装 <span class="count">(2)</span></span>
+                    <span class="cat-tag" data-level="3" data-cat="散装" onclick="filterProductCategory(3,'散装',this)">📦 散装 <span class="count">(1)</span></span>
+                    <span class="cat-tag" data-level="3" data-cat="手工" onclick="filterProductCategory(3,'手工',this)">✋ 手工 <span class="count">(3)</span></span>
+                    <span class="cat-tag" data-level="3" data-cat="定制" onclick="filterProductCategory(3,'定制',this)">🎨 定制 <span class="count">(2)</span></span>
+                </div>
+            </div>
+        </div>
+
+        <!-- 商品列表 -->
+        <div class="card">
+            <div class="card-header">
+                <h3><i class="fas fa-list"></i> 商品列表</h3>
+                <span class="action"><i class="fas fa-chevron-down"></i> 排序</span>
+            </div>
+            <div class="table-wrap">
+                <table>
+                    <thead>
+                        <tr>
+                            <th style="width:40px;">#</th>
+                            <th style="width:50px;">图片</th>
+                            <th>商品名称</th>
+                            <th>规格</th>
+                            <th>SKU</th>
+                            <th>分类</th>
+                            <th>平台</th>
+                            <th>价格</th>
+                            <th>库存</th>
+                            <th>销量</th>
+                            <th>评价</th>
+                            <th>状态</th>
+                            <th style="width:140px;">操作</th>
+                        </tr>
+                    </thead>
+                    <tbody id="productTableBody">
+                        <tr data-category="茶叶" data-platform="抖音" data-status="在售" data-subcat="茶饮" data-third="礼盒装" data-id="1">
+                            <td>1</td>
+                            <td><div class="product-img"><i class="fas fa-leaf"></i></div></td>
+                            <td><strong>云山茶叶礼盒</strong></td>
+                            <td>500g×2</td>
+                            <td><span style="font-size:12px;color:#94a3b8;">YS-2026-001</span></td>
+                            <td><span class="badge blue">茶叶</span></td>
+                            <td><span class="badge douyin">抖音</span></td>
+                            <td style="font-weight:600;color:#b55a1a;">¥128</td>
+                            <td>234</td>
+                            <td>1,247</td>
+                            <td><span class="badge success">4.9星</span></td>
+                            <td><span class="badge success">在售</span></td>
+                            <td>
+                                <span class="btn-sm outline" onclick="openEditModal(this)"><i class="fas fa-edit"></i> 编辑</span>
+                                <span class="btn-sm blue" style="margin-left:4px;" onclick="showToast('🔄 同步商品：云山茶叶礼盒')"><i class="fas fa-sync-alt"></i> 同步</span>
+                            </td>
+                        </tr>
+                        <tr data-category="手工艺" data-platform="淘宝" data-status="在售" data-subcat="编织" data-third="手工" data-id="2">
+                            <td>2</td>
+                            <td><div class="product-img"><i class="fas fa-bag-shopping"></i></div></td>
+                            <td><strong>手工竹编包</strong></td>
+                            <td>35×28cm</td>
+                            <td><span style="font-size:12px;color:#94a3b8;">ZB-2026-002</span></td>
+                            <td><span class="badge orange">手工艺</span></td>
+                            <td><span class="badge taobao">淘宝</span></td>
+                            <td style="font-weight:600;color:#b55a1a;">¥89</td>
+                            <td>187</td>
+                            <td>856</td>
+                            <td><span class="badge success">4.8星</span></td>
+                            <td><span class="badge success">在售</span></td>
+                            <td>
+                                <span class="btn-sm outline" onclick="openEditModal(this)"><i class="fas fa-edit"></i> 编辑</span>
+                                <span class="btn-sm blue" style="margin-left:4px;" onclick="showToast('🔄 同步商品：手工竹编包')"><i class="fas fa-sync-alt"></i> 同步</span>
+                            </td>
+                        </tr>
+                        <tr data-category="食品" data-platform="拼多多" data-status="在售" data-subcat="坚果" data-third="散装" data-id="3">
+                            <td>3</td>
+                            <td><div class="product-img"><i class="fas fa-seedling"></i></div></td>
+                            <td><strong>山核桃仁 250g</strong></td>
+                            <td>250g/袋</td>
+                            <td><span style="font-size:12px;color:#94a3b8;">HT-2026-003</span></td>
+                            <td><span class="badge success">食品</span></td>
+                            <td><span class="badge pdd">拼多多</span></td>
+                            <td style="font-weight:600;color:#b55a1a;">¥45</td>
+                            <td>156</td>
+                            <td>2,345</td>
+                            <td><span class="badge success">4.7星</span></td>
+                            <td><span class="badge success">在售</span></td>
+                            <td>
+                                <span class="btn-sm outline" onclick="openEditModal(this)"><i class="fas fa-edit"></i> 编辑</span>
+                                <span class="btn-sm blue" style="margin-left:4px;" onclick="showToast('🔄 同步商品：山核桃仁 250g')"><i class="fas fa-sync-alt"></i> 同步</span>
+                            </td>
+                        </tr>
+                        <tr data-category="文创" data-platform="京东" data-status="待审核" data-subcat="纸艺" data-third="定制" data-id="4">
+                            <td>4</td>
+                            <td><div class="product-img"><i class="fas fa-soap"></i></div></td>
+                            <td><strong>云山手工皂套装</strong></td>
+                            <td>3块装</td>
+                            <td><span style="font-size:12px;color:#94a3b8;">SZ-2026-004</span></td>
+                            <td><span class="badge info">文创</span></td>
+                            <td><span class="badge jd">京东</span></td>
+                            <td style="font-weight:600;color:#b55a1a;">¥79</td>
+                            <td>89</td>
+                            <td>567</td>
+                            <td><span class="badge warning">4.5星</span></td>
+                            <td><span class="badge warning">待审核</span></td>
+                            <td>
+                                <span class="btn-sm outline" onclick="openEditModal(this)"><i class="fas fa-edit"></i> 编辑</span>
+                                <span class="btn-sm blue" style="margin-left:4px;" onclick="showToast('🔄 同步商品：云山手工皂套装')"><i class="fas fa-sync-alt"></i> 同步</span>
+                            </td>
+                        </tr>
+                        <tr data-category="手工艺" data-platform="淘宝" data-status="在售" data-subcat="陶瓷" data-third="手工" data-id="5">
+                            <td>5</td>
+                            <td><div class="product-img"><i class="fas fa-mug-saucer"></i></div></td>
+                            <td><strong>云山陶瓷杯</strong></td>
+                            <td>350ml</td>
+                            <td><span style="font-size:12px;color:#94a3b8;">TC-2026-005</span></td>
+                            <td><span class="badge orange">手工艺</span></td>
+                            <td><span class="badge taobao">淘宝</span></td>
+                            <td style="font-weight:600;color:#b55a1a;">¥58</td>
+                            <td>143</td>
+                            <td>1,876</td>
+                            <td><span class="badge success">4.9星</span></td>
+                            <td><span class="badge success">在售</span></td>
+                            <td>
+                                <span class="btn-sm outline" onclick="openEditModal(this)"><i class="fas fa-edit"></i> 编辑</span>
+                                <span class="btn-sm blue" style="margin-left:4px;" onclick="showToast('🔄 同步商品：云山陶瓷杯')"><i class="fas fa-sync-alt"></i> 同步</span>
+                            </td>
+                        </tr>
+                        <tr data-category="文创" data-platform="抖音" data-status="下架" data-subcat="纸艺" data-third="定制" data-id="6">
+                            <td>6</td>
+                            <td><div class="product-img"><i class="fas fa-scroll"></i></div></td>
+                            <td><strong>手写书法折扇</strong></td>
+                            <td>10寸</td>
+                            <td><span style="font-size:12px;color:#94a3b8;">FS-2026-006</span></td>
+                            <td><span class="badge info">文创</span></td>
+                            <td><span class="badge douyin">抖音</span></td>
+                            <td style="font-weight:600;color:#b55a1a;">¥35</td>
+                            <td>0</td>
+                            <td>234</td>
+                            <td><span class="badge info">4.6星</span></td>
+                            <td><span class="badge danger">下架</span></td>
+                            <td>
+                                <span class="btn-sm outline" onclick="openEditModal(this)"><i class="fas fa-edit"></i> 编辑</span>
+                                <span class="btn-sm blue" style="margin-left:4px;" onclick="showToast('🔄 同步商品：手写书法折扇')"><i class="fas fa-sync-alt"></i> 同步</span>
+                            </td>
+                        </tr>
+                        <tr data-category="食品" data-platform="淘宝" data-status="在售" data-subcat="茶饮" data-third="礼盒装" data-id="7">
+                            <td>7</td>
+                            <td><div class="product-img"><i class="fas fa-candy-cane"></i></div></td>
+                            <td><strong>手工红糖姜茶</strong></td>
+                            <td>300g/盒</td>
+                            <td><span style="font-size:12px;color:#94a3b8;">JC-2026-007</span></td>
+                            <td><span class="badge success">食品</span></td>
+                            <td><span class="badge taobao">淘宝</span></td>
+                            <td style="font-weight:600;color:#b55a1a;">¥29.9</td>
+                            <td>210</td>
+                            <td>3,456</td>
+                            <td><span class="badge success">4.9星</span></td>
+                            <td><span class="badge success">在售</span></td>
+                            <td>
+                                <span class="btn-sm outline" onclick="openEditModal(this)"><i class="fas fa-edit"></i> 编辑</span>
+                                <span class="btn-sm blue" style="margin-left:4px;" onclick="showToast('🔄 同步商品：手工红糖姜茶')"><i class="fas fa-sync-alt"></i> 同步</span>
+                            </td>
+                        </tr>
+                        <tr data-category="文创" data-platform="拼多多" data-status="在售" data-subcat="编织" data-third="手工" data-id="8">
+                            <td>8</td>
+                            <td><div class="product-img"><i class="fas fa-palette"></i></div></td>
+                            <td><strong>云山国风丝巾</strong></td>
+                            <td>90×90cm</td>
+                            <td><span style="font-size:12px;color:#94a3b8;">SJ-2026-008</span></td>
+                            <td><span class="badge info">文创</span></td>
+                            <td><span class="badge pdd">拼多多</span></td>
+                            <td style="font-weight:600;color:#b55a1a;">¥68</td>
+                            <td>76</td>
+                            <td>789</td>
+                            <td><span class="badge success">4.8星</span></td>
+                            <td><span class="badge success">在售</span></td>
+                            <td>
+                                <span class="btn-sm outline" onclick="openEditModal(this)"><i class="fas fa-edit"></i> 编辑</span>
+                                <span class="btn-sm blue" style="margin-left:4px;" onclick="showToast('🔄 同步商品：云山国风丝巾')"><i class="fas fa-sync-alt"></i> 同步</span>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-top:14px; padding-top:14px; border-top:1px solid #e8edf4; flex-wrap:wrap; gap:10px;">
+                <span style="font-size:13px; color:#5f7d95;" id="productCountFooter">共 8 件商品</span>
+                <div style="display:flex; gap:8px;">
+                    <span class="btn-sm outline"><i class="fas fa-chevron-left"></i> 上一页</span>
+                    <span class="btn-sm primary">1</span>
+                    <span class="btn-sm outline">2</span>
+                    <span class="btn-sm outline">3</span>
+                    <span class="btn-sm outline">...</span>
+                    <span class="btn-sm outline">下一页 <i class="fas fa-chevron-right"></i></span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<!-- ============================================================ -->
+<!-- 编辑商品弹窗 -->
+<!-- ============================================================ -->
+<div class="modal-overlay" id="editModal" onclick="if(event.target===this) closeEditModal()">
+    <div class="modal-box">
+        <div class="modal-header">
+            <h3><i class="fas fa-edit"></i> 编辑商品 · <span id="editModalTitle">云山茶叶礼盒</span></h3>
+            <button class="close" onclick="closeEditModal()">&times;</button>
+        </div>
+
+        <div class="modal-tabs" id="editModalTabs">
+            <button class="modal-tab active" data-tab="edit-tab-basic" onclick="switchEditTab('edit-tab-basic')">基础信息</button>
+            <button class="modal-tab" data-tab="edit-tab-images" onclick="switchEditTab('edit-tab-images')">图片详情</button>
+            <button class="modal-tab" data-tab="edit-tab-price" onclick="switchEditTab('edit-tab-price')">价格库存</button>
+            <button class="modal-tab" data-tab="edit-tab-logistics" onclick="switchEditTab('edit-tab-logistics')">物流售后</button>
+            <button class="modal-tab" data-tab="edit-tab-platform" onclick="switchEditTab('edit-tab-platform')">多平台同步</button>
+        </div>
+
+        <div class="modal-body" id="editModalBody">
+
+            <!-- Tab 1: 基础信息 -->
+            <div class="tab-panel active" id="edit-tab-basic">
+                <div class="form-row">
+                    <div class="form-group" id="editGroupName">
+                        <label>商品名称 <span style="color:#b51a3f;">*</span></label>
+                        <input type="text" id="editProductName" value="云山茶叶礼盒" placeholder="请输入商品名称">
+                        <div class="error-msg">请输入商品名称</div>
+                    </div>
+                    <div class="form-group">
+                        <label>商品卖点</label>
+                        <input type="text" id="editProductSellPoint" value="明前采摘 · 特级龙井 · 礼盒包装" placeholder="简短卖点，用于列表展示">
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>商品类目（三级）</label>
+                        <div style="display:flex; gap:8px;">
+                            <select id="editCat1" style="flex:1;">
+                                <option value="茶叶" selected>茶叶</option>
+                                <option value="手工艺">手工艺</option>
+                                <option value="食品">食品</option>
+                                <option value="文创">文创</option>
+                            </select>
+                            <select id="editCat2" style="flex:1;">
+                                <option value="茶饮" selected>茶饮</option>
+                                <option value="坚果">坚果</option>
+                                <option value="编织">编织</option>
+                                <option value="陶瓷">陶瓷</option>
+                                <option value="纸艺">纸艺</option>
+                            </select>
+                            <select id="editCat3" style="flex:1;">
+                                <option value="礼盒装" selected>礼盒装</option>
+                                <option value="散装">散装</option>
+                                <option value="手工">手工</option>
+                                <option value="定制">定制</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-group" id="editGroupSpec">
+                        <label>商品规格 <span style="color:#b51a3f;">*</span></label>
+                        <input type="text" id="editProductSpec" value="500g×2" placeholder="如：500g×2 / 350ml">
+                        <div class="error-msg">请输入商品规格</div>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group" id="editGroupSku">
+                        <label>SKU 编码 <span style="color:#b51a3f;">*</span></label>
+                        <input type="text" id="editProductSku" value="YS-2026-001" placeholder="如：YS-2026-001">
+                        <div class="error-msg">请输入SKU编码</div>
+                    </div>
+                    <div class="form-group">
+                        <label>商品状态</label>
+                        <select id="editProductStatus">
+                            <option value="在售" selected>在售</option>
+                            <option value="下架">下架</option>
+                            <option value="待审核">待审核</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>商品简介</label>
+                    <textarea id="editProductDesc" placeholder="简短描述商品特点，用于详情页头部展示">云山茶厂 · 20年匠心制茶，源自核心产区，每一片茶叶都承载着春天的味道。</textarea>
+                </div>
+            </div>
+
+            <!-- Tab 2: 图片详情 -->
+            <div class="tab-panel" id="edit-tab-images">
+                <div class="form-group">
+                    <label><i class="fas fa-images" style="color:#4dabf7;"></i> 商品主图（最多5张，点击可替换）</label>
+                    <div class="img-upload-grid" id="editMainImages">
+                        <div class="img-upload-item filled" onclick="showToast('🖼️ 替换主图1')">
+                            <span class="badge-pos">主图1</span>
+                            <i class="fas fa-leaf"></i>
+                        </div>
+                        <div class="img-upload-item filled" onclick="showToast('🖼️ 替换主图2')">
+                            <span class="badge-pos">主图2</span>
+                            <i class="fas fa-image"></i>
+                        </div>
+                        <div class="img-upload-item filled" onclick="showToast('🖼️ 替换主图3')">
+                            <span class="badge-pos">主图3</span>
+                            <i class="fas fa-image"></i>
+                        </div>
+                        <div class="img-upload-item" onclick="showToast('📤 上传主图4')">
+                            <i class="fas fa-plus"></i>
+                            <span>上传</span>
+                        </div>
+                        <div class="img-upload-item" onclick="showToast('📤 上传主图5')">
+                            <i class="fas fa-plus"></i>
+                            <span>上传</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label><i class="fas fa-video" style="color:#b51a5a;"></i> 主图视频</label>
+                    <div style="display:flex; gap:10px; align-items:center;">
+                        <div style="width:120px; height:68px; background:#1a1a2e; border-radius:8px; display:flex; align-items:center; justify-content:center; color:#4dabf7; font-size:24px; cursor:pointer;" onclick="showToast('🎬 替换主图视频')">
+                            <i class="fas fa-play-circle"></i>
+                        </div>
+                        <div>
+                            <div style="font-size:13px; color:#0a1e2f;">当前视频：云山茶叶礼盒_15s.mp4</div>
+                            <div style="font-size:12px; color:#94a3b8; margin-top:2px;">时长 15秒 · 9:16 竖屏</div>
+                            <span class="btn-sm outline" style="margin-top:6px;" onclick="showToast('📤 上传新视频')"><i class="fas fa-upload"></i> 更换视频</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label><i class="fas fa-file-alt" style="color:#0d7c4f;"></i> 详情描述</label>
+                    <textarea id="editProductDetail" style="min-height:120px;" placeholder="支持富文本，可插入图片和排版">🌟 云山茶叶礼盒 · 2026春茶 特级龙井
+
+📖 品牌故事：云山茶厂 · 20年匠心制茶，源自核心产区。
+
+✨ 核心卖点：
+✅ 明前采摘 · 特级龙井
+✅ 礼盒包装 · 送礼首选
+✅ 一件代发 · 源头直供
+
+📦 规格：500g×2
+⏳ 保质期：18个月
+🛡️ 7天无理由退换</textarea>
+                </div>
+            </div>
+
+            <!-- Tab 3: 价格库存 -->
+            <div class="tab-panel" id="edit-tab-price">
+                <div class="form-row">
+                    <div class="form-group" id="editGroupPrice">
+                        <label>一口价（元）<span style="color:#b51a3f;">*</span></label>
+                        <input type="number" id="editProductPrice" value="128" step="0.01" min="0">
+                        <div class="error-msg">请输入有效的价格（大于0）</div>
+                    </div>
+                    <div class="form-group" id="editGroupStock">
+                        <label>总库存（件）<span style="color:#b51a3f;">*</span></label>
+                        <input type="number" id="editProductStock" value="234" min="0">
+                        <div class="error-msg">请输入有效的库存（≥0）</div>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>促销价（元）</label>
+                        <input type="number" id="editProductPromoPrice" value="118" step="0.01" min="0" placeholder="留空则不设促销">
+                    </div>
+                    <div class="form-group">
+                        <label>库存预警线</label>
+                        <input type="number" id="editProductSafetyStock" value="50" min="0">
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>每人限购（件）</label>
+                        <input type="number" id="editProductLimit" value="0" min="0" placeholder="0 表示不限购">
+                    </div>
+                    <div class="form-group">
+                        <label>发货时效</label>
+                        <select id="editProductDeliveryTime">
+                            <option value="24小时">24小时内发货</option>
+                            <option value="48小时" selected>48小时内发货</option>
+                            <option value="72小时">72小时内发货</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label><i class="fas fa-cubes" style="color:#4dabf7;"></i> SKU 多规格管理</label>
+                    <div style="display:flex; gap:8px; margin-bottom:8px;">
+                        <span class="btn-sm blue" onclick="addEditSkuRow()"><i class="fas fa-plus"></i> 添加规格</span>
+                        <span class="btn-sm outline" onclick="showToast('🔄 已重置SKU')"><i class="fas fa-undo"></i> 重置</span>
+                    </div>
+                    <table class="sku-table" id="editSkuTable">
+                        <thead>
+                            <tr>
+                                <th style="width:30%;">规格</th>
+                                <th style="width:25%;">价格（元）</th>
+                                <th style="width:25%;">库存（件）</th>
+                                <th style="width:20%;">操作</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><input type="text" value="500g×2 礼盒装" placeholder="规格名"></td>
+                                <td><input type="number" value="128" step="0.01"></td>
+                                <td><input type="number" value="234"></td>
+                                <td><span class="btn-sm danger" onclick="removeEditSkuRow(this)"><i class="fas fa-trash"></i></span></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Tab 4: 物流售后 -->
+            <div class="tab-panel" id="edit-tab-logistics">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>运费模板</label>
+                        <select id="editFreightTemplate">
+                            <option value="默认模板">默认模板（全国包邮）</option>
+                            <option value="偏远地区加价">偏远地区加价模板</option>
+                            <option value="按重量计费">按重量计费模板</option>
+                            <option value="自定义">自定义运费</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>发货地</label>
+                        <input type="text" id="editShipFrom" value="浙江省杭州市西湖区" placeholder="如：浙江省杭州市">
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>物流公司</label>
+                        <select id="editLogisticsCompany">
+                            <option value="顺丰">顺丰速运</option>
+                            <option value="中通" selected>中通快递</option>
+                            <option value="圆通">圆通速递</option>
+                            <option value="德邦">德邦物流</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>运费（元）</label>
+                        <input type="number" id="editFreightPrice" value="0" step="0.01" min="0" placeholder="0 表示包邮">
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label><i class="fas fa-shield-alt" style="color:#0d7c4f;"></i> 售后保障</label>
+                    <div style="display:flex; flex-direction:column; gap:8px; margin-top:4px;">
+                        <label style="display:flex; align-items:center; gap:8px; font-weight:400; font-size:14px; cursor:pointer;">
+                            <input type="checkbox" checked style="width:16px; height:16px; accent-color:#4dabf7;"> 七天无理由退换
+                        </label>
+                        <label style="display:flex; align-items:center; gap:8px; font-weight:400; font-size:14px; cursor:pointer;">
+                            <input type="checkbox" checked style="width:16px; height:16px; accent-color:#4dabf7;"> 运费险
+                        </label>
+                        <label style="display:flex; align-items:center; gap:8px; font-weight:400; font-size:14px; cursor:pointer;">
+                            <input type="checkbox" style="width:16px; height:16px; accent-color:#4dabf7;"> 假一赔十
+                        </label>
+                        <label style="display:flex; align-items:center; gap:8px; font-weight:400; font-size:14px; cursor:pointer;">
+                            <input type="checkbox" checked style="width:16px; height:16px; accent-color:#4dabf7;"> 极速退款
+                        </label>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>售后说明</label>
+                    <textarea id="editAfterSaleDesc" placeholder="补充售后说明" style="min-height:60px;">支持7天无理由退换，质量问题包退换运费。生鲜类商品不支持无理由退换。</textarea>
+                </div>
+            </div>
+
+            <!-- Tab 5: 多平台同步 -->
+            <div class="tab-panel" id="edit-tab-platform">
+                <div style="background:#f0f7fe; border-radius:10px; padding:12px 16px; margin-bottom:16px; font-size:13px; color:#475569;">
+                    <i class="fas fa-info-circle" style="color:#4dabf7;"></i> 开启同步后，商品信息将自动同步到对应平台。各平台可独立设置价格和库存。
+                </div>
+                <div class="platform-sync-grid" id="editPlatformSyncGrid">
+                    <div class="platform-sync-item">
+                        <div class="plat-icon" style="background:#b55a1a;"><i class="fab fa-taobao"></i></div>
+                        <div class="plat-info">
+                            <div class="plat-name">淘宝</div>
+                            <div class="plat-status">已同步 · 最后同步 14:32</div>
+                        </div>
+                        <div class="plat-toggle">
+                            <div class="toggle active" onclick="togglePlatformSync(this)"><div class="knob"></div></div>
+                        </div>
+                    </div>
+                    <div class="platform-sync-item">
+                        <div class="plat-icon" style="background:#1a5bb5;"><i class="fab fa-tiktok"></i></div>
+                        <div class="plat-info">
+                            <div class="plat-name">抖音</div>
+                            <div class="plat-status">已同步 · 最后同步 14:40</div>
+                        </div>
+                        <div class="plat-toggle">
+                            <div class="toggle active" onclick="togglePlatformSync(this)"><div class="knob"></div></div>
+                        </div>
+                    </div>
+                    <div class="platform-sync-item">
+                        <div class="plat-icon" style="background:#b51a3f;"><i class="fas fa-store"></i></div>
+                        <div class="plat-info">
+                            <div class="plat-name">拼多多</div>
+                            <div class="plat-status">待同步 · 有修改未同步</div>
+                        </div>
+                        <div class="plat-toggle">
+                            <div class="toggle" onclick="togglePlatformSync(this)"><div class="knob"></div></div>
+                        </div>
+                    </div>
+                    <div class="platform-sync-item">
+                        <div class="plat-icon" style="background:#0d7c4f;"><i class="fas fa-box"></i></div>
+                        <div class="plat-info">
+                            <div class="plat-name">京东</div>
+                            <div class="plat-status">已同步 · 最后同步 14:38</div>
+                        </div>
+                        <div class="plat-toggle">
+                            <div class="toggle active" onclick="togglePlatformSync(this)"><div class="knob"></div></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div style="margin-top:16px;">
+                    <div class="form-group">
+                        <label>平台差异化设置</label>
+                        <div style="font-size:13px; color:#5f7d95; margin-bottom:8px;">可为不同平台设置独立价格和库存</div>
+                        <table class="sku-table">
+                            <thead>
+                                <tr>
+                                    <th>平台</th>
+                                    <th>价格（元）</th>
+                                    <th>库存（件）</th>
+                                    <th>状态</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td><span class="badge taobao">淘宝</span></td>
+                                    <td><input type="number" value="128" step="0.01" style="width:90px;"></td>
+                                    <td><input type="number" value="234" style="width:90px;"></td>
+                                    <td><span class="badge success">已同步</span></td>
+                                </tr>
+                                <tr>
+                                    <td><span class="badge douyin">抖音</span></td>
+                                    <td><input type="number" value="128" step="0.01" style="width:90px;"></td>
+                                    <td><input type="number" value="200" style="width:90px;"></td>
+                                    <td><span class="badge success">已同步</span></td>
+                                </tr>
+                                <tr>
+                                    <td><span class="badge pdd">拼多多</span></td>
+                                    <td><input type="number" value="118" step="0.01" style="width:90px;"></td>
+                                    <td><input type="number" value="150" style="width:90px;"></td>
+                                    <td><span class="badge warning">待同步</span></td>
+                                </tr>
+                                <tr>
+                                    <td><span class="badge jd">京东</span></td>
+                                    <td><input type="number" value="128" step="0.01" style="width:90px;"></td>
+                                    <td><input type="number" value="100" style="width:90px;"></td>
+                                    <td><span class="badge success">已同步</span></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <div style="margin-top:12px; display:flex; gap:10px;">
+                    <span class="btn-sm primary" onclick="showToast('🔄 正在同步到所有已开启平台...')"><i class="fas fa-sync-alt"></i> 立即同步全部</span>
+                    <span class="btn-sm outline" onclick="showToast('📊 查看同步日志...')"><i class="fas fa-history"></i> 同步日志</span>
+                </div>
+            </div>
+
+        </div>
+
+        <div class="modal-footer">
+            <span class="btn-sm outline" onclick="closeEditModal()">取消</span>
+            <span class="btn-sm outline" onclick="saveEditDraft()"><i class="fas fa-save"></i> 保存草稿</span>
+            <span class="btn-sm primary" onclick="saveEditAndPublish()"><i class="fas fa-check"></i> 保存并发布</span>
+        </div>
+    </div>
+</div>
+
+<!-- ============================================================ -->
+<!-- 新增商品弹窗 -->
+<!-- ============================================================ -->
+<div class="modal-overlay" id="addModal" onclick="if(event.target===this) closeAddModal()">
+    <div class="modal-box">
+        <div class="modal-header">
+            <h3><i class="fas fa-plus-circle"></i> 新增商品</h3>
+            <button class="close" onclick="closeAddModal()">&times;</button>
+        </div>
+
+        <div class="modal-tabs" id="addModalTabs">
+            <button class="modal-tab active" data-tab="add-tab-basic" onclick="switchAddTab('add-tab-basic')">基础信息</button>
+            <button class="modal-tab" data-tab="add-tab-images" onclick="switchAddTab('add-tab-images')">图片详情</button>
+            <button class="modal-tab" data-tab="add-tab-price" onclick="switchAddTab('add-tab-price')">价格库存</button>
+            <button class="modal-tab" data-tab="add-tab-logistics" onclick="switchAddTab('add-tab-logistics')">物流售后</button>
+            <button class="modal-tab" data-tab="add-tab-platform" onclick="switchAddTab('add-tab-platform')">多平台同步</button>
+        </div>
+
+        <div class="modal-body" id="addModalBody">
+
+            <!-- Tab 1: 基础信息 -->
+            <div class="tab-panel active" id="add-tab-basic">
+                <div class="form-row">
+                    <div class="form-group" id="addGroupName">
+                        <label>商品名称 <span style="color:#b51a3f;">*</span></label>
+                        <input type="text" id="addProductName" placeholder="请输入商品名称">
+                        <div class="error-msg">请输入商品名称</div>
+                    </div>
+                    <div class="form-group">
+                        <label>商品卖点</label>
+                        <input type="text" id="addProductSellPoint" placeholder="简短卖点，用于列表展示">
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>商品类目（三级）</label>
+                        <div style="display:flex; gap:8px;">
+                            <select id="addCat1" style="flex:1;">
+                                <option value="茶叶">茶叶</option>
+                                <option value="手工艺">手工艺</option>
+                                <option value="食品">食品</option>
+                                <option value="文创">文创</option>
+                            </select>
+                            <select id="addCat2" style="flex:1;">
+                                <option value="茶饮">茶饮</option>
+                                <option value="坚果">坚果</option>
+                                <option value="编织">编织</option>
+                                <option value="陶瓷">陶瓷</option>
+                                <option value="纸艺">纸艺</option>
+                            </select>
+                            <select id="addCat3" style="flex:1;">
+                                <option value="礼盒装">礼盒装</option>
+                                <option value="散装">散装</option>
+                                <option value="手工">手工</option>
+                                <option value="定制">定制</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-group" id="addGroupSpec">
+                        <label>商品规格 <span style="color:#b51a3f;">*</span></label>
+                        <input type="text" id="addProductSpec" placeholder="如：500g×2 / 350ml">
+                        <div class="error-msg">请输入商品规格</div>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group" id="addGroupSku">
+                        <label>SKU 编码 <span style="color:#b51a3f;">*</span></label>
+                        <input type="text" id="addProductSku" placeholder="如：YS-2026-009">
+                        <div class="error-msg">请输入SKU编码</div>
+                    </div>
+                    <div class="form-group">
+                        <label>商品状态</label>
+                        <select id="addProductStatus">
+                            <option value="在售" selected>在售</option>
+                            <option value="下架">下架</option>
+                            <option value="待审核">待审核</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>商品简介</label>
+                    <textarea id="addProductDesc" placeholder="简短描述商品特点，用于详情页头部展示"></textarea>
+                </div>
+            </div>
+
+            <!-- Tab 2: 图片详情 -->
+            <div class="tab-panel" id="add-tab-images">
+                <div class="form-group">
+                    <label><i class="fas fa-images" style="color:#4dabf7;"></i> 商品主图（最多5张，点击可上传）</label>
+                    <div class="img-upload-grid" id="addMainImages">
+                        <div class="img-upload-item" onclick="showToast('📤 上传主图1')">
+                            <i class="fas fa-plus"></i>
+                            <span>上传</span>
+                        </div>
+                        <div class="img-upload-item" onclick="showToast('📤 上传主图2')">
+                            <i class="fas fa-plus"></i>
+                            <span>上传</span>
+                        </div>
+                        <div class="img-upload-item" onclick="showToast('📤 上传主图3')">
+                            <i class="fas fa-plus"></i>
+                            <span>上传</span>
+                        </div>
+                        <div class="img-upload-item" onclick="showToast('📤 上传主图4')">
+                            <i class="fas fa-plus"></i>
+                            <span>上传</span>
+                        </div>
+                        <div class="img-upload-item" onclick="showToast('📤 上传主图5')">
+                            <i class="fas fa-plus"></i>
+                            <span>上传</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label><i class="fas fa-video" style="color:#b51a5a;"></i> 主图视频</label>
+                    <div style="display:flex; gap:10px; align-items:center;">
+                        <div style="width:120px; height:68px; background:#f0f4f9; border-radius:8px; display:flex; align-items:center; justify-content:center; color:#94a3b8; font-size:24px; cursor:pointer; border:2px dashed #dce5ef;" onclick="showToast('📤 上传主图视频')">
+                            <i class="fas fa-plus"></i>
+                        </div>
+                        <div style="font-size:13px; color:#94a3b8;">点击上传主图视频，支持 MP4 格式</div>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label><i class="fas fa-file-alt" style="color:#0d7c4f;"></i> 详情描述</label>
+                    <textarea id="addProductDetail" style="min-height:120px;" placeholder="支持富文本，可插入图片和排版"></textarea>
+                </div>
+            </div>
+
+            <!-- Tab 3: 价格库存 -->
+            <div class="tab-panel" id="add-tab-price">
+                <div class="form-row">
+                    <div class="form-group" id="addGroupPrice">
+                        <label>一口价（元）<span style="color:#b51a3f;">*</span></label>
+                        <input type="number" id="addProductPrice" value="" step="0.01" min="0" placeholder="请输入价格">
+                        <div class="error-msg">请输入有效的价格（大于0）</div>
+                    </div>
+                    <div class="form-group" id="addGroupStock">
+                        <label>总库存（件）<span style="color:#b51a3f;">*</span></label>
+                        <input type="number" id="addProductStock" value="" min="0" placeholder="请输入库存">
+                        <div class="error-msg">请输入有效的库存（≥0）</div>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>促销价（元）</label>
+                        <input type="number" id="addProductPromoPrice" value="" step="0.01" min="0" placeholder="留空则不设促销">
+                    </div>
+                    <div class="form-group">
+                        <label>库存预警线</label>
+                        <input type="number" id="addProductSafetyStock" value="50" min="0">
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>每人限购（件）</label>
+                        <input type="number" id="addProductLimit" value="0" min="0" placeholder="0 表示不限购">
+                    </div>
+                    <div class="form-group">
+                        <label>发货时效</label>
+                        <select id="addProductDeliveryTime">
+                            <option value="24小时">24小时内发货</option>
+                            <option value="48小时" selected>48小时内发货</option>
+                            <option value="72小时">72小时内发货</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label><i class="fas fa-cubes" style="color:#4dabf7;"></i> SKU 多规格管理</label>
+                    <div style="display:flex; gap:8px; margin-bottom:8px;">
+                        <span class="btn-sm blue" onclick="addAddSkuRow()"><i class="fas fa-plus"></i> 添加规格</span>
+                        <span class="btn-sm outline" onclick="showToast('🔄 已重置SKU')"><i class="fas fa-undo"></i> 重置</span>
+                    </div>
+                    <table class="sku-table" id="addSkuTable">
+                        <thead>
+                            <tr>
+                                <th style="width:30%;">规格</th>
+                                <th style="width:25%;">价格（元）</th>
+                                <th style="width:25%;">库存（件）</th>
+                                <th style="width:20%;">操作</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><input type="text" placeholder="规格名"></td>
+                                <td><input type="number" value="0" step="0.01"></td>
+                                <td><input type="number" value="0"></td>
+                                <td><span class="btn-sm danger" onclick="removeAddSkuRow(this)"><i class="fas fa-trash"></i></span></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Tab 4: 物流售后 -->
+            <div class="tab-panel" id="add-tab-logistics">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>运费模板</label>
+                        <select id="addFreightTemplate">
+                            <option value="默认模板">默认模板（全国包邮）</option>
+                            <option value="偏远地区加价">偏远地区加价模板</option>
+                            <option value="按重量计费">按重量计费模板</option>
+                            <option value="自定义">自定义运费</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>发货地</label>
+                        <input type="text" id="addShipFrom" placeholder="如：浙江省杭州市">
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>物流公司</label>
+                        <select id="addLogisticsCompany">
+                            <option value="顺丰">顺丰速运</option>
+                            <option value="中通" selected>中通快递</option>
+                            <option value="圆通">圆通速递</option>
+                            <option value="德邦">德邦物流</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>运费（元）</label>
+                        <input type="number" id="addFreightPrice" value="0" step="0.01" min="0" placeholder="0 表示包邮">
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label><i class="fas fa-shield-alt" style="color:#0d7c4f;"></i> 售后保障</label>
+                    <div style="display:flex; flex-direction:column; gap:8px; margin-top:4px;">
+                        <label style="display:flex; align-items:center; gap:8px; font-weight:400; font-size:14px; cursor:pointer;">
+                            <input type="checkbox" checked style="width:16px; height:16px; accent-color:#4dabf7;"> 七天无理由退换
+                        </label>
+                        <label style="display:flex; align-items:center; gap:8px; font-weight:400; font-size:14px; cursor:pointer;">
+                            <input type="checkbox" checked style="width:16px; height:16px; accent-color:#4dabf7;"> 运费险
+                        </label>
+                        <label style="display:flex; align-items:center; gap:8px; font-weight:400; font-size:14px; cursor:pointer;">
+                            <input type="checkbox" style="width:16px; height:16px; accent-color:#4dabf7;"> 假一赔十
+                        </label>
+                        <label style="display:flex; align-items:center; gap:8px; font-weight:400; font-size:14px; cursor:pointer;">
+                            <input type="checkbox" checked style="width:16px; height:16px; accent-color:#4dabf7;"> 极速退款
+                        </label>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>售后说明</label>
+                    <textarea id="addAfterSaleDesc" placeholder="补充售后说明" style="min-height:60px;"></textarea>
+                </div>
+            </div>
+
+            <!-- Tab 5: 多平台同步 -->
+            <div class="tab-panel" id="add-tab-platform">
+                <div style="background:#f0f7fe; border-radius:10px; padding:12px 16px; margin-bottom:16px; font-size:13px; color:#475569;">
+                    <i class="fas fa-info-circle" style="color:#4dabf7;"></i> 开启同步后，商品信息将自动同步到对应平台。各平台可独立设置价格和库存。
+                </div>
+                <div class="platform-sync-grid" id="addPlatformSyncGrid">
+                    <div class="platform-sync-item">
+                        <div class="plat-icon" style="background:#b55a1a;"><i class="fab fa-taobao"></i></div>
+                        <div class="plat-info">
+                            <div class="plat-name">淘宝</div>
+                            <div class="plat-status">未同步 · 将创建新商品</div>
+                        </div>
+                        <div class="plat-toggle">
+                            <div class="toggle active" onclick="togglePlatformSync(this)"><div class="knob"></div></div>
+                        </div>
+                    </div>
+                    <div class="platform-sync-item">
+                        <div class="plat-icon" style="background:#1a5bb5;"><i class="fab fa-tiktok"></i></div>
+                        <div class="plat-info">
+                            <div class="plat-name">抖音</div>
+                            <div class="plat-status">未同步 · 将创建新商品</div>
+                        </div>
+                        <div class="plat-toggle">
+                            <div class="toggle active" onclick="togglePlatformSync(this)"><div class="knob"></div></div>
+                        </div>
+                    </div>
+                    <div class="platform-sync-item">
+                        <div class="plat-icon" style="background:#b51a3f;"><i class="fas fa-store"></i></div>
+                        <div class="plat-info">
+                            <div class="plat-name">拼多多</div>
+                            <div class="plat-status">未同步 · 将创建新商品</div>
+                        </div>
+                        <div class="plat-toggle">
+                            <div class="toggle" onclick="togglePlatformSync(this)"><div class="knob"></div></div>
+                        </div>
+                    </div>
+                    <div class="platform-sync-item">
+                        <div class="plat-icon" style="background:#0d7c4f;"><i class="fas fa-box"></i></div>
+                        <div class="plat-info">
+                            <div class="plat-name">京东</div>
+                            <div class="plat-status">未同步 · 将创建新商品</div>
+                        </div>
+                        <div class="plat-toggle">
+                            <div class="toggle active" onclick="togglePlatformSync(this)"><div class="knob"></div></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div style="margin-top:16px;">
+                    <div class="form-group">
+                        <label>平台差异化设置</label>
+                        <div style="font-size:13px; color:#5f7d95; margin-bottom:8px;">可为不同平台设置独立价格和库存</div>
+                        <table class="sku-table">
+                            <thead>
+                                <tr>
+                                    <th>平台</th>
+                                    <th>价格（元）</th>
+                                    <th>库存（件）</th>
+                                    <th>状态</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td><span class="badge taobao">淘宝</span></td>
+                                    <td><input type="number" value="0" step="0.01" style="width:90px;"></td>
+                                    <td><input type="number" value="0" style="width:90px;"></td>
+                                    <td><span class="badge warning">待创建</span></td>
+                                </tr>
+                                <tr>
+                                    <td><span class="badge douyin">抖音</span></td>
+                                    <td><input type="number" value="0" step="0.01" style="width:90px;"></td>
+                                    <td><input type="number" value="0" style="width:90px;"></td>
+                                    <td><span class="badge warning">待创建</span></td>
+                                </tr>
+                                <tr>
+                                    <td><span class="badge pdd">拼多多</span></td>
+                                    <td><input type="number" value="0" step="0.01" style="width:90px;"></td>
+                                    <td><input type="number" value="0" style="width:90px;"></td>
+                                    <td><span class="badge warning">待创建</span></td>
+                                </tr>
+                                <tr>
+                                    <td><span class="badge jd">京东</span></td>
+                                    <td><input type="number" value="0" step="0.01" style="width:90px;"></td>
+                                    <td><input type="number" value="0" style="width:90px;"></td>
+                                    <td><span class="badge warning">待创建</span></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <div style="margin-top:12px; display:flex; gap:10px;">
+                    <span class="btn-sm primary" onclick="showToast('🔄 正在同步到所有已开启平台...')"><i class="fas fa-sync-alt"></i> 立即同步全部</span>
+                    <span class="btn-sm outline" onclick="showToast('📊 查看同步日志...')"><i class="fas fa-history"></i> 同步日志</span>
+                </div>
+            </div>
+
+        </div>
+
+        <div class="modal-footer">
+            <span class="btn-sm outline" onclick="closeAddModal()">取消</span>
+            <span class="btn-sm outline" onclick="saveAddDraft()"><i class="fas fa-save"></i> 保存草稿</span>
+            <span class="btn-sm primary" onclick="saveAddAndPublish()"><i class="fas fa-check"></i> 保存并发布</span>
+        </div>
+    </div>
+</div>
+
+<!-- ===== Toast ===== -->
+<div id="toast" class="toast"></div>
+
+<!-- ============================================================ -->
+<!-- JavaScript -->
+<!-- ============================================================ -->
+<script>
+    // ===== Toast =====
+    function showToast(msg) {
+        var toast = document.getElementById('toast');
+        toast.innerHTML = msg;
+        toast.classList.add('show');
+        clearTimeout(toast._timer);
+        toast._timer = setTimeout(function() { toast.classList.remove('show'); }, 2500);
+    }
+
+    // ===== 侧边栏点击 =====
+    document.querySelectorAll('.sidebar .item').forEach(function(item) {
+        item.addEventListener('click', function() {
+            document.querySelectorAll('.sidebar .item').forEach(function(i) { i.classList.remove('active'); });
+            this.classList.add('active');
+            var pageId = this.dataset.page;
+            if (pageId !== 'page-products') {
+                showToast('📌 当前仅展示「商品管理」内容，其他模块已精简');
+                document.querySelectorAll('.sidebar .item').forEach(function(i) { i.classList.remove('active'); });
+                document.querySelector('.sidebar .item[data-page="page-products"]').classList.add('active');
+            }
+        });
+    });
+
+    // ===== 商品管理筛选 =====
+    var productCategoryFilters = { level1: 'all', level2: 'all', level3: 'all' };
+
+    function filterProductCategory(level, cat, el) {
+        var levelKey = 'level' + level;
+        var siblings = el.parentElement.querySelectorAll('.cat-tag');
+        siblings.forEach(function(tag) { tag.classList.remove('active'); });
+        el.classList.add('active');
+        productCategoryFilters[levelKey] = cat;
+        applyProductFilters();
+    }
+
+    function filterProducts() { applyProductFilters(); }
+
+    function applyProductFilters() {
+        var keyword = document.getElementById('productSearch').value.toLowerCase().trim();
+        var platform = document.getElementById('productPlatformFilter').value;
+        var status = document.getElementById('productStatusFilter').value;
+        var rows = document.querySelectorAll('#productTableBody tr');
+        var visibleCount = 0;
+        rows.forEach(function(row) {
+            var rowCat = row.dataset.category || '';
+            var rowSubcat = row.dataset.subcat || '';
+            var rowThird = row.dataset.third || '';
+            var rowPlatform = row.dataset.platform || '';
+            var rowStatus = row.dataset.status || '';
+            var rowText = row.textContent.toLowerCase();
+            var match = true;
+            if (productCategoryFilters.level1 !== 'all' && rowCat !== productCategoryFilters.level1) match = false;
+            if (productCategoryFilters.level2 !== 'all' && rowSubcat !== productCategoryFilters.level2) match = false;
+            if (productCategoryFilters.level3 !== 'all' && rowThird !== productCategoryFilters.level3) match = false;
+            if (platform !== 'all' && rowPlatform !== platform) match = false;
+            if (status !== 'all' && rowStatus !== status) match = false;
+            if (keyword && !rowText.includes(keyword)) match = false;
+            row.style.display = match ? '' : 'none';
+            if (match) visibleCount++;
+        });
+        document.getElementById('productCount').textContent = '共 ' + visibleCount + ' 件商品';
+        document.getElementById('productCountFooter').textContent = '共 ' + visibleCount + ' 件商品';
+    }
+
+    function resetProductFilters() {
+        document.getElementById('productSearch').value = '';
+        document.getElementById('productPlatformFilter').value = 'all';
+        document.getElementById('productStatusFilter').value = 'all';
+        document.getElementById('productCategoryFilter').value = 'all';
+        productCategoryFilters = { level1: 'all', level2: 'all', level3: 'all' };
+        document.querySelectorAll('#productCategoryFilterContainer .cat-tag').forEach(function(tag) { tag.classList.remove('active'); });
+        document.querySelectorAll('#productCategoryFilterContainer .cat-tag[data-cat="all"]').forEach(function(tag) { tag.classList.add('active'); });
+        applyProductFilters();
+        showToast('🔄 已重置筛选条件');
+    }
+
+    document.getElementById('productSearch').addEventListener('input', applyProductFilters);
+    document.getElementById('productPlatformFilter').addEventListener('change', applyProductFilters);
+    document.getElementById('productStatusFilter').addEventListener('change', applyProductFilters);
+    document.getElementById('productCategoryFilter').addEventListener('change', function() {
+        var val = this.value;
+        if (val !== 'all') {
+            var tags = document.querySelectorAll('#productCategoryFilterContainer .cat-tag[data-level="1"]');
+            tags.forEach(function(tag) { if (tag.dataset.cat === val) { tag.click(); } });
+        }
+        this.value = 'all';
+    });
+
+    // ================================================================
+    // 通用校验工具
+    // ================================================================
+    function setFieldError(groupId, hasError, msg) {
+        var group = document.getElementById(groupId);
+        if (!group) return;
+        if (hasError) {
+            group.classList.add('error');
+            var errEl = group.querySelector('.error-msg');
+            if (errEl && msg) errEl.textContent = msg;
+        } else {
+            group.classList.remove('error');
+        }
+    }
+
+    function clearAllErrors(prefix) {
+        var groups = document.querySelectorAll('[id^="' + prefix + 'Group"]');
+        groups.forEach(function(g) { g.classList.remove('error'); });
+    }
+
+    function validateProductForm(prefix) {
+        var errors = [];
+
+        // 名称
+        var nameInput = document.getElementById(prefix + 'ProductName');
+        var name = nameInput.value.trim();
+        if (!name) {
+            setFieldError(prefix + 'GroupName', true, '请输入商品名称');
+            errors.push({ tab: prefix + 'tab-basic', group: prefix + 'GroupName', el: nameInput });
+        } else if (name.length > 60) {
+            setFieldError(prefix + 'GroupName', true, '商品名称不能超过60个字符');
+            errors.push({ tab: prefix + 'tab-basic', group: prefix + 'GroupName', el: nameInput });
+        } else {
+            setFieldError(prefix + 'GroupName', false);
+        }
+
+        // 规格
+        var specInput = document.getElementById(prefix + 'ProductSpec');
+        var spec = specInput.value.trim();
+        if (!spec) {
+            setFieldError(prefix + 'GroupSpec', true, '请输入商品规格');
+            errors.push({ tab: prefix + 'tab-basic', group: prefix + 'GroupSpec', el: specInput });
+        } else {
+            setFieldError(prefix + 'GroupSpec', false);
+        }
+
+        // SKU
+        var skuInput = document.getElementById(prefix + 'ProductSku');
+        var sku = skuInput.value.trim();
+        if (!sku) {
+            setFieldError(prefix + 'GroupSku', true, '请输入SKU编码');
+            errors.push({ tab: prefix + 'tab-basic', group: prefix + 'GroupSku', el: skuInput });
+        } else if (!/^[A-Za-z0-9\-_]+$/.test(sku)) {
+            setFieldError(prefix + 'GroupSku', true, 'SKU编码只能包含字母、数字、横线、下划线');
+            errors.push({ tab: prefix + 'tab-basic', group: prefix + 'GroupSku', el: skuInput });
+        } else {
+            setFieldError(prefix + 'GroupSku', false);
+        }
+
+        // 价格
+        var priceInput = document.getElementById(prefix + 'ProductPrice');
+        var price = parseFloat(priceInput.value);
+        if (isNaN(price) || price <= 0) {
+            setFieldError(prefix + 'GroupPrice', true, '请输入有效的价格（大于0）');
+            errors.push({ tab: prefix + 'tab-price', group: prefix + 'GroupPrice', el: priceInput });
+        } else {
+            setFieldError(prefix + 'GroupPrice', false);
+        }
+
+        // 库存
+        var stockInput = document.getElementById(prefix + 'ProductStock');
+        var stock = parseInt(stockInput.value, 10);
+        if (isNaN(stock) || stock < 0) {
+            setFieldError(prefix + 'GroupStock', true, '请输入有效的库存（≥0）');
+            errors.push({ tab: prefix + 'tab-price', group: prefix + 'GroupStock', el: stockInput });
+        } else {
+            setFieldError(prefix + 'GroupStock', false);
+        }
+
+        return errors;
+    }
+
+    function focusFirstError(errors) {
+        if (errors.length === 0) return;
+        var first = errors[0];
+        // 切换到对应Tab
+        if (first.tab.indexOf('edit') === 0) {
+            switchEditTab(first.tab);
+        } else {
+            switchAddTab(first.tab);
+        }
+        // 滚动并聚焦
+        setTimeout(function() {
+            var el = first.el;
+            if (el) {
+                el.focus();
+                el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            }
+        }, 100);
+    }
+
+    // ================================================================
+    // 编辑弹窗
+    // ================================================================
+    var currentEditRow = null;
+
+    function openEditModal(btn) {
+        currentEditRow = btn.closest('tr');
+        var name = currentEditRow.querySelector('td:nth-child(3) strong').textContent;
+        document.getElementById('editModalTitle').textContent = name;
+
+        document.getElementById('editProductName').value = name;
+        document.getElementById('editProductSpec').value = currentEditRow.querySelector('td:nth-child(4)').textContent.trim();
+        document.getElementById('editProductSku').value = currentEditRow.querySelector('td:nth-child(5) span').textContent.trim();
+        var priceText = currentEditRow.querySelector('td:nth-child(8)').textContent.replace('¥', '').trim();
+        document.getElementById('editProductPrice').value = priceText;
+        document.getElementById('editProductStock').value = currentEditRow.querySelector('td:nth-child(9)').textContent.trim();
+        var statusText = currentEditRow.querySelector('td:nth-child(12) span').textContent.trim();
+        document.getElementById('editProductStatus').value = statusText;
+
+        document.getElementById('editCat1').value = currentEditRow.dataset.category || '茶叶';
+        document.getElementById('editCat2').value = currentEditRow.dataset.subcat || '茶饮';
+        document.getElementById('editCat3').value = currentEditRow.dataset.third || '礼盒装';
+
+        // 清空错误状态
+        clearAllErrors('edit');
+
+        // 重置图片Tab
+        document.getElementById('editMainImages').innerHTML = `
+            <div class="img-upload-item filled" onclick="showToast('🖼️ 替换主图1')">
+                <span class="badge-pos">主图1</span>
+                <i class="fas fa-leaf"></i>
+            </div>
+            <div class="img-upload-item filled" onclick="showToast('🖼️ 替换主图2')">
+                <span class="badge-pos">主图2</span>
+                <i class="fas fa-image"></i>
+            </div>
+            <div class="img-upload-item filled" onclick="showToast('🖼️ 替换主图3')">
+                <span class="badge-pos">主图3</span>
+                <i class="fas fa-image"></i>
+            </div>
+            <div class="img-upload-item" onclick="showToast('📤 上传主图4')">
+                <i class="fas fa-plus"></i>
+                <span>上传</span>
+            </div>
+            <div class="img-upload-item" onclick="showToast('📤 上传主图5')">
+                <i class="fas fa-plus"></i>
+                <span>上传</span>
+            </div>
+        `;
+
+        switchEditTab('edit-tab-basic');
+        document.getElementById('editModal').classList.add('show');
+    }
+
+    function closeEditModal() {
+        document.getElementById('editModal').classList.remove('show');
+    }
+
+    function switchEditTab(tabId) {
+        document.querySelectorAll('#editModalTabs .modal-tab').forEach(function(t) { t.classList.remove('active'); });
+        document.querySelector('#editModalTabs .modal-tab[data-tab="' + tabId + '"]').classList.add('active');
+        document.querySelectorAll('#editModalBody .tab-panel').forEach(function(p) { p.classList.remove('active'); });
+        document.getElementById(tabId).classList.add('active');
+    }
+
+    function addEditSkuRow() {
+        var tbody = document.querySelector('#editSkuTable tbody');
+        var tr = document.createElement('tr');
+        tr.innerHTML = `
+            <td><input type="text" placeholder="规格名"></td>
+            <td><input type="number" value="0" step="0.01"></td>
+            <td><input type="number" value="0"></td>
+            <td><span class="btn-sm danger" onclick="removeEditSkuRow(this)"><i class="fas fa-trash"></i></span></td>
+        `;
+        tbody.appendChild(tr);
+    }
+
+    function removeEditSkuRow(btn) {
+        var tr = btn.closest('tr');
+        if (tr.parentElement.children.length <= 1) {
+            showToast('⚠️ 至少保留一个规格');
+            return;
+        }
+        tr.remove();
+    }
+
+    function saveEditDraft() {
+        // 草稿只校验名称（轻量校验）
+        var name = document.getElementById('editProductName').value.trim();
+        if (!name) {
+            setFieldError('editGroupName', true, '请输入商品名称后再保存草稿');
+            switchEditTab('edit-tab-basic');
+            document.getElementById('editProductName').focus();
+            return;
+        }
+        showToast('💾 草稿已保存：' + name);
+        closeEditModal();
+    }
+
+    function saveEditAndPublish() {
+        // 完整校验
+        clearAllErrors('edit');
+        var errors = validateProductForm('edit');
+        if (errors.length > 0) {
+            showToast('⚠️ 有 ' + errors.length + ' 项信息需要修正');
+            focusFirstError(errors);
+            return;
+        }
+
+        if (currentEditRow) {
+            var name = document.getElementById('editProductName').value.trim();
+            var spec = document.getElementById('editProductSpec').value.trim();
+            var sku = document.getElementById('editProductSku').value.trim();
+            var price = document.getElementById('editProductPrice').value;
+            var stock = document.getElementById('editProductStock').value;
+            var status = document.getElementById('editProductStatus').value;
+
+            currentEditRow.querySelector('td:nth-child(3) strong').textContent = name;
+            currentEditRow.querySelector('td:nth-child(4)').textContent = spec;
+            currentEditRow.querySelector('td:nth-child(5) span').textContent = sku;
+            currentEditRow.querySelector('td:nth-child(8)').textContent = '¥' + price;
+            currentEditRow.querySelector('td:nth-child(9)').textContent = stock;
+            var statusSpan = currentEditRow.querySelector('td:nth-child(12) span');
+            statusSpan.textContent = status;
+            statusSpan.className = 'badge ' + (status === '在售' ? 'success' : status === '下架' ? 'danger' : 'warning');
+
+            currentEditRow.dataset.category = document.getElementById('editCat1').value;
+            currentEditRow.dataset.subcat = document.getElementById('editCat2').value;
+            currentEditRow.dataset.third = document.getElementById('editCat3').value;
+            currentEditRow.dataset.status = status;
+
+            showToast('✅ 商品「' + name + '」已保存并发布');
+        } else {
+            showToast('✅ 商品已保存并发布');
+        }
+        closeEditModal();
+        applyProductFilters();
+    }
+
+    // ================================================================
+    // 新增商品弹窗
+    // ================================================================
+    function openAddModal() {
+        // 重置表单
+        document.getElementById('addProductName').value = '';
+        document.getElementById('addProductSellPoint').value = '';
+        document.getElementById('addProductSpec').value = '';
+        document.getElementById('addProductSku').value = '';
+        document.getElementById('addProductDesc').value = '';
+        document.getElementById('addProductPrice').value = '';
+        document.getElementById('addProductStock').value = '';
+        document.getElementById('addProductPromoPrice').value = '';
+        document.getElementById('addProductSafetyStock').value = '50';
+        document.getElementById('addProductLimit').value = '0';
+        document.getElementById('addProductDeliveryTime').value = '48小时';
+        document.getElementById('addProductDetail').value = '';
+        document.getElementById('addShipFrom').value = '';
+        document.getElementById('addFreightPrice').value = '0';
+        document.getElementById('addAfterSaleDesc').value = '';
+
+        document.getElementById('addCat1').value = '茶叶';
+        document.getElementById('addCat2').value = '茶饮';
+        document.getElementById('addCat3').value = '礼盒装';
+        document.getElementById('addProductStatus').value = '在售';
+
+        // 清空错误状态
+        clearAllErrors('add');
+
+        // 重置图片
+        document.getElementById('addMainImages').innerHTML = `
+            <div class="img-upload-item" onclick="showToast('📤 上传主图1')">
+                <i class="fas fa-plus"></i>
+                <span>上传</span>
+            </div>
+            <div class="img-upload-item" onclick="showToast('📤 上传主图2')">
+                <i class="fas fa-plus"></i>
+                <span>上传</span>
+            </div>
+            <div class="img-upload-item" onclick="showToast('📤 上传主图3')">
+                <i class="fas fa-plus"></i>
+                <span>上传</span>
+            </div>
+            <div class="img-upload-item" onclick="showToast('📤 上传主图4')">
+                <i class="fas fa-plus"></i>
+                <span>上传</span>
+            </div>
+            <div class="img-upload-item" onclick="showToast('📤 上传主图5')">
+                <i class="fas fa-plus"></i>
+                <span>上传</span>
+            </div>
+        `;
+
+        // 重置SKU表格
+        document.querySelector('#addSkuTable tbody').innerHTML = `
+            <tr>
+                <td><input type="text" placeholder="规格名"></td>
+                <td><input type="number" value="0" step="0.01"></td>
+                <td><input type="number" value="0"></td>
+                <td><span class="btn-sm danger" onclick="removeAddSkuRow(this)"><i class="fas fa-trash"></i></span></td>
+            </tr>
+        `;
+
+        switchAddTab('add-tab-basic');
+        document.getElementById('addModal').classList.add('show');
+    }
+
+    function closeAddModal() {
+        document.getElementById('addModal').classList.remove('show');
+    }
+
+    function switchAddTab(tabId) {
+        document.querySelectorAll('#addModalTabs .modal-tab').forEach(function(t) { t.classList.remove('active'); });
+        document.querySelector('#addModalTabs .modal-tab[data-tab="' + tabId + '"]').classList.add('active');
+        document.querySelectorAll('#addModalBody .tab-panel').forEach(function(p) { p.classList.remove('active'); });
+        document.getElementById(tabId).classList.add('active');
+    }
+
+    function addAddSkuRow() {
+        var tbody = document.querySelector('#addSkuTable tbody');
+        var tr = document.createElement('tr');
+        tr.innerHTML = `
+            <td><input type="text" placeholder="规格名"></td>
+            <td><input type="number" value="0" step="0.01"></td>
+            <td><input type="number" value="0"></td>
+            <td><span class="btn-sm danger" onclick="removeAddSkuRow(this)"><i class="fas fa-trash"></i></span></td>
+        `;
+        tbody.appendChild(tr);
+    }
+
+    function removeAddSkuRow(btn) {
+        var tr = btn.closest('tr');
+        if (tr.parentElement.children.length <= 1) {
+            showToast('⚠️ 至少保留一个规格');
+            return;
+        }
+        tr.remove();
+    }
+
+    function saveAddDraft() {
+        var name = document.getElementById('addProductName').value.trim();
+        if (!name) {
+            setFieldError('addGroupName', true, '请输入商品名称后再保存草稿');
+            switchAddTab('add-tab-basic');
+            document.getElementById('addProductName').focus();
+            return;
+        }
+        showToast('💾 草稿已保存：' + name);
+        closeAddModal();
+    }
+
+    function saveAddAndPublish() {
+        // 完整校验
+        clearAllErrors('add');
+        var errors = validateProductForm('add');
+        if (errors.length > 0) {
+            showToast('⚠️ 有 ' + errors.length + ' 项信息需要修正');
+            focusFirstError(errors);
+            return;
+        }
+
+        var name = document.getElementById('addProductName').value.trim();
+        var spec = document.getElementById('addProductSpec').value.trim();
+        var sku = document.getElementById('addProductSku').value.trim();
+        var price = document.getElementById('addProductPrice').value;
+        var stock = document.getElementById('addProductStock').value;
+        var status = document.getElementById('addProductStatus').value;
+        var cat1 = document.getElementById('addCat1').value;
+        var cat2 = document.getElementById('addCat2').value;
+        var cat3 = document.getElementById('addCat3').value;
+
+        // 平台选择
+        var platformMap = { '淘宝': 'taobao', '抖音': 'douyin', '拼多多': 'pdd', '京东': 'jd' };
+        var selectedPlatform = '淘宝';
+        var selectedPlatformClass = 'taobao';
+        var platformItems = document.querySelectorAll('#addPlatformSyncGrid .platform-sync-item');
+        platformItems.forEach(function(item) {
+            var toggle = item.querySelector('.toggle');
+            if (toggle && toggle.classList.contains('active')) {
+                var pName = item.querySelector('.plat-name').textContent.trim();
+                if (platformMap[pName]) {
+                    selectedPlatform = pName;
+                    selectedPlatformClass = platformMap[pName];
+                }
+            }
+        });
+
+        // 状态样式
+        var statusClass = status === '在售' ? 'success' : status === '下架' ? 'danger' : 'warning';
+
+        // 创建新行
+        var tbody = document.getElementById('productTableBody');
+        var newId = tbody.children.length + 1;
+        var tr = document.createElement('tr');
+        tr.dataset.category = cat1;
+        tr.dataset.platform = selectedPlatform;
+        tr.dataset.status = status;
+        tr.dataset.subcat = cat2;
+        tr.dataset.third = cat3;
+        tr.dataset.id = newId;
+
+        tr.innerHTML = `
+            <td>${newId}</td>
+            <td><div class="product-img"><i class="fas fa-box"></i></div></td>
+            <td><strong>${name}</strong></td>
+            <td>${spec}</td>
+            <td><span style="font-size:12px;color:#94a3b8;">${sku}</span></td>
+            <td><span class="badge blue">${cat1}</span></td>
+            <td><span class="badge ${selectedPlatformClass}">${selectedPlatform}</span></td>
+            <td style="font-weight:600;color:#b55a1a;">¥${price}</td>
+            <td>${stock}</td>
+            <td>0</td>
+            <td><span class="badge info">新品</span></td>
+            <td><span class="badge ${statusClass}">${status}</span></td>
+            <td>
+                <span class="btn-sm outline" onclick="openEditModal(this)"><i class="fas fa-edit"></i> 编辑</span>
+                <span class="btn-sm blue" style="margin-left:4px;" onclick="showToast('🔄 同步商品：${name}')"><i class="fas fa-sync-alt"></i> 同步</span>
+            </td>
+        `;
+        tbody.appendChild(tr);
+
+        showToast('✅ 商品「' + name + '」已创建并发布');
+        closeAddModal();
+        applyProductFilters();
+    }
+
+    // ===== 平台同步开关 =====
+    function togglePlatformSync(el) {
+        el.classList.toggle('active');
+    }
+
+    // ===== 初始化 =====
+    document.addEventListener('DOMContentLoaded', function() {
+        applyProductFilters();
+    });
+</script>
+</body>
+</html>
