@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>智控电商 · 商品展示</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'PingFang SC', 'Microsoft YaHei', sans-serif;
+            background: #f5f7fa;
+            color: #0a1a2b;
+            min-height: 100vh;
+        }
+        .header {
+            background: white;
+            padding: 16px 32px;
+            box-shadow: 0 1px 4px rgba(0,0,0,0.04);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+        .header .logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 20px;
+            font-weight: 700;
+        }
+        .header .logo i {
+            color: #4dabf7;
+            font-size: 26px;
+            background: rgba(77,171,247,0.12);
+            padding: 6px;
+            border-radius: 10px;
+        }
+        .header .status {
+            font-size: 14px;
+            color: #5f7d95;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .header .status .dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #0d7c4f;
+            display: inline-block;
+            animation: pulse 2s infinite;
+        }
+        @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.4; } }
+
+        .container {
+            max-width: 1280px;
+            margin: 0 auto;
+            padding: 24px 32px;
+        }
+        .page-title {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        .page-title h1 {
+            font-size: 22px;
+            color: #0a1e2f;
+        }
+        .page-title .refresh-btn {
+            padding: 8px 20px;
+            border-radius: 30px;
+            border: 1px solid #dce5ef;
+            background: white;
+            font-size: 13px;
+            color: #1e3a5f;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            transition: 0.15s;
+        }
+        .page-title .refresh-btn:hover { border-color: #4dabf7; color: #2a7faa; }
+
+        .products-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 20px;
+        }
+        .product-card {
+            background: white;
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+            transition: 0.2s;
+            position: relative;
+        }
+        .product-card:hover {
+            box-shadow: 0 8px 24px rgba(0,0,0,0.08);
+            transform: translateY(-2px);
+        }
+        .product-card .thumb {
+            height: 180px;
+            background: linear-gradient(135deg, #e8f4ff, #d0e8ff);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 60px;
+            color: #4dabf7;
+            position: relative;
+        }
+        .product-card .status-badge {
+            position: absolute;
+            top: 12px;
+            left: 12px;
+            font-size: 11px;
+            padding: 3px 12px;
+            border-radius: 30px;
+            font-weight: 500;
+        }
+        .status-badge.在售 { background: #e6f7ec; color: #0d7c4f; }
+        .status-badge.下架 { background: #fde8ed; color: #b51a3f; }
+        .status-badge.待审核 { background: #fef0e6; color: #b55a1a; }
+        .product-card .info { padding: 14px 16px 16px; }
+        .product-card .name {
+            font-size: 15px;
+            font-weight: 600;
+            color: #0a1e2f;
+            margin-bottom: 6px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+        .product-card .meta {
+            display: flex;
+            gap: 8px;
+            font-size: 12px;
+            color: #5f7d95;
+            margin-bottom: 8px;
+        }
+        .product-card .price-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 8px;
+        }
+        .product-card .price {
+            font-size: 22px;
+            font-weight: 700;
+            color: #b55a1a;
+        }
+        .product-card .price small {
+            font-size: 13px;
+            font-weight: 400;
+        }
+        .product-card .stock {
+            font-size: 12px;
+            color: #5f7d95;
+        }
+        .product-card .sales {
+            font-size: 12px;
+            color: #94a3b8;
+            margin-top: 4px;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: #94a3b8;
+        }
+        .empty-state i {
+            font-size: 48px;
+            margin-bottom: 12px;
+            color: #dce5ef;
+        }
+
+        @media (max-width: 1024px) {
+            .products-grid { grid-template-columns: repeat(3, 1fr); }
+        }
+        @media (max-width: 768px) {
+            .products-grid { grid-template-columns: repeat(2, 1fr); }
+            .header { padding: 12px 16px; }
+            .container { padding: 16px; }
+        }
+        @media (max-width: 480px) {
+            .products-grid { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+
+<header class="header">
+    <div class="logo">
+        <i class="fas fa-bolt"></i>
+        智控电商 · 商品展示
+    </div>
+    <div class="status">
+        <span class="dot"></span> 数据同步中
+    </div>
+</header>
+
+<div class="container">
+    <div class="page-title">
+        <h1>全部商品</h1>
+        <button class="refresh-btn" onclick="loadProducts()">
+            <i class="fas fa-sync-alt"></i> 刷新数据
+        </button>
+    </div>
+    <div class="products-grid" id="productsGrid">
+        <div class="empty-state">
+            <i class="fas fa-spinner fa-spin"></i>
+            <p>加载中...</p>
+        </div>
+    </div>
+</div>
+
+<script>
+    const BACKEND_URL = 'https://ai-ecommerce-backend-production-0776.up.railway.app';
+
+    async function loadProducts() {
+        const grid = document.getElementById('productsGrid');
+        grid.innerHTML = '<div class="empty-state"><i class="fas fa-spinner fa-spin"></i><p>加载中...</p></div>';
+
+        try {
+            const res = await fetch(BACKEND_URL + '/api/products');
+            const data = await res.json();
+            const products = data.products || [];
+
+            if (products.length === 0) {
+                grid.innerHTML = '<div class="empty-state"><i class="fas fa-box-open"></i><p>暂无商品</p></div>';
+                return;
+            }
+
+            grid.innerHTML = products.map(p => `
+                <div class="product-card">
+                    <div class="thumb">
+                        <i class="fas ${p.icon || 'fa-box'}"></i>
+                        <span class="status-badge ${p.status}">${p.status}</span>
+                    </div>
+                    <div class="info">
+                        <div class="name" title="${p.name}">${p.name}</div>
+                        <div class="meta">
+                            <span><i class="fas fa-tag"></i> ${p.category}</span>
+                            <span><i class="fas fa-store"></i> ${p.platform}</span>
+                        </div>
+                        <div class="price-row">
+                            <div class="price"><small>¥</small>${p.price}</div>
+                            <div class="stock">库存 ${p.stock}</div>
+                        </div>
+                        <div class="sales">已售 ${p.sales} 件</div>
+                    </div>
+                </div>
+            `).join('');
+        } catch (err) {
+            grid.innerHTML = `<div class="empty-state"><i class="fas fa-exclamation-triangle"></i><p>加载失败：${err.message}</p></div>`;
+        }
+    }
+
+    loadProducts();
+</script>
+</body>
+</html>
