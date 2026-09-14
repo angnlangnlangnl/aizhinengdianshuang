@@ -33,7 +33,7 @@
         .app-header .status { display: flex; align-items: center; gap: 12px; font-size: 14px; color: #9bb4cc; }
         .app-header .status .dot { width: 8px; height: 8px; border-radius: 50%; background: #0d7c4f; display: inline-block; animation: pulse 2s infinite; }
         @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.4; } }
-        .app-header .status .btn { padding: 6px 18px; border-radius: 30px; border: 1px solid rgba(255,255,255,0.08); background: rgba(255,255,255,0.04); color: #b8cfe0; font-size: 13px; cursor: default; transition: 0.15s; display: flex; align-items: center; gap: 6px; }
+        .app-header .status .btn { padding: 6px 18px; border-radius: 30px; border: 1px solid rgba(255,255,255,0.08); background: rgba(255,255,255,0.04); color: #b8cfe0; font-size: 13px; cursor: pointer; transition: 0.15s; display: flex; align-items: center; gap: 6px; text-decoration: none; }
         .app-header .status .btn:hover { background: rgba(255,255,255,0.08); }
         .app-header .status .btn i { color: #5a7f99; }
         .app-body { flex: 1; display: flex; overflow: hidden; }
@@ -85,9 +85,6 @@
         .bubble .action-card .btn-group .btn-sm.success { background: #0d7c4f; color: white; }
         .bubble .action-card .btn-group .btn-sm.outline { background: transparent; border: 1px solid #dce5ef; color: #1e3a5f; }
         .bubble .action-card .btn-group .btn-sm:hover { transform: scale(0.97); }
-        .quick-tags { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 8px; }
-        .quick-tags .tag { padding: 4px 14px; border-radius: 30px; border: 1px solid #dce5ef; font-size: 12px; color: #5f7d95; cursor: pointer; background: white; transition: 0.15s; }
-        .quick-tags .tag:hover { border-color: #4dabf7; color: #2a7faa; background: #f5f9fe; }
         .typing-indicator { display: none; align-items: center; gap: 12px; padding: 8px 0; }
         .typing-indicator.show { display: flex; }
         .typing-indicator .dots span { display: inline-block; width: 8px; height: 8px; background: #94a3b8; border-radius: 50%; margin-right: 4px; animation: dotPulse 1.2s infinite; }
@@ -136,7 +133,7 @@
     </div>
     <div class="status">
         <span><span class="dot"></span> 在线 · 已接入 DeepSeek</span>
-        <span class="btn"><i class="fas fa-sync-alt"></i> <span>同步数据</span></span>
+        <a class="btn" href="products.html" target="_blank"><i class="fas fa-eye"></i> <span>查看商品</span></a>
         <span class="btn"><i class="fas fa-cog"></i> <span>设置</span></span>
     </div>
 </header>
@@ -166,12 +163,14 @@
             <div class="empty-state" id="emptyState">
                 <i class="fas fa-robot"></i>
                 <h3>👋 你好，我是 AI 经营助手</h3>
-                <p>我可以帮你完成商品上架、数据查询、营销活动等经营任务。<br>试试在下方输入你的需求，就像和同事聊天一样自然。</p>
+                <p>支持 9 种操作：改价格、改库存、查库存、上架、改标题、下架、上架、查销量、建优惠券。<br>试试在下方输入你的需求。</p>
                 <div class="examples">
                     <span class="ex" onclick="sendExample('把云山茶叶礼盒的价格改成118元')">💰 改价格</span>
                     <span class="ex" onclick="sendExample('把手工竹编包的库存增加50件')">📦 改库存</span>
-                    <span class="ex" onclick="sendExample('查一下库存低于50件的商品')">📋 查库存</span>
-                    <span class="ex" onclick="sendExample('把云山茶叶礼盒上架到抖音和淘宝')">🚀 多平台上架</span>
+                    <span class="ex" onclick="sendExample('把云山陶瓷杯的标题改成云山手作陶瓷杯')">✏️ 改标题</span>
+                    <span class="ex" onclick="sendExample('把云山茶叶礼盒下架')">⬇️ 下架</span>
+                    <span class="ex" onclick="sendExample('查一下云山茶叶礼盒的销量')">📊 查销量</span>
+                    <span class="ex" onclick="sendExample('创建一个满200减30的优惠券')">🎟️ 建优惠券</span>
                 </div>
             </div>
             <div id="messagesList"></div>
@@ -192,6 +191,8 @@
 </div>
 
 <script>
+    const BACKEND_URL = 'https://ai-ecommerce-backend-production-0776.up.railway.app';
+
     const state = {
         currentChatId: null,
         isProcessing: false,
@@ -279,9 +280,6 @@
         setTimeout(() => { container.scrollTop = container.scrollHeight; }, 50);
     }
 
-    // ================================================================
-    // 核心：调用后端 DeepSeek 服务
-    // ================================================================
     async function sendMessage() {
         const input = document.getElementById('chatInput');
         const text = input.value.trim();
@@ -297,7 +295,7 @@
         document.getElementById('messageContainer').scrollTop = document.getElementById('messageContainer').scrollHeight;
 
         try {
-            const res = await fetch('https://ai-ecommerce-backend-production-0776.up.railway.app/api/ai/parse', {
+            const res = await fetch(BACKEND_URL + '/api/ai/parse', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ text: text })
@@ -307,20 +305,14 @@
             document.getElementById('typingIndicator').classList.remove('show');
 
             if (data.type === 'chat' || data.type === 'error') {
-                appendMessage({
-                    role: 'ai',
-                    text: data.text || '抱歉，AI 服务暂时不可用。',
-                    time: nowTime()
-                });
+                appendMessage({ role: 'ai', text: data.text || '抱歉，AI 服务暂时不可用。', time: nowTime() });
             } else if (data.type === 'update_price') {
                 state.pendingAction = data;
                 appendMessage({
-                    role: 'ai',
-                    text: '我理解你要修改价格，请确认以下信息：',
-                    time: nowTime(),
+                    role: 'ai', text: '我理解你要修改价格，请确认：', time: nowTime(),
                     card: {
                         title: '💰 价格修改预览',
-                        desc: `商品：${data.args.product_name}\n新价格：¥${data.args.new_price}\n生效范围：全平台（淘宝/抖音/拼多多/京东）`,
+                        desc: `商品：${data.args.product_name}\n新价格：¥${data.args.new_price}`,
                         actions: [
                             { label: '✅ 确认执行', type: 'confirm', onclick: 'confirmAction()' },
                             { label: '✖ 取消', type: 'cancel', onclick: 'cancelAction()' }
@@ -329,15 +321,12 @@
                 });
             } else if (data.type === 'update_stock') {
                 state.pendingAction = data;
-                const actionText = data.args.action === 'increase' ? '增加' :
-                                   data.args.action === 'decrease' ? '减少' : '设置为';
+                const actionText = data.args.action === 'increase' ? '增加' : data.args.action === 'decrease' ? '减少' : '设置为';
                 appendMessage({
-                    role: 'ai',
-                    text: '我理解你要调整库存，请确认以下信息：',
-                    time: nowTime(),
+                    role: 'ai', text: '我理解你要调整库存，请确认：', time: nowTime(),
                     card: {
                         title: '📦 库存修改预览',
-                        desc: `商品：${data.args.product_name}\n操作：${actionText} ${data.args.amount} 件\n生效范围：全平台库存同步`,
+                        desc: `商品：${data.args.product_name}\n操作：${actionText} ${data.args.amount} 件`,
                         actions: [
                             { label: '✅ 确认执行', type: 'confirm', onclick: 'confirmAction()' },
                             { label: '✖ 取消', type: 'cancel', onclick: 'cancelAction()' }
@@ -345,39 +334,22 @@
                     }
                 });
             } else if (data.type === 'query_low_stock') {
-                // 模拟低库存商品列表（真实项目应该调后端 API）
-                const allProducts = [
-                    { name: '云山茶叶礼盒', stock: 234 },
-                    { name: '手工竹编包', stock: 187 },
-                    { name: '山核桃仁 250g', stock: 156 },
-                    { name: '云山手工皂套装', stock: 89 },
-                    { name: '云山陶瓷杯', stock: 143 },
-                    { name: '手写书法折扇', stock: 0 },
-                    { name: '手工红糖姜茶', stock: 210 },
-                    { name: '云山国风丝巾', stock: 76 }
-                ];
-                const lowStock = allProducts.filter(p => p.stock < data.args.threshold);
-
-                if (lowStock.length === 0) {
-                    appendMessage({
-                        role: 'ai',
-                        text: `✅ 库存低于 ${data.args.threshold} 件的商品：没有`,
-                        time: nowTime()
-                    });
-                } else {
-                    const list = lowStock.map(p => `· ${p.name}：库存 ${p.stock} 件`).join('\n');
-                    appendMessage({
-                        role: 'ai',
-                        text: `📋 库存低于 ${data.args.threshold} 件的商品共 ${lowStock.length} 个：\n${list}`,
-                        time: nowTime()
-                    });
-                }
+                state.pendingAction = data;
+                appendMessage({
+                    role: 'ai', text: `查询库存低于 ${data.args.threshold} 件的商品：`, time: nowTime(),
+                    card: {
+                        title: '📋 库存查询',
+                        desc: `条件：库存 < ${data.args.threshold} 件`,
+                        actions: [
+                            { label: '✅ 确认执行', type: 'confirm', onclick: 'confirmAction()' },
+                            { label: '✖ 取消', type: 'cancel', onclick: 'cancelAction()' }
+                        ]
+                    }
+                });
             } else if (data.type === 'publish_to_platforms') {
                 state.pendingAction = data;
                 appendMessage({
-                    role: 'ai',
-                    text: '我理解你要上架商品到多个平台，请确认：',
-                    time: nowTime(),
+                    role: 'ai', text: '我理解你要上架商品到多个平台，请确认：', time: nowTime(),
                     card: {
                         title: '🚀 多平台上架预览',
                         desc: `商品：${data.args.product_name}\n目标平台：${data.args.platforms.join('、')}`,
@@ -387,21 +359,81 @@
                         ]
                     }
                 });
-            } else {
+            } else if (data.type === 'update_title') {
+                state.pendingAction = data;
                 appendMessage({
-                    role: 'ai',
-                    text: '收到你的需求，但暂时无法处理。',
-                    time: nowTime()
+                    role: 'ai', text: '我理解你要修改商品标题，请确认：', time: nowTime(),
+                    card: {
+                        title: '✏️ 标题修改预览',
+                        desc: `商品：${data.args.product_name}\n新标题：${data.args.new_title}`,
+                        actions: [
+                            { label: '✅ 确认执行', type: 'confirm', onclick: 'confirmAction()' },
+                            { label: '✖ 取消', type: 'cancel', onclick: 'cancelAction()' }
+                        ]
+                    }
                 });
+            } else if (data.type === 'take_off_shelf') {
+                state.pendingAction = data;
+                appendMessage({
+                    role: 'ai', text: '我理解你要下架商品，请确认：', time: nowTime(),
+                    card: {
+                        title: '⬇️ 下架预览',
+                        desc: `商品：${data.args.product_name}`,
+                        actions: [
+                            { label: '✅ 确认下架', type: 'confirm', onclick: 'confirmAction()' },
+                            { label: '✖ 取消', type: 'cancel', onclick: 'cancelAction()' }
+                        ]
+                    }
+                });
+            } else if (data.type === 'put_on_shelf') {
+                state.pendingAction = data;
+                appendMessage({
+                    role: 'ai', text: '我理解你要上架商品，请确认：', time: nowTime(),
+                    card: {
+                        title: '⬆️ 上架预览',
+                        desc: `商品：${data.args.product_name}`,
+                        actions: [
+                            { label: '✅ 确认上架', type: 'confirm', onclick: 'confirmAction()' },
+                            { label: '✖ 取消', type: 'cancel', onclick: 'cancelAction()' }
+                        ]
+                    }
+                });
+            } else if (data.type === 'query_sales') {
+                state.pendingAction = data;
+                appendMessage({
+                    role: 'ai', text: '我理解你要查询销售数据，请确认：', time: nowTime(),
+                    card: {
+                        title: '📊 销量查询',
+                        desc: `商品：${data.args.product_name}`,
+                        actions: [
+                            { label: '✅ 查询', type: 'confirm', onclick: 'confirmAction()' },
+                            { label: '✖ 取消', type: 'cancel', onclick: 'cancelAction()' }
+                        ]
+                    }
+                });
+            } else if (data.type === 'create_coupon') {
+                state.pendingAction = data;
+                appendMessage({
+                    role: 'ai', text: '我理解你要创建优惠券，请确认：', time: nowTime(),
+                    card: {
+                        title: '🎟️ 优惠券预览',
+                        desc: `满 ${data.args.threshold} 减 ${data.args.discount}\n有效天数：${data.args.days || 7} 天`,
+                        actions: [
+                            { label: '✅ 确认创建', type: 'confirm', onclick: 'confirmAction()' },
+                            { label: '✖ 取消', type: 'cancel', onclick: 'cancelAction()' }
+                        ]
+                    }
+                });
+            } else {
+                appendMessage({ role: 'ai', text: '收到你的需求，但暂时无法处理。', time: nowTime() });
             }
 
-            // 写入历史
             historyData.unshift({
                 id: 'h' + Date.now(),
                 title: text.length > 20 ? text.slice(0, 20) + '...' : text,
                 preview: (data.text || '操作预览').slice(0, 30) + '...',
                 time: nowTime(),
-                tag: data.type.includes('price') ? '商品' : data.type.includes('stock') ? '库存' : '运营'
+                tag: data.type.includes('price') ? '商品' : data.type.includes('stock') ? '库存' : data.type.includes('title') ? '标题' : data.type.includes('shelf') ? '上下架' : '运营'
             });
             if (historyData.length > 20) historyData.pop();
             renderHistory();
@@ -410,7 +442,7 @@
             document.getElementById('typingIndicator').classList.remove('show');
             appendMessage({
                 role: 'ai',
-                text: '⚠️ 无法连接后端服务。\n\n请确认：\n1. uvicorn 正在运行（localhost:8000）\n2. 后端窗口没有被关闭\n\n错误信息：' + err.message,
+                text: '⚠️ 无法连接后端服务。\n请确认 Railway 服务正在运行。\n\n错误：' + err.message,
                 time: nowTime()
             });
         }
@@ -419,10 +451,7 @@
         document.getElementById('sendBtn').disabled = false;
     }
 
-    // ================================================================
-    // 确认执行 / 取消
-    // ================================================================
-    function confirmAction() {
+    async function confirmAction() {
         if (!state.pendingAction) {
             showToast('⚠️ 没有待执行的操作');
             return;
@@ -430,38 +459,43 @@
         const action = state.pendingAction;
         state.pendingAction = null;
 
-        let msg = '';
-        if (action.type === 'update_price') {
-            msg = `✅ 已执行：将「${action.args.product_name}」的价格改为 ¥${action.args.new_price}`;
-        } else if (action.type === 'update_stock') {
-            const actionText = action.args.action === 'increase' ? '增加' :
-                               action.args.action === 'decrease' ? '减少' : '设置为';
-            msg = `✅ 已执行：将「${action.args.product_name}」的库存${actionText} ${action.args.amount} 件`;
-        } else if (action.type === 'publish_to_platforms') {
-            msg = `✅ 已执行：将「${action.args.product_name}」上架到 ${action.args.platforms.join('、')}`;
-        } else {
-            msg = '✅ 操作已完成';
-        }
+        showToast('⏳ 正在执行...');
 
-        appendMessage({
-            role: 'ai',
-            text: msg,
-            time: nowTime()
-        });
+        try {
+            const res = await fetch(BACKEND_URL + '/api/ai/execute', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ type: action.type, args: action.args })
+            });
+            const data = await res.json();
+
+            if (data.success) {
+                appendMessage({
+                    role: 'ai',
+                    text: '✅ ' + data.message,
+                    time: nowTime()
+                });
+            } else {
+                appendMessage({
+                    role: 'ai',
+                    text: '❌ ' + data.message,
+                    time: nowTime()
+                });
+            }
+        } catch (err) {
+            appendMessage({
+                role: 'ai',
+                text: '❌ 执行失败：' + err.message,
+                time: nowTime()
+            });
+        }
     }
 
     function cancelAction() {
         state.pendingAction = null;
-        appendMessage({
-            role: 'ai',
-            text: '好的，已取消该操作。有其他需要随时告诉我。',
-            time: nowTime()
-        });
+        appendMessage({ role: 'ai', text: '好的，已取消该操作。', time: nowTime() });
     }
 
-    // ================================================================
-    // 辅助函数
-    // ================================================================
     function nowTime() {
         const d = new Date();
         return d.getHours().toString().padStart(2,'0') + ':' + d.getMinutes().toString().padStart(2,'0');
@@ -548,8 +582,8 @@
         });
     });
 
-    console.log('🤖 智控电商 · AI助手已加载（真实后端模式）');
-    console.log('💡 后端地址: https://ai-ecommerce-backend-production-0776.up.railway.app/api/ai/parse');
+    console.log('🤖 智控电商 · AI助手已加载');
+    console.log('💡 后端:', BACKEND_URL);
 </script>
 </body>
 </html>
