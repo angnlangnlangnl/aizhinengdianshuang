@@ -151,7 +151,7 @@
         <div class="chat-main-header">
             <div class="info">
                 <h4 id="chatTitle">AI 经营助手</h4>
-                <p id="chatSubtitle">基于 DeepSeek · 15 种指令可用</p>
+                <p id="chatSubtitle">基于 DeepSeek · 25 种指令可用</p>
             </div>
             <div class="actions">
                 <span class="btn-sm" onclick="clearMessages()"><i class="fas fa-eraser"></i> 清空</span>
@@ -163,16 +163,17 @@
             <div class="empty-state" id="emptyState">
                 <i class="fas fa-robot"></i>
                 <h3>👋 你好，我是 AI 经营助手</h3>
-                <p>支持 15 种操作，涵盖单商品操作、批量操作、数据查询三大类。</p>
+                <p>支持 25 种操作：单商品操作、批量操作、数据查询、商品增删。</p>
                 <div class="examples">
-                    <span class="ex" onclick="sendExample('把云山茶叶礼盒的价格改成118元')">💰 改价格</span>
-                    <span class="ex" onclick="sendExample('把手工竹编包的库存增加50件')">📦 改库存</span>
-                    <span class="ex" onclick="sendExample('把所有茶叶类商品下架')">⬇️ 批量下架</span>
-                    <span class="ex" onclick="sendExample('给所有文创类商品涨价10%')">📈 批量涨价</span>
-                    <span class="ex" onclick="sendExample('查询价格在50到100元之间的商品')">🔍 价格查询</span>
-                    <span class="ex" onclick="sendExample('把库存为0的商品全部下架')">🧹 清空零库存</span>
-                    <span class="ex" onclick="sendExample('给所有商品加10%的利润')">💵 全店加价</span>
-                    <span class="ex" onclick="sendExample('按销量排序查看商品')">📊 销量排行</span>
+                    <span class="ex" onclick="sendExample('新增一个商品叫云山红茶，价格88元')">➕ 新增商品</span>
+                    <span class="ex" onclick="sendExample('删除手写书法折扇')">🗑️ 删除商品</span>
+                    <span class="ex" onclick="sendExample('给所有食品类商品库存增加100件')">📦 批量改库存</span>
+                    <span class="ex" onclick="sendExample('抖音上架了哪些商品')">🔍 按平台查询</span>
+                    <span class="ex" onclick="sendExample('把所有下架商品列出来')">📋 按状态查询</span>
+                    <span class="ex" onclick="sendExample('把所有文创类商品上架')">⬆️ 批量上架</span>
+                    <span class="ex" onclick="sendExample('复制一个云山茶叶礼盒，改名云山茶叶礼盒2')">📋 复制商品</span>
+                    <span class="ex" onclick="sendExample('查一下文创类商品有哪些')">🔍 按分类查询</span>
+                    <span class="ex" onclick="sendExample('搜索所有名字里有茶叶的商品')">🔎 关键词搜索</span>
                 </div>
             </div>
             <div id="messagesList"></div>
@@ -184,7 +185,7 @@
 
         <div class="input-area">
             <div class="input-wrap">
-                <textarea id="chatInput" rows="1" placeholder="输入你的经营需求，例如：把所有茶叶类商品价格下调10%" onkeydown="handleKeyDown(event)" oninput="autoResize(this)"></textarea>
+                <textarea id="chatInput" rows="1" placeholder="输入你的经营需求，例如：新增一个商品叫云山红茶，价格88元" onkeydown="handleKeyDown(event)" oninput="autoResize(this)"></textarea>
                 <span class="char-count" id="charCount">0/500</span>
             </div>
             <button class="send-btn" id="sendBtn" onclick="sendMessage()"><i class="fas fa-paper-plane"></i></button>
@@ -239,7 +240,7 @@
         state.currentChatId = null;
         renderHistory();
         document.getElementById('chatTitle').textContent = 'AI 经营助手';
-        document.getElementById('chatSubtitle').textContent = '基于 DeepSeek · 15 种指令可用';
+        document.getElementById('chatSubtitle').textContent = '基于 DeepSeek · 25 种指令可用';
         document.getElementById('messagesList').innerHTML = '';
         document.getElementById('emptyState').style.display = 'flex';
         document.getElementById('chatInput').value = '';
@@ -282,58 +283,46 @@
         setTimeout(() => { container.scrollTop = container.scrollHeight; }, 50);
     }
 
-    // 根据类型生成预览卡片
     function buildCard(data) {
         const t = data.type;
         const a = data.args;
-        if (t === 'update_price') {
-            return { title: '💰 价格修改预览', desc: `商品：${a.product_name}\n新价格：¥${a.new_price}` };
-        }
+        if (t === 'update_price') return { title: '💰 价格修改预览', desc: `商品：${a.product_name}\n新价格：¥${a.new_price}` };
         if (t === 'update_stock') {
             const actionText = a.action === 'increase' ? '增加' : a.action === 'decrease' ? '减少' : '设置为';
             return { title: '📦 库存修改预览', desc: `商品：${a.product_name}\n操作：${actionText} ${a.amount} 件` };
         }
-        if (t === 'query_low_stock') {
-            return { title: '📋 库存查询', desc: `条件：库存 < ${a.threshold} 件` };
-        }
-        if (t === 'publish_to_platforms') {
-            return { title: '🚀 多平台上架预览', desc: `商品：${a.product_name}\n目标平台：${a.platforms.join('、')}` };
-        }
-        if (t === 'update_title') {
-            return { title: '✏️ 标题修改预览', desc: `商品：${a.product_name}\n新标题：${a.new_title}` };
-        }
-        if (t === 'take_off_shelf') {
-            return { title: '⬇️ 下架预览', desc: `商品：${a.product_name}` };
-        }
-        if (t === 'put_on_shelf') {
-            return { title: '⬆️ 上架预览', desc: `商品：${a.product_name}` };
-        }
-        if (t === 'query_sales') {
-            return { title: '📊 销量查询', desc: `商品：${a.product_name}` };
-        }
-        if (t === 'create_coupon') {
-            return { title: '🎟️ 优惠券预览', desc: `满 ${a.threshold} 减 ${a.discount}\n有效天数：${a.days || 7} 天` };
-        }
-        if (t === 'batch_take_off') {
-            return { title: '⬇️ 批量下架预览', desc: `分类：${a.category}\n将下架该分类所有商品` };
-        }
+        if (t === 'query_low_stock') return { title: '📋 库存查询', desc: `条件：库存 < ${a.threshold} 件` };
+        if (t === 'publish_to_platforms') return { title: '🚀 多平台上架预览', desc: `商品：${a.product_name}\n目标平台：${a.platforms.join('、')}` };
+        if (t === 'update_title') return { title: '✏️ 标题修改预览', desc: `商品：${a.product_name}\n新标题：${a.new_title}` };
+        if (t === 'take_off_shelf') return { title: '⬇️ 下架预览', desc: `商品：${a.product_name}` };
+        if (t === 'put_on_shelf') return { title: '⬆️ 上架预览', desc: `商品：${a.product_name}` };
+        if (t === 'query_sales') return { title: '📊 销量查询', desc: `商品：${a.product_name}` };
+        if (t === 'create_coupon') return { title: '🎟️ 优惠券预览', desc: `满 ${a.threshold} 减 ${a.discount}\n有效天数：${a.days || 7} 天` };
+        if (t === 'batch_take_off') return { title: '⬇️ 批量下架预览', desc: `分类：${a.category}\n将下架该分类所有商品` };
         if (t === 'batch_update_price') {
             const adjText = a.adjust_type === 'percent' ? `${a.adjust_value > 0 ? '+' : ''}${a.adjust_value}%` : `${a.adjust_value > 0 ? '+' : ''}${a.adjust_value}元`;
             return { title: '📈 批量调价预览', desc: `分类：${a.category}\n调整幅度：${adjText}` };
         }
-        if (t === 'query_by_price_range') {
-            return { title: '🔍 价格区间查询', desc: `价格区间：¥${a.min_price} - ¥${a.max_price}` };
-        }
-        if (t === 'batch_take_off_zero_stock') {
-            return { title: '🧹 清空零库存预览', desc: `将下架所有库存为 0 的商品` };
-        }
-        if (t === 'batch_markup_all') {
-            return { title: '💵 全店加价预览', desc: `所有商品统一加价 ${a.percent}%` };
-        }
+        if (t === 'query_by_price_range') return { title: '🔍 价格区间查询', desc: `价格区间：¥${a.min_price} - ¥${a.max_price}` };
+        if (t === 'batch_take_off_zero_stock') return { title: '🧹 清空零库存预览', desc: `将下架所有库存为 0 的商品` };
+        if (t === 'batch_markup_all') return { title: '💵 全店加价预览', desc: `所有商品统一加价 ${a.percent}%` };
         if (t === 'query_sort_by_sales') {
             const orderText = a.order === 'asc' ? '从低到高' : '从高到低';
             return { title: '📊 销量排行查询', desc: `按销量${orderText}排序，显示前 ${a.limit || 10} 个` };
         }
+        if (t === 'add_product') return { title: '➕ 新增商品预览', desc: `名称：${a.name}\n价格：¥${a.price}\n库存：${a.stock || 0} 件\n分类：${a.category || '文创'}\n平台：${a.platform || '淘宝'}` };
+        if (t === 'delete_product') return { title: '🗑️ 删除商品预览', desc: `商品：${a.product_name}\n⚠️ 删除后不可恢复` };
+        if (t === 'batch_update_stock') {
+            const actionText = a.action === 'increase' ? '增加' : a.action === 'decrease' ? '减少' : '设置为';
+            return { title: '📦 批量改库存预览', desc: `分类：${a.category}\n操作：${actionText} ${a.amount} 件` };
+        }
+        if (t === 'query_by_platform') return { title: '🔍 按平台查询', desc: `平台：${a.platform}` };
+        if (t === 'query_by_status') return { title: '📋 按状态查询', desc: `状态：${a.status}` };
+        if (t === 'batch_put_on_shelf') return { title: '⬆️ 批量上架预览', desc: `分类：${a.category}\n将上架该分类所有商品` };
+        if (t === 'duplicate_product') return { title: '📋 复制商品预览', desc: `原商品：${a.product_name}\n新名称：${a.new_name}` };
+        if (t === 'query_by_category') return { title: '🔍 按分类查询', desc: `分类：${a.category}` };
+        if (t === 'export_products') return { title: '📤 导出商品数据', desc: `将导出所有商品数据` };
+        if (t === 'search_product') return { title: '🔎 关键词搜索', desc: `关键词：${a.keyword}` };
         return { title: '操作预览', desc: JSON.stringify(a) };
     }
 
@@ -393,11 +382,7 @@
 
         } catch (err) {
             document.getElementById('typingIndicator').classList.remove('show');
-            appendMessage({
-                role: 'ai',
-                text: '⚠️ 无法连接后端服务。\n错误：' + err.message,
-                time: nowTime()
-            });
+            appendMessage({ role: 'ai', text: '⚠️ 无法连接后端服务。\n错误：' + err.message, time: nowTime() });
         }
 
         state.isProcessing = false;
@@ -454,7 +439,7 @@
         document.getElementById('messagesList').innerHTML = '';
         document.getElementById('emptyState').style.display = 'flex';
         document.getElementById('chatTitle').textContent = 'AI 经营助手';
-        document.getElementById('chatSubtitle').textContent = '基于 DeepSeek · 15 种指令可用';
+        document.getElementById('chatSubtitle').textContent = '基于 DeepSeek · 25 种指令可用';
         state.currentChatId = null;
         renderHistory();
         showToast('🗑️ 已清空对话');
@@ -523,7 +508,7 @@
         });
     });
 
-    console.log('🤖 智控电商 · AI助手已加载（15种指令）');
+    console.log('🤖 智控电商 · AI助手已加载（25种指令）');
     console.log('💡 后端:', BACKEND_URL);
 </script>
 </body>
