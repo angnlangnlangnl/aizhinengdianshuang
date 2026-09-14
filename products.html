@@ -166,6 +166,15 @@
             margin-top: 4px;
         }
 
+        /* 数据更新时的闪烁动画 */
+        .product-card.updated {
+            animation: flashUpdate 1.5s ease;
+        }
+        @keyframes flashUpdate {
+            0% { box-shadow: 0 0 0 3px rgba(13,124,79,0.6); }
+            100% { box-shadow: 0 2px 8px rgba(0,0,0,0.04); }
+        }
+
         .empty-state {
             text-align: center;
             padding: 60px 20px;
@@ -175,6 +184,30 @@
             font-size: 48px;
             margin-bottom: 12px;
             color: #dce5ef;
+        }
+
+        .auto-refresh-tip {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background: rgba(10,30,47,0.85);
+            color: white;
+            padding: 8px 16px;
+            border-radius: 30px;
+            font-size: 12px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            backdrop-filter: blur(8px);
+            z-index: 200;
+            transition: opacity 0.3s;
+        }
+        .auto-refresh-tip i {
+            color: #4dabf7;
+            font-size: 12px;
+        }
+        .auto-refresh-tip.fade {
+            opacity: 0.3;
         }
 
         @media (max-width: 1024px) {
@@ -198,7 +231,7 @@
         智控电商 · 商品展示
     </div>
     <div class="status">
-        <span class="dot"></span> 数据同步中
+        <span class="dot"></span> 数据实时同步
     </div>
 </header>
 
@@ -217,49 +250,80 @@
     </div>
 </div>
 
+<div class="auto-refresh-tip" id="autoRefreshTip">
+    <i class="fas fa-circle-notch fa-spin"></i>
+    <span>每 5 秒自动刷新</span>
+</div>
+
 <script>
     const BACKEND_URL = 'https://ai-ecommerce-backend-production-0776.up.railway.app';
 
+    // 记录上一次的商品数据，用于检测变化
+    let lastProductsJSON = '';
+
     async function loadProducts() {
         const grid = document.getElementById('productsGrid');
-        grid.innerHTML = '<div class="empty-state"><i class="fas fa-spinner fa-spin"></i><p>加载中...</p></div>';
 
         try {
             const res = await fetch(BACKEND_URL + '/api/products');
             const data = await res.json();
             const products = data.products || [];
 
+            // 序列化对比，检测是否有变化
+            const newJSON = JSON.stringify(products);
+            const hasChanged = lastProductsJSON !== '' && lastProductsJSON !== newJSON;
+
             if (products.length === 0) {
                 grid.innerHTML = '<div class="empty-state"><i class="fas fa-box-open"></i><p>暂无商品</p></div>';
                 return;
             }
 
-            grid.innerHTML = products.map(p => `
-                <div class="product-card">
-                    <div class="thumb">
-                        <i class="fas ${p.icon || 'fa-box'}"></i>
-                        <span class="status-badge ${p.status}">${p.status}</span>
-                    </div>
-                    <div class="info">
-                        <div class="name" title="${p.name}">${p.name}</div>
-                        <div class="meta">
-                            <span><i class="fas fa-tag"></i> ${p.category}</span>
-                            <span><i class="fas fa-store"></i> ${p.platform}</span>
+            // 首次加载或数据有变化时重新渲染
+            if (lastProductsJSON === '' || hasChanged) {
+                grid.innerHTML = products.map(p => `
+                    <div class="product-card ${hasChanged ? 'updated' : ''}" data-id="${p.id}">
+                        <div class="thumb">
+                            <i class="fas ${p.icon || 'fa-box'}"></i>
+                            <span class="status-badge ${p.status}">${p.status}</span>
                         </div>
-                        <div class="price-row">
-                            <div class="price"><small>¥</small>${p.price}</div>
-                            <div class="stock">库存 ${p.stock}</div>
+                        <div class="info">
+                            <div class="name" title="${p.name}">${p.name}</div>
+                            <div class="meta">
+                                <span><i class="fas fa-tag"></i> ${p.category}</span>
+                                <span><i class="fas fa-store"></i> ${p.platform}</span>
+                            </div>
+                            <div class="price-row">
+                                <div class="price"><small>¥</small>${p.price}</div>
+                                <div class="stock">库存 ${p.stock}</div>
+                            </div>
+                            <div class="sales">已售 ${p.sales} 件</div>
                         </div>
-                        <div class="sales">已售 ${p.sales} 件</div>
                     </div>
-                </div>
-            `).join('');
+                `).join('');
+
+                lastProductsJSON = newJSON;
+
+                // 有变化时，短暂显示提示
+                if (hasChanged) {
+                    const tip = document.getElementById('autoRefreshTip');
+                    tip.innerHTML = '<i class="fas fa-check-circle" style="color:#0d7c4f;"></i><span>数据已更新</span>';
+                    setTimeout(() => {
+                        tip.innerHTML = '<i class="fas fa-circle-notch fa-spin"></i><span>每 5 秒自动刷新</span>';
+                    }, 2000);
+                }
+            }
         } catch (err) {
             grid.innerHTML = `<div class="empty-state"><i class="fas fa-exclamation-triangle"></i><p>加载失败：${err.message}</p></div>`;
         }
     }
 
+    // 首次加载
     loadProducts();
+
+    // 每 5 秒自动刷新
+    setInterval(loadProducts, 5000);
+
+    console.log('📦 商品展示页已加载，自动刷新已启动（每 5 秒）');
 </script>
 </body>
 </html>
