@@ -103,8 +103,8 @@
         .empty-state { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; color: #94a3b8; padding: 40px; text-align: center; }
         .empty-state i { font-size: 56px; color: #dce5ef; margin-bottom: 16px; }
         .empty-state h3 { font-size: 20px; color: #0a1e2f; margin-bottom: 6px; }
-        .empty-state p { font-size: 14px; max-width: 400px; }
-        .empty-state .examples { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 16px; justify-content: center; }
+        .empty-state p { font-size: 14px; max-width: 500px; }
+        .empty-state .examples { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 16px; justify-content: center; max-width: 700px; }
         .empty-state .examples .ex { padding: 8px 18px; border-radius: 30px; border: 1px solid #dce5ef; font-size: 13px; color: #5f7d95; cursor: pointer; background: white; transition: 0.15s; }
         .empty-state .examples .ex:hover { border-color: #4dabf7; color: #2a7faa; background: #f5f9fe; }
         @media (max-width: 768px) {
@@ -151,7 +151,7 @@
         <div class="chat-main-header">
             <div class="info">
                 <h4 id="chatTitle">AI 经营助手</h4>
-                <p id="chatSubtitle">基于 DeepSeek · 自然语言驱动运营</p>
+                <p id="chatSubtitle">基于 DeepSeek · 15 种指令可用</p>
             </div>
             <div class="actions">
                 <span class="btn-sm" onclick="clearMessages()"><i class="fas fa-eraser"></i> 清空</span>
@@ -163,14 +163,16 @@
             <div class="empty-state" id="emptyState">
                 <i class="fas fa-robot"></i>
                 <h3>👋 你好，我是 AI 经营助手</h3>
-                <p>支持 9 种操作：改价格、改库存、查库存、上架、改标题、下架、上架、查销量、建优惠券。<br>试试在下方输入你的需求。</p>
+                <p>支持 15 种操作，涵盖单商品操作、批量操作、数据查询三大类。</p>
                 <div class="examples">
                     <span class="ex" onclick="sendExample('把云山茶叶礼盒的价格改成118元')">💰 改价格</span>
                     <span class="ex" onclick="sendExample('把手工竹编包的库存增加50件')">📦 改库存</span>
-                    <span class="ex" onclick="sendExample('把云山陶瓷杯的标题改成云山手作陶瓷杯')">✏️ 改标题</span>
-                    <span class="ex" onclick="sendExample('把云山茶叶礼盒下架')">⬇️ 下架</span>
-                    <span class="ex" onclick="sendExample('查一下云山茶叶礼盒的销量')">📊 查销量</span>
-                    <span class="ex" onclick="sendExample('创建一个满200减30的优惠券')">🎟️ 建优惠券</span>
+                    <span class="ex" onclick="sendExample('把所有茶叶类商品下架')">⬇️ 批量下架</span>
+                    <span class="ex" onclick="sendExample('给所有文创类商品涨价10%')">📈 批量涨价</span>
+                    <span class="ex" onclick="sendExample('查询价格在50到100元之间的商品')">🔍 价格查询</span>
+                    <span class="ex" onclick="sendExample('把库存为0的商品全部下架')">🧹 清空零库存</span>
+                    <span class="ex" onclick="sendExample('给所有商品加10%的利润')">💵 全店加价</span>
+                    <span class="ex" onclick="sendExample('按销量排序查看商品')">📊 销量排行</span>
                 </div>
             </div>
             <div id="messagesList"></div>
@@ -182,7 +184,7 @@
 
         <div class="input-area">
             <div class="input-wrap">
-                <textarea id="chatInput" rows="1" placeholder="输入你的经营需求，例如：把云山茶叶礼盒的价格改成118元" onkeydown="handleKeyDown(event)" oninput="autoResize(this)"></textarea>
+                <textarea id="chatInput" rows="1" placeholder="输入你的经营需求，例如：把所有茶叶类商品价格下调10%" onkeydown="handleKeyDown(event)" oninput="autoResize(this)"></textarea>
                 <span class="char-count" id="charCount">0/500</span>
             </div>
             <button class="send-btn" id="sendBtn" onclick="sendMessage()"><i class="fas fa-paper-plane"></i></button>
@@ -237,7 +239,7 @@
         state.currentChatId = null;
         renderHistory();
         document.getElementById('chatTitle').textContent = 'AI 经营助手';
-        document.getElementById('chatSubtitle').textContent = '基于 DeepSeek · 自然语言驱动运营';
+        document.getElementById('chatSubtitle').textContent = '基于 DeepSeek · 15 种指令可用';
         document.getElementById('messagesList').innerHTML = '';
         document.getElementById('emptyState').style.display = 'flex';
         document.getElementById('chatInput').value = '';
@@ -280,6 +282,61 @@
         setTimeout(() => { container.scrollTop = container.scrollHeight; }, 50);
     }
 
+    // 根据类型生成预览卡片
+    function buildCard(data) {
+        const t = data.type;
+        const a = data.args;
+        if (t === 'update_price') {
+            return { title: '💰 价格修改预览', desc: `商品：${a.product_name}\n新价格：¥${a.new_price}` };
+        }
+        if (t === 'update_stock') {
+            const actionText = a.action === 'increase' ? '增加' : a.action === 'decrease' ? '减少' : '设置为';
+            return { title: '📦 库存修改预览', desc: `商品：${a.product_name}\n操作：${actionText} ${a.amount} 件` };
+        }
+        if (t === 'query_low_stock') {
+            return { title: '📋 库存查询', desc: `条件：库存 < ${a.threshold} 件` };
+        }
+        if (t === 'publish_to_platforms') {
+            return { title: '🚀 多平台上架预览', desc: `商品：${a.product_name}\n目标平台：${a.platforms.join('、')}` };
+        }
+        if (t === 'update_title') {
+            return { title: '✏️ 标题修改预览', desc: `商品：${a.product_name}\n新标题：${a.new_title}` };
+        }
+        if (t === 'take_off_shelf') {
+            return { title: '⬇️ 下架预览', desc: `商品：${a.product_name}` };
+        }
+        if (t === 'put_on_shelf') {
+            return { title: '⬆️ 上架预览', desc: `商品：${a.product_name}` };
+        }
+        if (t === 'query_sales') {
+            return { title: '📊 销量查询', desc: `商品：${a.product_name}` };
+        }
+        if (t === 'create_coupon') {
+            return { title: '🎟️ 优惠券预览', desc: `满 ${a.threshold} 减 ${a.discount}\n有效天数：${a.days || 7} 天` };
+        }
+        if (t === 'batch_take_off') {
+            return { title: '⬇️ 批量下架预览', desc: `分类：${a.category}\n将下架该分类所有商品` };
+        }
+        if (t === 'batch_update_price') {
+            const adjText = a.adjust_type === 'percent' ? `${a.adjust_value > 0 ? '+' : ''}${a.adjust_value}%` : `${a.adjust_value > 0 ? '+' : ''}${a.adjust_value}元`;
+            return { title: '📈 批量调价预览', desc: `分类：${a.category}\n调整幅度：${adjText}` };
+        }
+        if (t === 'query_by_price_range') {
+            return { title: '🔍 价格区间查询', desc: `价格区间：¥${a.min_price} - ¥${a.max_price}` };
+        }
+        if (t === 'batch_take_off_zero_stock') {
+            return { title: '🧹 清空零库存预览', desc: `将下架所有库存为 0 的商品` };
+        }
+        if (t === 'batch_markup_all') {
+            return { title: '💵 全店加价预览', desc: `所有商品统一加价 ${a.percent}%` };
+        }
+        if (t === 'query_sort_by_sales') {
+            const orderText = a.order === 'asc' ? '从低到高' : '从高到低';
+            return { title: '📊 销量排行查询', desc: `按销量${orderText}排序，显示前 ${a.limit || 10} 个` };
+        }
+        return { title: '操作预览', desc: JSON.stringify(a) };
+    }
+
     async function sendMessage() {
         const input = document.getElementById('chatInput');
         const text = input.value.trim();
@@ -306,126 +363,22 @@
 
             if (data.type === 'chat' || data.type === 'error') {
                 appendMessage({ role: 'ai', text: data.text || '抱歉，AI 服务暂时不可用。', time: nowTime() });
-            } else if (data.type === 'update_price') {
-                state.pendingAction = data;
-                appendMessage({
-                    role: 'ai', text: '我理解你要修改价格，请确认：', time: nowTime(),
-                    card: {
-                        title: '💰 价格修改预览',
-                        desc: `商品：${data.args.product_name}\n新价格：¥${data.args.new_price}`,
-                        actions: [
-                            { label: '✅ 确认执行', type: 'confirm', onclick: 'confirmAction()' },
-                            { label: '✖ 取消', type: 'cancel', onclick: 'cancelAction()' }
-                        ]
-                    }
-                });
-            } else if (data.type === 'update_stock') {
-                state.pendingAction = data;
-                const actionText = data.args.action === 'increase' ? '增加' : data.args.action === 'decrease' ? '减少' : '设置为';
-                appendMessage({
-                    role: 'ai', text: '我理解你要调整库存，请确认：', time: nowTime(),
-                    card: {
-                        title: '📦 库存修改预览',
-                        desc: `商品：${data.args.product_name}\n操作：${actionText} ${data.args.amount} 件`,
-                        actions: [
-                            { label: '✅ 确认执行', type: 'confirm', onclick: 'confirmAction()' },
-                            { label: '✖ 取消', type: 'cancel', onclick: 'cancelAction()' }
-                        ]
-                    }
-                });
-            } else if (data.type === 'query_low_stock') {
-                state.pendingAction = data;
-                appendMessage({
-                    role: 'ai', text: `查询库存低于 ${data.args.threshold} 件的商品：`, time: nowTime(),
-                    card: {
-                        title: '📋 库存查询',
-                        desc: `条件：库存 < ${data.args.threshold} 件`,
-                        actions: [
-                            { label: '✅ 确认执行', type: 'confirm', onclick: 'confirmAction()' },
-                            { label: '✖ 取消', type: 'cancel', onclick: 'cancelAction()' }
-                        ]
-                    }
-                });
-            } else if (data.type === 'publish_to_platforms') {
-                state.pendingAction = data;
-                appendMessage({
-                    role: 'ai', text: '我理解你要上架商品到多个平台，请确认：', time: nowTime(),
-                    card: {
-                        title: '🚀 多平台上架预览',
-                        desc: `商品：${data.args.product_name}\n目标平台：${data.args.platforms.join('、')}`,
-                        actions: [
-                            { label: '✅ 确认上架', type: 'confirm', onclick: 'confirmAction()' },
-                            { label: '✖ 取消', type: 'cancel', onclick: 'cancelAction()' }
-                        ]
-                    }
-                });
-            } else if (data.type === 'update_title') {
-                state.pendingAction = data;
-                appendMessage({
-                    role: 'ai', text: '我理解你要修改商品标题，请确认：', time: nowTime(),
-                    card: {
-                        title: '✏️ 标题修改预览',
-                        desc: `商品：${data.args.product_name}\n新标题：${data.args.new_title}`,
-                        actions: [
-                            { label: '✅ 确认执行', type: 'confirm', onclick: 'confirmAction()' },
-                            { label: '✖ 取消', type: 'cancel', onclick: 'cancelAction()' }
-                        ]
-                    }
-                });
-            } else if (data.type === 'take_off_shelf') {
-                state.pendingAction = data;
-                appendMessage({
-                    role: 'ai', text: '我理解你要下架商品，请确认：', time: nowTime(),
-                    card: {
-                        title: '⬇️ 下架预览',
-                        desc: `商品：${data.args.product_name}`,
-                        actions: [
-                            { label: '✅ 确认下架', type: 'confirm', onclick: 'confirmAction()' },
-                            { label: '✖ 取消', type: 'cancel', onclick: 'cancelAction()' }
-                        ]
-                    }
-                });
-            } else if (data.type === 'put_on_shelf') {
-                state.pendingAction = data;
-                appendMessage({
-                    role: 'ai', text: '我理解你要上架商品，请确认：', time: nowTime(),
-                    card: {
-                        title: '⬆️ 上架预览',
-                        desc: `商品：${data.args.product_name}`,
-                        actions: [
-                            { label: '✅ 确认上架', type: 'confirm', onclick: 'confirmAction()' },
-                            { label: '✖ 取消', type: 'cancel', onclick: 'cancelAction()' }
-                        ]
-                    }
-                });
-            } else if (data.type === 'query_sales') {
-                state.pendingAction = data;
-                appendMessage({
-                    role: 'ai', text: '我理解你要查询销售数据，请确认：', time: nowTime(),
-                    card: {
-                        title: '📊 销量查询',
-                        desc: `商品：${data.args.product_name}`,
-                        actions: [
-                            { label: '✅ 查询', type: 'confirm', onclick: 'confirmAction()' },
-                            { label: '✖ 取消', type: 'cancel', onclick: 'cancelAction()' }
-                        ]
-                    }
-                });
-            } else if (data.type === 'create_coupon') {
-                state.pendingAction = data;
-                appendMessage({
-                    role: 'ai', text: '我理解你要创建优惠券，请确认：', time: nowTime(),
-                    card: {
-                        title: '🎟️ 优惠券预览',
-                        desc: `满 ${data.args.threshold} 减 ${data.args.discount}\n有效天数：${data.args.days || 7} 天`,
-                        actions: [
-                            { label: '✅ 确认创建', type: 'confirm', onclick: 'confirmAction()' },
-                            { label: '✖ 取消', type: 'cancel', onclick: 'cancelAction()' }
-                        ]
-                    }
-                });
             } else {
-                appendMessage({ role: 'ai', text: '收到你的需求，但暂时无法处理。', time: nowTime() });
+                state.pendingAction = data;
+                const card = buildCard(data);
+                appendMessage({
+                    role: 'ai',
+                    text: '我理解你的指令，请确认：',
+                    time: nowTime(),
+                    card: {
+                        title: card.title,
+                        desc: card.desc,
+                        actions: [
+                            { label: '✅ 确认执行', type: 'confirm', onclick: 'confirmAction()' },
+                            { label: '✖ 取消', type: 'cancel', onclick: 'cancelAction()' }
+                        ]
+                    }
+                });
             }
 
             historyData.unshift({
@@ -433,7 +386,7 @@
                 title: text.length > 20 ? text.slice(0, 20) + '...' : text,
                 preview: (data.text || '操作预览').slice(0, 30) + '...',
                 time: nowTime(),
-                tag: data.type.includes('price') ? '商品' : data.type.includes('stock') ? '库存' : data.type.includes('title') ? '标题' : data.type.includes('shelf') ? '上下架' : '运营'
+                tag: '运营'
             });
             if (historyData.length > 20) historyData.pop();
             renderHistory();
@@ -442,7 +395,7 @@
             document.getElementById('typingIndicator').classList.remove('show');
             appendMessage({
                 role: 'ai',
-                text: '⚠️ 无法连接后端服务。\n请确认 Railway 服务正在运行。\n\n错误：' + err.message,
+                text: '⚠️ 无法连接后端服务。\n错误：' + err.message,
                 time: nowTime()
             });
         }
@@ -470,24 +423,12 @@
             const data = await res.json();
 
             if (data.success) {
-                appendMessage({
-                    role: 'ai',
-                    text: '✅ ' + data.message,
-                    time: nowTime()
-                });
+                appendMessage({ role: 'ai', text: '✅ ' + data.message, time: nowTime() });
             } else {
-                appendMessage({
-                    role: 'ai',
-                    text: '❌ ' + data.message,
-                    time: nowTime()
-                });
+                appendMessage({ role: 'ai', text: '❌ ' + data.message, time: nowTime() });
             }
         } catch (err) {
-            appendMessage({
-                role: 'ai',
-                text: '❌ 执行失败：' + err.message,
-                time: nowTime()
-            });
+            appendMessage({ role: 'ai', text: '❌ 执行失败：' + err.message, time: nowTime() });
         }
     }
 
@@ -513,7 +454,7 @@
         document.getElementById('messagesList').innerHTML = '';
         document.getElementById('emptyState').style.display = 'flex';
         document.getElementById('chatTitle').textContent = 'AI 经营助手';
-        document.getElementById('chatSubtitle').textContent = '基于 DeepSeek · 自然语言驱动运营';
+        document.getElementById('chatSubtitle').textContent = '基于 DeepSeek · 15 种指令可用';
         state.currentChatId = null;
         renderHistory();
         showToast('🗑️ 已清空对话');
@@ -582,7 +523,7 @@
         });
     });
 
-    console.log('🤖 智控电商 · AI助手已加载');
+    console.log('🤖 智控电商 · AI助手已加载（15种指令）');
     console.log('💡 后端:', BACKEND_URL);
 </script>
 </body>
