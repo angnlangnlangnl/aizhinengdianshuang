@@ -98,36 +98,6 @@
         .input-area .input-wrap textarea { flex: 1; border: none; background: transparent; padding: 8px 0; font-size: 14px; font-family: inherit; resize: none; outline: none; max-height: 120px; color: #0a1e2f; }
         .input-area .input-wrap textarea::placeholder { color: #94a3b8; }
         .input-area .input-wrap .char-count { font-size: 11px; color: #94a3b8; padding-left: 8px; flex-shrink: 0; }
-        /* 语音按钮 */
-        .input-area .voice-btn {
-            width: 44px;
-            height: 44px;
-            border-radius: 50%;
-            border: 1px solid #dce5ef;
-            background: white;
-            color: #5f7d95;
-            font-size: 18px;
-            cursor: pointer;
-            transition: 0.15s;
-            flex-shrink: 0;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-        .input-area .voice-btn:hover {
-            border-color: #4dabf7;
-            color: #2a7faa;
-        }
-        .input-area .voice-btn.listening {
-            background: #e6f7ec;
-            border-color: #0d7c4f;
-            color: #0d7c4f;
-            animation: voicePulse 1.2s ease-in-out infinite;
-        }
-        @keyframes voicePulse {
-            0%, 100% { box-shadow: 0 0 0 0 rgba(13, 124, 79, 0.4); }
-            50% { box-shadow: 0 0 0 8px rgba(13, 124, 79, 0); }
-        }
         .input-area .send-btn { width: 44px; height: 44px; border-radius: 50%; border: none; background: #0a1e2f; color: white; font-size: 18px; cursor: pointer; transition: 0.15s; flex-shrink: 0; display: flex; align-items: center; justify-content: center; }
         .input-area .send-btn:hover { background: #1a3a5a; transform: scale(1.02); }
         .input-area .send-btn:disabled { opacity: 0.4; cursor: not-allowed; transform: none; }
@@ -216,9 +186,6 @@
         </div>
 
         <div class="input-area">
-            <button class="voice-btn" id="voiceBtn" onclick="toggleVoice()" title="语音输入（5秒）">
-                <i class="fas fa-microphone"></i>
-            </button>
             <div class="input-wrap">
                 <textarea id="chatInput" rows="1" placeholder="输入你的经营需求，例如：查看云山茶叶礼盒的图片" onkeydown="handleKeyDown(event)" oninput="autoResize(this)"></textarea>
                 <span class="char-count" id="charCount">0/500</span>
@@ -239,118 +206,6 @@
 
     let historyData = [];
 
-    // ================================================================
-    // 语音输入
-    // ================================================================
-    let recognition = null;
-    let isListening = false;
-    let voiceTimer = null;
-
-    function initSpeechRecognition() {
-        const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-        if (!SpeechRecognition) return false;
-        recognition = new SpeechRecognition();
-        recognition.lang = 'zh-CN';
-        recognition.continuous = true;
-        recognition.interimResults = true;
-        recognition.maxAlternatives = 1;
-        return true;
-    }
-
-    function toggleVoice() {
-        const voiceBtn = document.getElementById('voiceBtn');
-        const input = document.getElementById('chatInput');
-
-        // 如果正在监听，再点一次 = 停止
-        if (isListening) {
-            stopVoiceListening();
-            return;
-        }
-
-        // 初始化
-        if (!recognition && !initSpeechRecognition()) {
-            showToast('⚠️ 当前浏览器不支持语音输入，请使用 Chrome 或 Edge');
-            return;
-        }
-
-        // 重置识别器（避免上次残留状态）
-        try { recognition.abort(); } catch (e) {}
-        if (!initSpeechRecognition()) {
-            showToast('⚠️ 语音识别初始化失败');
-            return;
-        }
-
-        // 进入监听状态
-        isListening = true;
-        voiceBtn.classList.add('listening');
-        input.placeholder = '正在听...（5 秒后自动停止）';
-        input.value = '';
-        updateCharCount();
-
-        // 实时识别回调
-        recognition.onresult = function(event) {
-            let transcript = '';
-            for (let i = event.resultIndex; i < event.results.length; i++) {
-                transcript += event.results[i][0].transcript;
-            }
-            input.value = transcript;
-            updateCharCount();
-        };
-
-        recognition.onerror = function(event) {
-            let msg = '语音识别失败';
-            if (event.error === 'not-allowed') msg = '请允许使用麦克风权限';
-            else if (event.error === 'no-speech') msg = '未检测到语音';
-            else if (event.error === 'audio-capture') msg = '无法访问麦克风';
-            else if (event.error === 'aborted') return;
-            showToast('⚠️ ' + msg);
-            stopVoiceListening();
-        };
-
-        recognition.onend = function() {
-            if (isListening) {
-                stopVoiceListening();
-            }
-        };
-
-        try {
-            recognition.start();
-        } catch (e) {
-            showToast('⚠️ 启动语音识别失败：' + e.message);
-            stopVoiceListening();
-            return;
-        }
-
-        // 5 秒后自动停止
-        clearTimeout(voiceTimer);
-        voiceTimer = setTimeout(() => {
-            stopVoiceListening();
-        }, 5000);
-    }
-
-    function stopVoiceListening() {
-        clearTimeout(voiceTimer);
-        voiceTimer = null;
-
-        if (recognition) {
-            try { recognition.stop(); } catch (e) {}
-        }
-        isListening = false;
-
-        const voiceBtn = document.getElementById('voiceBtn');
-        const input = document.getElementById('chatInput');
-        voiceBtn.classList.remove('listening');
-        input.placeholder = '输入你的经营需求，例如：查看云山茶叶礼盒的图片';
-
-        // 光标移到输入框末尾
-        input.focus();
-        const len = input.value.length;
-        input.setSelectionRange(len, len);
-    }
-
-    // ================================================================
-    // 对话历史
-    // ================================================================
     function renderHistory() {
         const container = document.getElementById('chatHistoryList');
         if (historyData.length === 0) {
@@ -430,18 +285,21 @@
         setTimeout(() => { container.scrollTop = container.scrollHeight; }, 50);
     }
 
+    // ================================================================
+    // 构建预览卡片（修复：图片指令移到前面，避免被默认值覆盖）
+    // ================================================================
     function buildCard(data) {
         const t = data.type;
         const a = data.args;
 
-        // 图片指令
+        // ===== 图片指令（优先匹配） =====
         if (t === 'query_images') return { title: '🖼️ 查看图片', desc: `商品：${a.product_name}` };
         if (t === 'delete_main_image') return { title: '🗑️ 删除主图预览', desc: `商品：${a.product_name}\n⚠️ 删除后需重新上传`, isDanger: true };
         if (t === 'remove_sub_image') return { title: '🗑️ 删除副图预览', desc: `商品：${a.product_name}\n删除第 ${a.index} 张副图`, isDanger: true };
         if (t === 'clear_sub_images') return { title: '🧹 清空副图预览', desc: `商品：${a.product_name}\n⚠️ 将删除所有副图`, isDanger: true };
         if (t === 'clear_all_images') return { title: '🧹 清空所有图片预览', desc: `商品：${a.product_name}\n⚠️ 将删除主图 + 所有副图`, isDanger: true };
 
-        // 单商品
+        // ===== 单商品操作 =====
         if (t === 'update_price') return { title: '💰 价格修改预览', desc: `商品：${a.product_name}\n新价格：¥${a.new_price}` };
         if (t === 'update_stock') {
             const actionText = a.action === 'increase' ? '增加' : a.action === 'decrease' ? '减少' : '设置为';
@@ -455,7 +313,7 @@
         if (t === 'query_sales') return { title: '📊 销量查询', desc: `商品：${a.product_name}` };
         if (t === 'create_coupon') return { title: '🎟️ 优惠券预览', desc: `满 ${a.threshold} 减 ${a.discount}\n有效天数：${a.days || 7} 天` };
 
-        // 批量
+        // ===== 批量操作 =====
         if (t === 'batch_take_off') return { title: '⬇️ 批量下架预览', desc: `分类：${a.category}\n将下架该分类所有商品` };
         if (t === 'batch_update_price') {
             const adjText = a.adjust_type === 'percent' ? `${a.adjust_value > 0 ? '+' : ''}${a.adjust_value}%` : `${a.adjust_value > 0 ? '+' : ''}${a.adjust_value}元`;
@@ -475,12 +333,12 @@
         if (t === 'batch_put_on_shelf') return { title: '⬆️ 批量上架预览', desc: `分类：${a.category}\n将上架该分类所有商品` };
         if (t === 'batch_delete_by_category') return { title: '🗑️ 批量删除预览', desc: `分类：${a.category}\n⚠️ 将删除该分类所有商品，不可恢复`, isDanger: true };
 
-        // 增删
+        // ===== 商品增删 =====
         if (t === 'add_product') return { title: '➕ 新增商品预览', desc: `名称：${a.name}\n价格：¥${a.price}\n库存：${a.stock || 0} 件\n分类：${a.category || '文创'}\n平台：${a.platform || '淘宝'}` };
         if (t === 'delete_product') return { title: '🗑️ 删除商品预览', desc: `商品：${a.product_name}\n⚠️ 删除后不可恢复`, isDanger: true };
         if (t === 'duplicate_product') return { title: '📋 复制商品预览', desc: `原商品：${a.product_name}\n新名称：${a.new_name}` };
 
-        // 查询
+        // ===== 查询 =====
         if (t === 'query_by_platform') return { title: '🔍 按平台查询', desc: `平台：${a.platform}` };
         if (t === 'query_by_status') return { title: '📋 按状态查询', desc: `状态：${a.status}` };
         if (t === 'query_by_category') return { title: '🔍 按分类查询', desc: `分类：${a.category}` };
@@ -489,6 +347,7 @@
         if (t === 'query_restock_alert') return { title: '⚠️ 库存预警查询', desc: `查询库存低于 ${a.threshold || 50} 件的商品` };
         if (t === 'export_to_excel') return { title: '📤 导出CSV', desc: `将导出所有商品数据为 CSV 文件` };
 
+        // 兜底
         return { title: '操作预览', desc: JSON.stringify(a) };
     }
 
@@ -679,7 +538,8 @@
         });
     });
 
-    console.log('🤖 智控电商 · AI助手已加载（33种指令 + 语音输入）');
+    console.log('🤖 智控电商 · AI助手已加载（33种指令）');
+    console.log('💡 后端:', BACKEND_URL);
 </script>
 </body>
 </html>
