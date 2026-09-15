@@ -104,7 +104,7 @@
             background: #1a3a2a; border-color: #0d7c4f; color: #4ade80;
             box-shadow: 0 0 0 3px rgba(13,124,79,0.15);
         }
-        .input-area .input-wrap { flex: 1; display: flex; align-items: flex-end; background: #f8fafc; border: 1px solid #e8edf4; border-radius: 12px; padding: 6px 16px; transition: 0.2s; position: relative; }
+        .input-area .input-wrap { flex: 1; display: flex; align-items: flex-end; background: #f8fafc; border: 1px solid #e8edf4; border-radius: 12px; padding: 6px 16px; transition: 0.2s; position: relative; touch-action: none; -webkit-user-select: none; user-select: none; }
         .input-area .input-wrap:focus-within { border-color: #4dabf7; box-shadow: 0 0 0 3px rgba(77,171,247,0.06); }
         .input-area .input-wrap.recording { background: #e6f7ec; border-color: #0d7c4f; box-shadow: 0 0 0 3px rgba(13,124,79,0.12); }
         .input-area .input-wrap.cancel-mode { background: #fde8ed; border-color: #b51a3f; box-shadow: 0 0 0 3px rgba(181,26,63,0.12); }
@@ -125,36 +125,29 @@
         .empty-state .examples .ex { padding: 8px 18px; border-radius: 30px; border: 1px solid #dce5ef; font-size: 13px; color: #5f7d95; cursor: pointer; background: white; transition: 0.15s; }
         .empty-state .examples .ex:hover { border-color: #4dabf7; color: #2a7faa; background: #f5f9fe; }
         .empty-state .examples .ex.danger:hover { border-color: #b51a3f; color: #b51a3f; background: #fde8ed; }
-        /* 语音提示条 */
+        /* 语音提示条（屏幕居中） */
         .voice-tip {
             position: fixed;
-            bottom: 100px;
+            top: 50%;
             left: 50%;
-            transform: translateX(-50%) translateY(10px);
+            transform: translate(-50%, -50%) translateY(20px) scale(0.9);
             background: #0d7c4f;
             color: white;
-            padding: 10px 24px;
+            padding: 14px 32px;
             border-radius: 30px;
-            font-size: 14px;
+            font-size: 16px;
             font-weight: 500;
             display: none;
             z-index: 9998;
-            box-shadow: 0 10px 30px rgba(13,124,79,0.4);
-            transition: 0.2s ease;
+            box-shadow: 0 10px 40px rgba(13,124,79,0.5);
+            transition: 0.25s ease;
             align-items: center;
-            gap: 8px;
+            justify-content: center;
+            pointer-events: none;
+            white-space: nowrap;
         }
-        .voice-tip.show { display: flex; transform: translateX(-50%) translateY(0); }
-        .voice-tip.cancel { background: #b51a3f; box-shadow: 0 10px 30px rgba(181,26,63,0.4); }
-        .voice-tip i { font-size: 14px; }
-        .voice-tip .wave { display: flex; gap: 2px; align-items: center; height: 16px; }
-        .voice-tip .wave span { display: block; width: 2px; height: 100%; background: white; border-radius: 2px; animation: voiceWave 0.8s ease-in-out infinite alternate; }
-        .voice-tip .wave span:nth-child(1) { animation-delay: 0s; height: 40%; }
-        .voice-tip .wave span:nth-child(2) { animation-delay: 0.15s; height: 70%; }
-        .voice-tip .wave span:nth-child(3) { animation-delay: 0.3s; height: 100%; }
-        .voice-tip .wave span:nth-child(4) { animation-delay: 0.45s; height: 70%; }
-        .voice-tip .wave span:nth-child(5) { animation-delay: 0.6s; height: 40%; }
-        @keyframes voiceWave { 0% { transform: scaleY(0.3); } 100% { transform: scaleY(1); } }
+        .voice-tip.show { display: flex; transform: translate(-50%, -50%) translateY(0) scale(1); }
+        .voice-tip.cancel { background: #b51a3f; box-shadow: 0 10px 40px rgba(181,26,63,0.5); }
         @media (max-width: 768px) {
             .app-header { padding: 10px 16px; }
             .app-header .logo { font-size: 16px; }
@@ -248,7 +241,6 @@
 
 <!-- 语音提示条 -->
 <div class="voice-tip" id="voiceTip">
-    <span class="wave"><span></span><span></span><span></span><span></span><span></span></span>
     <span id="voiceTipText">请说话...</span>
 </div>
 
@@ -267,17 +259,17 @@
     // 语音模式状态
     // ================================================================
     let recognition = null;
-    let isVoiceMode = false;       // 是否处于语音模式
-    let isListening = false;       // 是否正在识别
-    let isRecording = false;       // 是否处于"按住录音"状态
-    let isCancelMode = false;      // 是否上滑取消
-    let pressStartTime = 0;        // 按下时刻
-    let longPressTimer = null;     // 长按计时器
-    let pointerStartY = 0;         // 起始 Y 坐标
-    let voiceTranscript = '';      // 当前识别的文本
+    let isVoiceMode = false;
+    let isListening = false;
+    let isRecording = false;
+    let isCancelMode = false;
+    let pressStartTime = 0;
+    let longPressTimer = null;
+    let pointerStartY = 0;
+    let voiceTranscript = '';
 
-    const LONG_PRESS_MS = 300;     // 长按 300ms 开始录音
-    const CANCEL_DISTANCE = 60;    // 上滑 60px 取消
+    const LONG_PRESS_MS = 300;
+    const CANCEL_DISTANCE = 60;
 
     // ================================================================
     // 初始化语音识别
@@ -291,8 +283,8 @@
         }
         recognition = new SpeechRecognition();
         recognition.lang = 'zh-CN';
-        recognition.continuous = true;      // 持续识别
-        recognition.interimResults = true;  // 显示临时结果
+        recognition.continuous = false;
+        recognition.interimResults = true;
         recognition.maxAlternatives = 1;
         return true;
     }
@@ -335,7 +327,7 @@
     // 停止语音
     // ================================================================
     function stopVoice() {
-        if (recognition) {
+        if (recognition && isListening) {
             try { recognition.abort(); } catch (e) {}
         }
         isListening = false;
@@ -411,14 +403,8 @@
         };
 
         recognition.onend = function() {
+            // 修复：不再自动重启，避免与 stop() 冲突导致闪退
             isListening = false;
-            // 如果仍在录音中（用户还没松手），尝试重启
-            if (isRecording && !isCancelMode) {
-                try {
-                    recognition.start();
-                    isListening = true;
-                } catch (e) {}
-            }
         };
 
         try {
@@ -435,31 +421,35 @@
     // 结束识别并发送
     // ================================================================
     function finishVoiceRecognition() {
+        // 防止重复调用
+        if (!isRecording && !isListening) return;
+
         const input = document.getElementById('chatInput');
         const inputWrap = document.getElementById('inputWrap');
         const charCount = document.getElementById('charCount');
+
+        // 先保存状态
+        const wasCancelled = isCancelMode;
+        const text = (input.value || voiceTranscript || '').trim();
 
         // 停止识别
         if (recognition) {
             try { recognition.stop(); } catch (e) {}
         }
 
-        // 先保存文本
-        const text = (input.value || voiceTranscript || '').trim();
-
         // 清理状态
         isRecording = false;
         isCancelMode = false;
+        isListening = false;
         inputWrap.classList.remove('recording', 'cancel-mode');
         charCount.classList.remove('recording', 'cancel-mode');
         hideVoiceTip();
 
-        if (isCancelMode || !text) {
-            // 取消 或 空结果
+        if (wasCancelled || !text) {
             input.value = '';
             input.placeholder = '按住说话，或点击输入框开始识别';
             updateCharCount();
-            if (!text && !isCancelMode) {
+            if (!text && !wasCancelled) {
                 showToast('⚠️ 未识别到语音，请重试');
             }
             return;
@@ -470,12 +460,11 @@
         input.placeholder = '按住说话，或点击输入框开始识别';
         updateCharCount();
 
-        // 显示用户消息 + 触发 AI 处理
         sendMessageFromVoice(text);
     }
 
     // ================================================================
-    // 语音发送消息（复用 sendMessage 逻辑，但保留语音模式状态）
+    // 语音发送消息
     // ================================================================
     async function sendMessageFromVoice(text) {
         if (!text || state.isProcessing) return;
@@ -538,17 +527,16 @@
     }
 
     // ================================================================
-    // 指针事件（长按录音 + 上滑取消）
+    // 指针事件
     // ================================================================
     function onPointerDown(e) {
         if (!isVoiceMode || isRecording) return;
-        e.preventDefault();
+        // 修复：不调用 preventDefault()，避免触发浏览器兼容问题
         pointerStartY = e.clientY;
         pressStartTime = Date.now();
         isCancelMode = false;
 
         longPressTimer = setTimeout(function() {
-            // 300ms 后触发录音
             startVoiceRecognition(true);
         }, LONG_PRESS_MS);
     }
@@ -588,10 +576,8 @@
         const elapsed = Date.now() - pressStartTime;
 
         if (elapsed < LONG_PRESS_MS) {
-            // 短按 = 点击识别（原有点击模式）
             onClickVoiceInput();
         } else if (isRecording) {
-            // 长按结束 = 发送
             finishVoiceRecognition();
         }
     }
@@ -609,7 +595,6 @@
             updateCharCount();
             return;
         }
-        // 点击 = 开始识别（松手不发送，等下一次点击结束）
         startVoiceRecognition(false);
     }
 
@@ -965,7 +950,6 @@
             if (!isVoiceMode) document.getElementById('chatInput').focus();
         });
 
-        // 绑定输入框的长按/滑动/松开事件（用于语音）
         const inputWrap = document.getElementById('inputWrap');
         inputWrap.addEventListener('pointerdown', onPointerDown);
         inputWrap.addEventListener('pointermove', onPointerMove);
