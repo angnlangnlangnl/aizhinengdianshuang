@@ -92,12 +92,28 @@
         .typing-indicator .dots span:nth-child(2) { animation-delay: 0.2s; }
         .typing-indicator .dots span:nth-child(3) { animation-delay: 0.4s; }
         @keyframes dotPulse { 0%, 60%, 100% { transform: translateY(0); opacity: 0.4; } 30% { transform: translateY(-6px); opacity: 1; } }
-        .input-area { padding: 16px 28px 20px; background: white; border-top: 1px solid #e8edf4; display: flex; gap: 12px; align-items: flex-end; flex-shrink: 0; }
-        .input-area .input-wrap { flex: 1; display: flex; align-items: flex-end; background: #f8fafc; border: 1px solid #e8edf4; border-radius: 12px; padding: 6px 16px; transition: 0.15s; }
+        .input-area { padding: 16px 28px 20px; background: white; border-top: 1px solid #e8edf4; display: flex; gap: 10px; align-items: flex-end; flex-shrink: 0; }
+        .input-area .voice-btn {
+            width: 44px; height: 44px; border-radius: 12px; border: 1px solid #dce5ef;
+            background: #f8fafc; color: #5f7d95; font-size: 16px; cursor: pointer;
+            flex-shrink: 0; display: flex; align-items: center; justify-content: center;
+            transition: 0.2s; user-select: none;
+        }
+        .input-area .voice-btn:hover { border-color: #4dabf7; color: #4dabf7; }
+        .input-area .voice-btn.active {
+            background: #1a3a2a; border-color: #0d7c4f; color: #4ade80;
+            box-shadow: 0 0 0 3px rgba(13,124,79,0.15);
+        }
+        .input-area .input-wrap { flex: 1; display: flex; align-items: flex-end; background: #f8fafc; border: 1px solid #e8edf4; border-radius: 12px; padding: 6px 16px; transition: 0.2s; position: relative; }
         .input-area .input-wrap:focus-within { border-color: #4dabf7; box-shadow: 0 0 0 3px rgba(77,171,247,0.06); }
+        .input-area .input-wrap.recording { background: #e6f7ec; border-color: #0d7c4f; box-shadow: 0 0 0 3px rgba(13,124,79,0.12); }
+        .input-area .input-wrap.cancel-mode { background: #fde8ed; border-color: #b51a3f; box-shadow: 0 0 0 3px rgba(181,26,63,0.12); }
         .input-area .input-wrap textarea { flex: 1; border: none; background: transparent; padding: 8px 0; font-size: 14px; font-family: inherit; resize: none; outline: none; max-height: 120px; color: #0a1e2f; }
         .input-area .input-wrap textarea::placeholder { color: #94a3b8; }
+        .input-area .input-wrap textarea:read-only { cursor: pointer; }
         .input-area .input-wrap .char-count { font-size: 11px; color: #94a3b8; padding-left: 8px; flex-shrink: 0; }
+        .input-area .input-wrap .char-count.recording { color: #0d7c4f; font-weight: 600; }
+        .input-area .input-wrap .char-count.cancel-mode { color: #b51a3f; font-weight: 600; }
         .input-area .send-btn { width: 44px; height: 44px; border-radius: 50%; border: none; background: #0a1e2f; color: white; font-size: 18px; cursor: pointer; transition: 0.15s; flex-shrink: 0; display: flex; align-items: center; justify-content: center; }
         .input-area .send-btn:hover { background: #1a3a5a; transform: scale(1.02); }
         .input-area .send-btn:disabled { opacity: 0.4; cursor: not-allowed; transform: none; }
@@ -109,6 +125,36 @@
         .empty-state .examples .ex { padding: 8px 18px; border-radius: 30px; border: 1px solid #dce5ef; font-size: 13px; color: #5f7d95; cursor: pointer; background: white; transition: 0.15s; }
         .empty-state .examples .ex:hover { border-color: #4dabf7; color: #2a7faa; background: #f5f9fe; }
         .empty-state .examples .ex.danger:hover { border-color: #b51a3f; color: #b51a3f; background: #fde8ed; }
+        /* 语音提示条 */
+        .voice-tip {
+            position: fixed;
+            bottom: 100px;
+            left: 50%;
+            transform: translateX(-50%) translateY(10px);
+            background: #0d7c4f;
+            color: white;
+            padding: 10px 24px;
+            border-radius: 30px;
+            font-size: 14px;
+            font-weight: 500;
+            display: none;
+            z-index: 9998;
+            box-shadow: 0 10px 30px rgba(13,124,79,0.4);
+            transition: 0.2s ease;
+            align-items: center;
+            gap: 8px;
+        }
+        .voice-tip.show { display: flex; transform: translateX(-50%) translateY(0); }
+        .voice-tip.cancel { background: #b51a3f; box-shadow: 0 10px 30px rgba(181,26,63,0.4); }
+        .voice-tip i { font-size: 14px; }
+        .voice-tip .wave { display: flex; gap: 2px; align-items: center; height: 16px; }
+        .voice-tip .wave span { display: block; width: 2px; height: 100%; background: white; border-radius: 2px; animation: voiceWave 0.8s ease-in-out infinite alternate; }
+        .voice-tip .wave span:nth-child(1) { animation-delay: 0s; height: 40%; }
+        .voice-tip .wave span:nth-child(2) { animation-delay: 0.15s; height: 70%; }
+        .voice-tip .wave span:nth-child(3) { animation-delay: 0.3s; height: 100%; }
+        .voice-tip .wave span:nth-child(4) { animation-delay: 0.45s; height: 70%; }
+        .voice-tip .wave span:nth-child(5) { animation-delay: 0.6s; height: 40%; }
+        @keyframes voiceWave { 0% { transform: scaleY(0.3); } 100% { transform: scaleY(1); } }
         @media (max-width: 768px) {
             .app-header { padding: 10px 16px; }
             .app-header .logo { font-size: 16px; }
@@ -118,11 +164,13 @@
             .chat-main-header { padding: 12px 16px; flex-wrap: wrap; gap: 6px; }
             .messages { padding: 12px 16px; }
             .message { max-width: 92%; }
-            .input-area { padding: 12px 16px 16px; flex-wrap: wrap; }
+            .input-area { padding: 12px 16px 16px; }
         }
         @media (max-width: 480px) {
             .sidebar-chat { display: none; }
             .message { max-width: 96%; }
+            .input-area { padding: 10px 12px 12px; }
+            .input-area .voice-btn, .input-area .send-btn { width: 40px; height: 40px; font-size: 15px; }
         }
     </style>
 </head>
@@ -166,7 +214,7 @@
             <div class="empty-state" id="emptyState">
                 <i class="fas fa-robot"></i>
                 <h3>👋 你好，我是 AI 经营助手</h3>
-                <p>支持 33 种操作：单商品操作、批量操作、数据查询、商品增删、库存预警、CSV导出、图片管理。</p>
+                <p>支持 33 种操作。点 🎤 可切换语音模式，长按输入框说话，松手发送。</p>
                 <div class="examples">
                     <span class="ex" onclick="sendExample('把云山茶叶礼盒的价格改成118元')">💰 改价格</span>
                     <span class="ex" onclick="sendExample('新增一个商品叫云山红茶，价格88元')">➕ 新增商品</span>
@@ -186,13 +234,22 @@
         </div>
 
         <div class="input-area">
-            <div class="input-wrap">
-                <textarea id="chatInput" rows="1" placeholder="输入你的经营需求，例如：查看云山茶叶礼盒的图片" onkeydown="handleKeyDown(event)" oninput="autoResize(this)"></textarea>
+            <button class="voice-btn" id="voiceBtn" onclick="toggleVoiceMode()" title="语音输入">
+                <i class="fas fa-microphone"></i>
+            </button>
+            <div class="input-wrap" id="inputWrap">
+                <textarea id="chatInput" rows="1" placeholder="输入你的经营需求，例如：查一下需要补货的商品" onkeydown="handleKeyDown(event)" oninput="autoResize(this)"></textarea>
                 <span class="char-count" id="charCount">0/500</span>
             </div>
             <button class="send-btn" id="sendBtn" onclick="sendMessage()"><i class="fas fa-paper-plane"></i></button>
         </div>
     </main>
+</div>
+
+<!-- 语音提示条 -->
+<div class="voice-tip" id="voiceTip">
+    <span class="wave"><span></span><span></span><span></span><span></span><span></span></span>
+    <span id="voiceTipText">请说话...</span>
 </div>
 
 <script>
@@ -206,6 +263,427 @@
 
     let historyData = [];
 
+    // ================================================================
+    // 语音模式状态
+    // ================================================================
+    let recognition = null;
+    let isVoiceMode = false;       // 是否处于语音模式
+    let isListening = false;       // 是否正在识别
+    let isRecording = false;       // 是否处于"按住录音"状态
+    let isCancelMode = false;      // 是否上滑取消
+    let pressStartTime = 0;        // 按下时刻
+    let longPressTimer = null;     // 长按计时器
+    let pointerStartY = 0;         // 起始 Y 坐标
+    let voiceTranscript = '';      // 当前识别的文本
+
+    const LONG_PRESS_MS = 300;     // 长按 300ms 开始录音
+    const CANCEL_DISTANCE = 60;    // 上滑 60px 取消
+
+    // ================================================================
+    // 初始化语音识别
+    // ================================================================
+    function initSpeechRecognition() {
+        const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+        if (!SpeechRecognition) return false;
+        if (recognition) {
+            try { recognition.abort(); } catch (e) {}
+            recognition = null;
+        }
+        recognition = new SpeechRecognition();
+        recognition.lang = 'zh-CN';
+        recognition.continuous = true;      // 持续识别
+        recognition.interimResults = true;  // 显示临时结果
+        recognition.maxAlternatives = 1;
+        return true;
+    }
+
+    // ================================================================
+    // 切换语音模式
+    // ================================================================
+    function toggleVoiceMode() {
+        const voiceBtn = document.getElementById('voiceBtn');
+        const input = document.getElementById('chatInput');
+        const inputWrap = document.getElementById('inputWrap');
+
+        if (!isVoiceMode) {
+            if (!initSpeechRecognition()) {
+                showToast('⚠️ 当前浏览器不支持语音，请使用 Chrome 或 Edge');
+                return;
+            }
+            isVoiceMode = true;
+            voiceBtn.classList.add('active');
+            voiceBtn.innerHTML = '<i class="fas fa-keyboard"></i>';
+            input.placeholder = '按住说话，或点击输入框开始识别';
+            input.readOnly = true;
+            inputWrap.style.cursor = 'pointer';
+            showToast('🎤 语音模式已开启，长按输入框说话');
+        } else {
+            isVoiceMode = false;
+            voiceBtn.classList.remove('active');
+            voiceBtn.innerHTML = '<i class="fas fa-microphone"></i>';
+            input.placeholder = '输入你的经营需求，例如：查一下需要补货的商品';
+            input.readOnly = false;
+            inputWrap.style.cursor = '';
+            input.value = '';
+            updateCharCount();
+            stopVoice();
+            showToast('⌨️ 已切换回键盘模式');
+        }
+    }
+
+    // ================================================================
+    // 停止语音
+    // ================================================================
+    function stopVoice() {
+        if (recognition) {
+            try { recognition.abort(); } catch (e) {}
+        }
+        isListening = false;
+        isRecording = false;
+        isCancelMode = false;
+        clearTimeout(longPressTimer);
+        longPressTimer = null;
+        const inputWrap = document.getElementById('inputWrap');
+        const charCount = document.getElementById('charCount');
+        inputWrap.classList.remove('recording', 'cancel-mode');
+        charCount.classList.remove('recording', 'cancel-mode');
+        hideVoiceTip();
+    }
+
+    // ================================================================
+    // 开始识别（按住录音触发）
+    // ================================================================
+    function startVoiceRecognition(isHoldMode) {
+        if (isListening) return;
+        if (!recognition) {
+            if (!initSpeechRecognition()) return;
+        }
+
+        voiceTranscript = '';
+        const input = document.getElementById('chatInput');
+        const inputWrap = document.getElementById('inputWrap');
+        const charCount = document.getElementById('charCount');
+
+        if (isHoldMode) {
+            isRecording = true;
+            inputWrap.classList.add('recording');
+            charCount.classList.add('recording');
+            input.value = '';
+            input.placeholder = '松开手指发送...';
+            showVoiceTip('请说话...', false);
+        } else {
+            input.placeholder = '聆听中...';
+            showVoiceTip('请说话...', false);
+        }
+
+        recognition.onresult = function(event) {
+            let interimText = '';
+            let finalText = '';
+            for (let i = event.resultIndex; i < event.results.length; i++) {
+                const transcript = event.results[i][0].transcript;
+                if (event.results[i].isFinal) {
+                    finalText += transcript;
+                } else {
+                    interimText += transcript;
+                }
+            }
+            voiceTranscript = finalText || interimText;
+            if (voiceTranscript.trim()) {
+                input.value = voiceTranscript;
+                updateCharCount();
+            }
+        };
+
+        recognition.onerror = function(event) {
+            console.warn('语音识别错误:', event.error);
+            if (event.error === 'aborted') return;
+            let msg = '语音识别失败';
+            if (event.error === 'not-allowed') msg = '请授权麦克风权限';
+            else if (event.error === 'no-speech') msg = '未检测到语音';
+            else if (event.error === 'audio-capture') msg = '无法访问麦克风';
+            else if (event.error === 'network') msg = '网络异常';
+            showToast('⚠️ ' + msg);
+            stopVoice();
+            const input = document.getElementById('chatInput');
+            input.value = '';
+            input.placeholder = isVoiceMode ? '按住说话，或点击输入框开始识别' : '输入你的经营需求...';
+            updateCharCount();
+        };
+
+        recognition.onend = function() {
+            isListening = false;
+            // 如果仍在录音中（用户还没松手），尝试重启
+            if (isRecording && !isCancelMode) {
+                try {
+                    recognition.start();
+                    isListening = true;
+                } catch (e) {}
+            }
+        };
+
+        try {
+            recognition.start();
+            isListening = true;
+        } catch (e) {
+            console.warn('启动识别失败:', e);
+            showToast('⚠️ 启动语音识别失败');
+            stopVoice();
+        }
+    }
+
+    // ================================================================
+    // 结束识别并发送
+    // ================================================================
+    function finishVoiceRecognition() {
+        const input = document.getElementById('chatInput');
+        const inputWrap = document.getElementById('inputWrap');
+        const charCount = document.getElementById('charCount');
+
+        // 停止识别
+        if (recognition) {
+            try { recognition.stop(); } catch (e) {}
+        }
+
+        // 先保存文本
+        const text = (input.value || voiceTranscript || '').trim();
+
+        // 清理状态
+        isRecording = false;
+        isCancelMode = false;
+        inputWrap.classList.remove('recording', 'cancel-mode');
+        charCount.classList.remove('recording', 'cancel-mode');
+        hideVoiceTip();
+
+        if (isCancelMode || !text) {
+            // 取消 或 空结果
+            input.value = '';
+            input.placeholder = '按住说话，或点击输入框开始识别';
+            updateCharCount();
+            if (!text && !isCancelMode) {
+                showToast('⚠️ 未识别到语音，请重试');
+            }
+            return;
+        }
+
+        // 发送给 AI
+        input.value = '';
+        input.placeholder = '按住说话，或点击输入框开始识别';
+        updateCharCount();
+
+        // 显示用户消息 + 触发 AI 处理
+        sendMessageFromVoice(text);
+    }
+
+    // ================================================================
+    // 语音发送消息（复用 sendMessage 逻辑，但保留语音模式状态）
+    // ================================================================
+    async function sendMessageFromVoice(text) {
+        if (!text || state.isProcessing) return;
+
+        appendMessage({ role: 'user', text: text, time: nowTime() });
+        state.isProcessing = true;
+        document.getElementById('sendBtn').disabled = true;
+        document.getElementById('typingIndicator').classList.add('show');
+        document.getElementById('messageContainer').scrollTop = document.getElementById('messageContainer').scrollHeight;
+
+        try {
+            const res = await fetch(BACKEND_URL + '/api/ai/parse', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ text: text })
+            });
+            const data = await res.json();
+
+            document.getElementById('typingIndicator').classList.remove('show');
+
+            if (data.type === 'chat' || data.type === 'error') {
+                appendMessage({ role: 'ai', text: data.text || '抱歉，AI 服务暂时不可用。', time: nowTime() });
+            } else {
+                state.pendingAction = data;
+                const card = buildCard(data);
+                const confirmLabel = card.isDanger ? '🗑️ 确认删除' : '✅ 确认执行';
+                const confirmType = card.isDanger ? 'danger' : 'confirm';
+                appendMessage({
+                    role: 'ai',
+                    text: card.isDanger ? '⚠️ 这是高危操作，请仔细确认：' : '我理解你的指令，请确认：',
+                    time: nowTime(),
+                    card: {
+                        title: card.title,
+                        desc: card.desc,
+                        actions: [
+                            { label: confirmLabel, type: confirmType, onclick: 'confirmAction()' },
+                            { label: '✖ 取消', type: 'cancel', onclick: 'cancelAction()' }
+                        ]
+                    }
+                });
+            }
+
+            historyData.unshift({
+                id: 'h' + Date.now(),
+                title: text.length > 20 ? text.slice(0, 20) + '...' : text,
+                preview: (data.text || '操作预览').slice(0, 30) + '...',
+                time: nowTime(),
+                tag: '语音'
+            });
+            if (historyData.length > 20) historyData.pop();
+            renderHistory();
+
+        } catch (err) {
+            document.getElementById('typingIndicator').classList.remove('show');
+            appendMessage({ role: 'ai', text: '⚠️ 无法连接后端服务。\n错误：' + err.message, time: nowTime() });
+        }
+
+        state.isProcessing = false;
+        document.getElementById('sendBtn').disabled = false;
+    }
+
+    // ================================================================
+    // 指针事件（长按录音 + 上滑取消）
+    // ================================================================
+    function onPointerDown(e) {
+        if (!isVoiceMode || isRecording) return;
+        e.preventDefault();
+        pointerStartY = e.clientY;
+        pressStartTime = Date.now();
+        isCancelMode = false;
+
+        longPressTimer = setTimeout(function() {
+            // 300ms 后触发录音
+            startVoiceRecognition(true);
+        }, LONG_PRESS_MS);
+    }
+
+    function onPointerMove(e) {
+        if (!isRecording) return;
+        const diff = pointerStartY - e.clientY;
+        if (diff > CANCEL_DISTANCE) {
+            if (!isCancelMode) {
+                isCancelMode = true;
+                const inputWrap = document.getElementById('inputWrap');
+                const charCount = document.getElementById('charCount');
+                inputWrap.classList.remove('recording');
+                inputWrap.classList.add('cancel-mode');
+                charCount.classList.remove('recording');
+                charCount.classList.add('cancel-mode');
+                showVoiceTip('松开取消', true);
+            }
+        } else {
+            if (isCancelMode) {
+                isCancelMode = false;
+                const inputWrap = document.getElementById('inputWrap');
+                const charCount = document.getElementById('charCount');
+                inputWrap.classList.remove('cancel-mode');
+                inputWrap.classList.add('recording');
+                charCount.classList.remove('cancel-mode');
+                charCount.classList.add('recording');
+                showVoiceTip('请说话...', false);
+            }
+        }
+    }
+
+    function onPointerUp(e) {
+        clearTimeout(longPressTimer);
+        longPressTimer = null;
+
+        const elapsed = Date.now() - pressStartTime;
+
+        if (elapsed < LONG_PRESS_MS) {
+            // 短按 = 点击识别（原有点击模式）
+            onClickVoiceInput();
+        } else if (isRecording) {
+            // 长按结束 = 发送
+            finishVoiceRecognition();
+        }
+    }
+
+    // ================================================================
+    // 点击识别（短按）
+    // ================================================================
+    function onClickVoiceInput() {
+        if (!isVoiceMode) return;
+        if (isListening) {
+            stopVoice();
+            const input = document.getElementById('chatInput');
+            input.value = '';
+            input.placeholder = '按住说话，或点击输入框开始识别';
+            updateCharCount();
+            return;
+        }
+        // 点击 = 开始识别（松手不发送，等下一次点击结束）
+        startVoiceRecognition(false);
+    }
+
+    // ================================================================
+    // 语音提示条
+    // ================================================================
+    function showVoiceTip(text, isCancel) {
+        const tip = document.getElementById('voiceTip');
+        const tipText = document.getElementById('voiceTipText');
+        tipText.textContent = text;
+        tip.classList.toggle('cancel', !!isCancel);
+        tip.classList.add('show');
+    }
+    function hideVoiceTip() {
+        document.getElementById('voiceTip').classList.remove('show');
+    }
+
+    // ================================================================
+    // 卡片构建
+    // ================================================================
+    function buildCard(data) {
+        const t = data.type;
+        const a = data.args;
+        if (t === 'query_images') return { title: '🖼️ 查看图片', desc: `商品：${a.product_name}` };
+        if (t === 'delete_main_image') return { title: '🗑️ 删除主图预览', desc: `商品：${a.product_name}\n⚠️ 删除后需重新上传`, isDanger: true };
+        if (t === 'remove_sub_image') return { title: '🗑️ 删除副图预览', desc: `商品：${a.product_name}\n删除第 ${a.index} 张副图`, isDanger: true };
+        if (t === 'clear_sub_images') return { title: '🧹 清空副图预览', desc: `商品：${a.product_name}\n⚠️ 将删除所有副图`, isDanger: true };
+        if (t === 'clear_all_images') return { title: '🧹 清空所有图片预览', desc: `商品：${a.product_name}\n⚠️ 将删除主图 + 所有副图`, isDanger: true };
+        if (t === 'update_price') return { title: '💰 价格修改预览', desc: `商品：${a.product_name}\n新价格：¥${a.new_price}` };
+        if (t === 'update_stock') {
+            const actionText = a.action === 'increase' ? '增加' : a.action === 'decrease' ? '减少' : '设置为';
+            return { title: '📦 库存修改预览', desc: `商品：${a.product_name}\n操作：${actionText} ${a.amount} 件` };
+        }
+        if (t === 'query_low_stock') return { title: '📋 库存查询', desc: `条件：库存 < ${a.threshold} 件` };
+        if (t === 'publish_to_platforms') return { title: '🚀 多平台上架预览', desc: `商品：${a.product_name}\n目标平台：${a.platforms.join('、')}` };
+        if (t === 'update_title') return { title: '✏️ 标题修改预览', desc: `商品：${a.product_name}\n新标题：${a.new_title}` };
+        if (t === 'take_off_shelf') return { title: '⬇️ 下架预览', desc: `商品：${a.product_name}` };
+        if (t === 'put_on_shelf') return { title: '⬆️ 上架预览', desc: `商品：${a.product_name}` };
+        if (t === 'query_sales') return { title: '📊 销量查询', desc: `商品：${a.product_name}` };
+        if (t === 'create_coupon') return { title: '🎟️ 优惠券预览', desc: `满 ${a.threshold} 减 ${a.discount}\n有效天数：${a.days || 7} 天` };
+        if (t === 'batch_take_off') return { title: '⬇️ 批量下架预览', desc: `分类：${a.category}\n将下架该分类所有商品` };
+        if (t === 'batch_update_price') {
+            const adjText = a.adjust_type === 'percent' ? `${a.adjust_value > 0 ? '+' : ''}${a.adjust_value}%` : `${a.adjust_value > 0 ? '+' : ''}${a.adjust_value}元`;
+            return { title: '📈 批量调价预览', desc: `分类：${a.category}\n调整幅度：${adjText}` };
+        }
+        if (t === 'query_by_price_range') return { title: '🔍 价格区间查询', desc: `价格区间：¥${a.min_price} - ¥${a.max_price}` };
+        if (t === 'batch_take_off_zero_stock') return { title: '🧹 清空零库存预览', desc: `将下架所有库存为 0 的商品` };
+        if (t === 'batch_markup_all') return { title: '💵 全店加价预览', desc: `所有商品统一加价 ${a.percent}%` };
+        if (t === 'query_sort_by_sales') {
+            const orderText = a.order === 'asc' ? '从低到高' : '从高到低';
+            return { title: '📊 销量排行查询', desc: `按销量${orderText}排序，显示前 ${a.limit || 10} 个` };
+        }
+        if (t === 'add_product') return { title: '➕ 新增商品预览', desc: `名称：${a.name}\n价格：¥${a.price}\n库存：${a.stock || 0} 件\n分类：${a.category || '文创'}\n平台：${a.platform || '淘宝'}` };
+        if (t === 'delete_product') return { title: '🗑️ 删除商品预览', desc: `商品：${a.product_name}\n⚠️ 删除后不可恢复`, isDanger: true };
+        if (t === 'batch_update_stock') {
+            const actionText = a.action === 'increase' ? '增加' : a.action === 'decrease' ? '减少' : '设置为';
+            return { title: '📦 批量改库存预览', desc: `分类：${a.category}\n操作：${actionText} ${a.amount} 件` };
+        }
+        if (t === 'query_by_platform') return { title: '🔍 按平台查询', desc: `平台：${a.platform}` };
+        if (t === 'query_by_status') return { title: '📋 按状态查询', desc: `状态：${a.status}` };
+        if (t === 'batch_put_on_shelf') return { title: '⬆️ 批量上架预览', desc: `分类：${a.category}\n将上架该分类所有商品` };
+        if (t === 'duplicate_product') return { title: '📋 复制商品预览', desc: `原商品：${a.product_name}\n新名称：${a.new_name}` };
+        if (t === 'query_by_category') return { title: '🔍 按分类查询', desc: `分类：${a.category}` };
+        if (t === 'export_products') return { title: '📤 导出商品数据', desc: `将导出所有商品数据` };
+        if (t === 'search_product') return { title: '🔎 关键词搜索', desc: `关键词：${a.keyword}` };
+        if (t === 'batch_delete_by_category') return { title: '🗑️ 批量删除预览', desc: `分类：${a.category}\n⚠️ 将删除该分类所有商品，不可恢复`, isDanger: true };
+        if (t === 'query_restock_alert') return { title: '⚠️ 库存预警查询', desc: `查询库存低于 ${a.threshold || 50} 件的商品` };
+        if (t === 'export_to_excel') return { title: '📤 导出CSV', desc: `将导出所有商品数据为 CSV 文件` };
+        return { title: '操作预览', desc: JSON.stringify(a) };
+    }
+
+    // ================================================================
+    // 消息渲染
+    // ================================================================
     function renderHistory() {
         const container = document.getElementById('chatHistoryList');
         if (historyData.length === 0) {
@@ -286,71 +764,8 @@
     }
 
     // ================================================================
-    // 构建预览卡片（修复：图片指令移到前面，避免被默认值覆盖）
+    // 键盘输入发送
     // ================================================================
-    function buildCard(data) {
-        const t = data.type;
-        const a = data.args;
-
-        // ===== 图片指令（优先匹配） =====
-        if (t === 'query_images') return { title: '🖼️ 查看图片', desc: `商品：${a.product_name}` };
-        if (t === 'delete_main_image') return { title: '🗑️ 删除主图预览', desc: `商品：${a.product_name}\n⚠️ 删除后需重新上传`, isDanger: true };
-        if (t === 'remove_sub_image') return { title: '🗑️ 删除副图预览', desc: `商品：${a.product_name}\n删除第 ${a.index} 张副图`, isDanger: true };
-        if (t === 'clear_sub_images') return { title: '🧹 清空副图预览', desc: `商品：${a.product_name}\n⚠️ 将删除所有副图`, isDanger: true };
-        if (t === 'clear_all_images') return { title: '🧹 清空所有图片预览', desc: `商品：${a.product_name}\n⚠️ 将删除主图 + 所有副图`, isDanger: true };
-
-        // ===== 单商品操作 =====
-        if (t === 'update_price') return { title: '💰 价格修改预览', desc: `商品：${a.product_name}\n新价格：¥${a.new_price}` };
-        if (t === 'update_stock') {
-            const actionText = a.action === 'increase' ? '增加' : a.action === 'decrease' ? '减少' : '设置为';
-            return { title: '📦 库存修改预览', desc: `商品：${a.product_name}\n操作：${actionText} ${a.amount} 件` };
-        }
-        if (t === 'query_low_stock') return { title: '📋 库存查询', desc: `条件：库存 < ${a.threshold} 件` };
-        if (t === 'publish_to_platforms') return { title: '🚀 多平台上架预览', desc: `商品：${a.product_name}\n目标平台：${a.platforms.join('、')}` };
-        if (t === 'update_title') return { title: '✏️ 标题修改预览', desc: `商品：${a.product_name}\n新标题：${a.new_title}` };
-        if (t === 'take_off_shelf') return { title: '⬇️ 下架预览', desc: `商品：${a.product_name}` };
-        if (t === 'put_on_shelf') return { title: '⬆️ 上架预览', desc: `商品：${a.product_name}` };
-        if (t === 'query_sales') return { title: '📊 销量查询', desc: `商品：${a.product_name}` };
-        if (t === 'create_coupon') return { title: '🎟️ 优惠券预览', desc: `满 ${a.threshold} 减 ${a.discount}\n有效天数：${a.days || 7} 天` };
-
-        // ===== 批量操作 =====
-        if (t === 'batch_take_off') return { title: '⬇️ 批量下架预览', desc: `分类：${a.category}\n将下架该分类所有商品` };
-        if (t === 'batch_update_price') {
-            const adjText = a.adjust_type === 'percent' ? `${a.adjust_value > 0 ? '+' : ''}${a.adjust_value}%` : `${a.adjust_value > 0 ? '+' : ''}${a.adjust_value}元`;
-            return { title: '📈 批量调价预览', desc: `分类：${a.category}\n调整幅度：${adjText}` };
-        }
-        if (t === 'query_by_price_range') return { title: '🔍 价格区间查询', desc: `价格区间：¥${a.min_price} - ¥${a.max_price}` };
-        if (t === 'batch_take_off_zero_stock') return { title: '🧹 清空零库存预览', desc: `将下架所有库存为 0 的商品` };
-        if (t === 'batch_markup_all') return { title: '💵 全店加价预览', desc: `所有商品统一加价 ${a.percent}%` };
-        if (t === 'query_sort_by_sales') {
-            const orderText = a.order === 'asc' ? '从低到高' : '从高到低';
-            return { title: '📊 销量排行查询', desc: `按销量${orderText}排序，显示前 ${a.limit || 10} 个` };
-        }
-        if (t === 'batch_update_stock') {
-            const actionText = a.action === 'increase' ? '增加' : a.action === 'decrease' ? '减少' : '设置为';
-            return { title: '📦 批量改库存预览', desc: `分类：${a.category}\n操作：${actionText} ${a.amount} 件` };
-        }
-        if (t === 'batch_put_on_shelf') return { title: '⬆️ 批量上架预览', desc: `分类：${a.category}\n将上架该分类所有商品` };
-        if (t === 'batch_delete_by_category') return { title: '🗑️ 批量删除预览', desc: `分类：${a.category}\n⚠️ 将删除该分类所有商品，不可恢复`, isDanger: true };
-
-        // ===== 商品增删 =====
-        if (t === 'add_product') return { title: '➕ 新增商品预览', desc: `名称：${a.name}\n价格：¥${a.price}\n库存：${a.stock || 0} 件\n分类：${a.category || '文创'}\n平台：${a.platform || '淘宝'}` };
-        if (t === 'delete_product') return { title: '🗑️ 删除商品预览', desc: `商品：${a.product_name}\n⚠️ 删除后不可恢复`, isDanger: true };
-        if (t === 'duplicate_product') return { title: '📋 复制商品预览', desc: `原商品：${a.product_name}\n新名称：${a.new_name}` };
-
-        // ===== 查询 =====
-        if (t === 'query_by_platform') return { title: '🔍 按平台查询', desc: `平台：${a.platform}` };
-        if (t === 'query_by_status') return { title: '📋 按状态查询', desc: `状态：${a.status}` };
-        if (t === 'query_by_category') return { title: '🔍 按分类查询', desc: `分类：${a.category}` };
-        if (t === 'export_products') return { title: '📤 导出商品数据', desc: `将导出所有商品数据` };
-        if (t === 'search_product') return { title: '🔎 关键词搜索', desc: `关键词：${a.keyword}` };
-        if (t === 'query_restock_alert') return { title: '⚠️ 库存预警查询', desc: `查询库存低于 ${a.threshold || 50} 件的商品` };
-        if (t === 'export_to_excel') return { title: '📤 导出CSV', desc: `将导出所有商品数据为 CSV 文件` };
-
-        // 兜底
-        return { title: '操作预览', desc: JSON.stringify(a) };
-    }
-
     async function sendMessage() {
         const input = document.getElementById('chatInput');
         const text = input.value.trim();
@@ -500,7 +915,7 @@
         if (!toast) {
             toast = document.createElement('div');
             toast.id = 'toast';
-            toast.style.cssText = `position:fixed;bottom:30px;left:50%;transform:translateX(-50%);background:#0a1e2f;color:white;padding:12px 28px;border-radius:40px;font-size:14px;box-shadow:0 10px 30px rgba(0,0,0,0.15);z-index:999;white-space:nowrap;display:none;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'PingFang SC','Microsoft YaHei',sans-serif;`;
+            toast.style.cssText = `position:fixed;bottom:30px;left:50%;transform:translateX(-50%);background:#0a1e2f;color:white;padding:12px 28px;border-radius:40px;font-size:14px;box-shadow:0 10px 30px rgba(0,0,0,0.15);z-index:9999;white-space:nowrap;display:none;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'PingFang SC','Microsoft YaHei',sans-serif;`;
             document.body.appendChild(toast);
         }
         toast.innerHTML = msg;
@@ -519,26 +934,49 @@
         const input = document.getElementById('chatInput');
         const count = document.getElementById('charCount');
         const len = input.value.length;
-        count.textContent = len + '/500';
-        count.style.color = len > 450 ? '#b51a3f' : '#94a3b8';
+        if (isRecording) {
+            count.textContent = '录音中...';
+        } else if (len === 0) {
+            count.textContent = '0/500';
+        } else {
+            count.textContent = len + '/500';
+            count.style.color = len > 450 ? '#b51a3f' : '#94a3b8';
+        }
     }
 
     function handleKeyDown(e) {
+        if (isVoiceMode) {
+            e.preventDefault();
+            return;
+        }
         if (e.key === 'Enter' && !e.shiftKey) {
             e.preventDefault();
             sendMessage();
         }
     }
 
+    // ================================================================
+    // 初始化
+    // ================================================================
     document.addEventListener('DOMContentLoaded', function() {
         renderHistory();
         document.getElementById('chatInput').focus();
         document.getElementById('messageContainer').addEventListener('click', () => {
-            document.getElementById('chatInput').focus();
+            if (!isVoiceMode) document.getElementById('chatInput').focus();
+        });
+
+        // 绑定输入框的长按/滑动/松开事件（用于语音）
+        const inputWrap = document.getElementById('inputWrap');
+        inputWrap.addEventListener('pointerdown', onPointerDown);
+        inputWrap.addEventListener('pointermove', onPointerMove);
+        inputWrap.addEventListener('pointerup', onPointerUp);
+        inputWrap.addEventListener('pointercancel', onPointerUp);
+        inputWrap.addEventListener('pointerleave', function(e) {
+            if (isRecording) onPointerUp(e);
         });
     });
 
-    console.log('🤖 智控电商 · AI助手已加载（33种指令）');
+    console.log('🤖 智控电商 · AI助手已加载（33种指令 + 长按录音）');
     console.log('💡 后端:', BACKEND_URL);
 </script>
 </body>
