@@ -83,6 +83,7 @@
         .bubble .action-card .btn-group .btn-sm { padding: 4px 14px; border-radius: 20px; border: none; font-size: 12px; font-weight: 500; cursor: pointer; transition: 0.1s; }
         .bubble .action-card .btn-group .btn-sm.primary { background: #0a1e2f; color: white; }
         .bubble .action-card .btn-group .btn-sm.success { background: #0d7c4f; color: white; }
+        .bubble .action-card .btn-group .btn-sm.danger { background: #b51a3f; color: white; }
         .bubble .action-card .btn-group .btn-sm.outline { background: transparent; border: 1px solid #dce5ef; color: #1e3a5f; }
         .bubble .action-card .btn-group .btn-sm:hover { transform: scale(0.97); }
         .typing-indicator { display: none; align-items: center; gap: 12px; padding: 8px 0; }
@@ -107,6 +108,7 @@
         .empty-state .examples { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 16px; justify-content: center; max-width: 700px; }
         .empty-state .examples .ex { padding: 8px 18px; border-radius: 30px; border: 1px solid #dce5ef; font-size: 13px; color: #5f7d95; cursor: pointer; background: white; transition: 0.15s; }
         .empty-state .examples .ex:hover { border-color: #4dabf7; color: #2a7faa; background: #f5f9fe; }
+        .empty-state .examples .ex.danger:hover { border-color: #b51a3f; color: #b51a3f; background: #fde8ed; }
         @media (max-width: 768px) {
             .app-header { padding: 10px 16px; }
             .app-header .logo { font-size: 16px; }
@@ -134,7 +136,7 @@
     <div class="status">
         <span><span class="dot"></span> 在线 · 已接入 DeepSeek</span>
         <a class="btn" href="products.html" target="_blank"><i class="fas fa-eye"></i> <span>查看商品</span></a>
-        <span class="btn"><i class="fas fa-cog"></i> <span>设置</span></span>
+        <a class="btn" href="logs.html" target="_blank"><i class="fas fa-history"></i> <span>操作日志</span></a>
     </div>
 </header>
 
@@ -151,7 +153,7 @@
         <div class="chat-main-header">
             <div class="info">
                 <h4 id="chatTitle">AI 经营助手</h4>
-                <p id="chatSubtitle">基于 DeepSeek · 25 种指令可用</p>
+                <p id="chatSubtitle">基于 DeepSeek · 28 种指令可用</p>
             </div>
             <div class="actions">
                 <span class="btn-sm" onclick="clearMessages()"><i class="fas fa-eraser"></i> 清空</span>
@@ -163,7 +165,7 @@
             <div class="empty-state" id="emptyState">
                 <i class="fas fa-robot"></i>
                 <h3>👋 你好，我是 AI 经营助手</h3>
-                <p>支持 25 种操作：单商品操作、批量操作、数据查询、商品增删。</p>
+                <p>支持 28 种操作：单商品操作、批量操作、数据查询、商品增删、库存预警、CSV导出。</p>
                 <div class="examples">
                     <span class="ex" onclick="sendExample('新增一个商品叫云山红茶，价格88元')">➕ 新增商品</span>
                     <span class="ex" onclick="sendExample('删除手写书法折扇')">🗑️ 删除商品</span>
@@ -171,9 +173,9 @@
                     <span class="ex" onclick="sendExample('抖音上架了哪些商品')">🔍 按平台查询</span>
                     <span class="ex" onclick="sendExample('把所有下架商品列出来')">📋 按状态查询</span>
                     <span class="ex" onclick="sendExample('把所有文创类商品上架')">⬆️ 批量上架</span>
-                    <span class="ex" onclick="sendExample('复制一个云山茶叶礼盒，改名云山茶叶礼盒2')">📋 复制商品</span>
-                    <span class="ex" onclick="sendExample('查一下文创类商品有哪些')">🔍 按分类查询</span>
-                    <span class="ex" onclick="sendExample('搜索所有名字里有茶叶的商品')">🔎 关键词搜索</span>
+                    <span class="ex" onclick="sendExample('查一下需要补货的商品')">⚠️ 库存预警</span>
+                    <span class="ex" onclick="sendExample('导出所有商品数据到CSV')">📤 导出CSV</span>
+                    <span class="ex danger" onclick="sendExample('删除所有文创类商品')">🗑️ 批量删除（高危）</span>
                 </div>
             </div>
             <div id="messagesList"></div>
@@ -185,7 +187,7 @@
 
         <div class="input-area">
             <div class="input-wrap">
-                <textarea id="chatInput" rows="1" placeholder="输入你的经营需求，例如：新增一个商品叫云山红茶，价格88元" onkeydown="handleKeyDown(event)" oninput="autoResize(this)"></textarea>
+                <textarea id="chatInput" rows="1" placeholder="输入你的经营需求，例如：查一下需要补货的商品" onkeydown="handleKeyDown(event)" oninput="autoResize(this)"></textarea>
                 <span class="char-count" id="charCount">0/500</span>
             </div>
             <button class="send-btn" id="sendBtn" onclick="sendMessage()"><i class="fas fa-paper-plane"></i></button>
@@ -240,7 +242,7 @@
         state.currentChatId = null;
         renderHistory();
         document.getElementById('chatTitle').textContent = 'AI 经营助手';
-        document.getElementById('chatSubtitle').textContent = '基于 DeepSeek · 25 种指令可用';
+        document.getElementById('chatSubtitle').textContent = '基于 DeepSeek · 28 种指令可用';
         document.getElementById('messagesList').innerHTML = '';
         document.getElementById('emptyState').style.display = 'flex';
         document.getElementById('chatInput').value = '';
@@ -267,7 +269,7 @@
                     <div class="desc">${msg.card.desc.replace(/\n/g, '<br>')}</div>
                     <div class="btn-group">
                         ${msg.card.actions.map(a => {
-                            const cls = a.type === 'confirm' ? 'success' : a.type === 'cancel' ? 'outline' : 'primary';
+                            const cls = a.type === 'confirm' ? 'success' : a.type === 'cancel' ? 'outline' : a.type === 'danger' ? 'danger' : 'primary';
                             return `<span class="btn-sm ${cls}" onclick="${a.onclick}">${a.label}</span>`;
                         }).join('')}
                     </div>
@@ -323,6 +325,9 @@
         if (t === 'query_by_category') return { title: '🔍 按分类查询', desc: `分类：${a.category}` };
         if (t === 'export_products') return { title: '📤 导出商品数据', desc: `将导出所有商品数据` };
         if (t === 'search_product') return { title: '🔎 关键词搜索', desc: `关键词：${a.keyword}` };
+        if (t === 'batch_delete_by_category') return { title: '🗑️ 批量删除预览', desc: `分类：${a.category}\n⚠️ 将删除该分类所有商品，不可恢复`, isDanger: true };
+        if (t === 'query_restock_alert') return { title: '⚠️ 库存预警查询', desc: `查询库存低于 ${a.threshold || 50} 件的商品` };
+        if (t === 'export_to_excel') return { title: '📤 导出CSV', desc: `将导出所有商品数据为 CSV 文件` };
         return { title: '操作预览', desc: JSON.stringify(a) };
     }
 
@@ -355,15 +360,18 @@
             } else {
                 state.pendingAction = data;
                 const card = buildCard(data);
+                // 高危操作（批量删除）用红色确认按钮
+                const confirmLabel = card.isDanger ? '🗑️ 确认删除' : '✅ 确认执行';
+                const confirmType = card.isDanger ? 'danger' : 'confirm';
                 appendMessage({
                     role: 'ai',
-                    text: '我理解你的指令，请确认：',
+                    text: card.isDanger ? '⚠️ 这是高危操作，请仔细确认：' : '我理解你的指令，请确认：',
                     time: nowTime(),
                     card: {
                         title: card.title,
                         desc: card.desc,
                         actions: [
-                            { label: '✅ 确认执行', type: 'confirm', onclick: 'confirmAction()' },
+                            { label: confirmLabel, type: confirmType, onclick: 'confirmAction()' },
                             { label: '✖ 取消', type: 'cancel', onclick: 'cancelAction()' }
                         ]
                     }
@@ -409,6 +417,10 @@
 
             if (data.success) {
                 appendMessage({ role: 'ai', text: '✅ ' + data.message, time: nowTime() });
+                // 如果是 CSV 导出，触发下载
+                if (data.csv) {
+                    window.open(BACKEND_URL + '/api/export/csv', '_blank');
+                }
             } else {
                 appendMessage({ role: 'ai', text: '❌ ' + data.message, time: nowTime() });
             }
@@ -439,7 +451,7 @@
         document.getElementById('messagesList').innerHTML = '';
         document.getElementById('emptyState').style.display = 'flex';
         document.getElementById('chatTitle').textContent = 'AI 经营助手';
-        document.getElementById('chatSubtitle').textContent = '基于 DeepSeek · 25 种指令可用';
+        document.getElementById('chatSubtitle').textContent = '基于 DeepSeek · 28 种指令可用';
         state.currentChatId = null;
         renderHistory();
         showToast('🗑️ 已清空对话');
@@ -508,7 +520,7 @@
         });
     });
 
-    console.log('🤖 智控电商 · AI助手已加载（25种指令）');
+    console.log('🤖 智控电商 · AI助手已加载（28种指令）');
     console.log('💡 后端:', BACKEND_URL);
 </script>
 </body>
