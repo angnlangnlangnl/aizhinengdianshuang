@@ -1,0 +1,800 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>智控电商 · 图片管理</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'PingFang SC', 'Microsoft YaHei', sans-serif;
+            background: #f5f7fa;
+            color: #0a1a2b;
+            min-height: 100vh;
+        }
+        .header {
+            background: white;
+            padding: 16px 32px;
+            box-shadow: 0 1px 4px rgba(0,0,0,0.04);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+        .header .logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 20px;
+            font-weight: 700;
+        }
+        .header .logo i {
+            color: #4dabf7;
+            font-size: 26px;
+            background: rgba(77,171,247,0.12);
+            padding: 6px;
+            border-radius: 10px;
+        }
+        .header .nav-links {
+            display: flex;
+            gap: 10px;
+        }
+        .header .nav-links a {
+            padding: 6px 18px;
+            border-radius: 30px;
+            border: 1px solid #dce5ef;
+            background: white;
+            font-size: 13px;
+            color: #1e3a5f;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            transition: 0.15s;
+        }
+        .header .nav-links a:hover {
+            border-color: #4dabf7;
+            color: #2a7faa;
+        }
+        .header .nav-links a.active {
+            background: #0a1e2f;
+            border-color: #0a1e2f;
+            color: white;
+        }
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 24px 32px;
+        }
+        .page-title {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        .page-title h1 {
+            font-size: 22px;
+            color: #0a1e2f;
+        }
+        .page-title .subtitle {
+            font-size: 13px;
+            color: #5f7d95;
+            margin-top: 4px;
+        }
+        .page-title .refresh-btn {
+            padding: 8px 20px;
+            border-radius: 30px;
+            border: 1px solid #dce5ef;
+            background: white;
+            font-size: 13px;
+            color: #1e3a5f;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            transition: 0.15s;
+        }
+        .page-title .refresh-btn:hover { border-color: #4dabf7; color: #2a7faa; }
+
+        /* 商品选择器 */
+        .product-selector {
+            background: white;
+            border-radius: 16px;
+            padding: 16px 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            flex-wrap: wrap;
+        }
+        .product-selector label {
+            font-size: 14px;
+            font-weight: 600;
+            color: #0a1e2f;
+        }
+        .product-selector select {
+            padding: 8px 16px;
+            border: 1px solid #dce5ef;
+            border-radius: 10px;
+            font-size: 14px;
+            background: white;
+            color: #0a1e2f;
+            outline: none;
+            cursor: pointer;
+            min-width: 220px;
+            transition: 0.15s;
+        }
+        .product-selector select:focus {
+            border-color: #4dabf7;
+            box-shadow: 0 0 0 3px rgba(77,171,247,0.08);
+        }
+
+        /* 图片区域 */
+        .image-section {
+            background: white;
+            border-radius: 16px;
+            padding: 24px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+        }
+        .image-section .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        .image-section .section-header h3 {
+            font-size: 16px;
+            font-weight: 600;
+            color: #0a1e2f;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .image-section .section-header h3 i {
+            color: #4dabf7;
+        }
+        .image-section .section-header .count {
+            font-size: 13px;
+            color: #5f7d95;
+            font-weight: 400;
+        }
+
+        /* 主图区域 */
+        .main-image-area {
+            display: flex;
+            gap: 20px;
+            align-items: flex-start;
+            flex-wrap: wrap;
+        }
+        .main-image-preview {
+            width: 300px;
+            height: 300px;
+            border-radius: 12px;
+            border: 2px dashed #dce5ef;
+            background: #fafcfe;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            color: #94a3b8;
+            position: relative;
+            overflow: hidden;
+            transition: 0.15s;
+        }
+        .main-image-preview.has-image {
+            border-style: solid;
+            border-color: #e8edf4;
+            background: white;
+        }
+        .main-image-preview img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        .main-image-preview .placeholder {
+            text-align: center;
+            padding: 20px;
+        }
+        .main-image-preview .placeholder i {
+            font-size: 48px;
+            color: #dce5ef;
+            margin-bottom: 12px;
+            display: block;
+        }
+        .main-image-preview .placeholder p {
+            font-size: 13px;
+        }
+        .main-image-actions {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            flex: 1;
+            min-width: 200px;
+        }
+        .main-image-actions .btn {
+            padding: 10px 20px;
+            border-radius: 10px;
+            border: none;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            transition: 0.15s;
+        }
+        .main-image-actions .btn.primary {
+            background: #0a1e2f;
+            color: white;
+        }
+        .main-image-actions .btn.primary:hover { background: #1a3a5a; }
+        .main-image-actions .btn.danger {
+            background: #fde8ed;
+            color: #b51a3f;
+        }
+        .main-image-actions .btn.danger:hover { background: #fcd0d9; }
+        .main-image-actions .btn:disabled {
+            opacity: 0.4;
+            cursor: not-allowed;
+        }
+        .main-image-actions .tip {
+            font-size: 12px;
+            color: #94a3b8;
+            margin-top: 6px;
+        }
+
+        /* 副图网格 */
+        .sub-images-grid {
+            display: grid;
+            grid-template-columns: repeat(6, 1fr);
+            gap: 12px;
+        }
+        .sub-image-item {
+            aspect-ratio: 1/1;
+            border-radius: 10px;
+            border: 1px solid #e8edf4;
+            background: #fafcfe;
+            position: relative;
+            overflow: hidden;
+            transition: 0.15s;
+        }
+        .sub-image-item:hover {
+            border-color: #4dabf7;
+            box-shadow: 0 4px 12px rgba(77,171,247,0.15);
+        }
+        .sub-image-item img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        .sub-image-item .remove-btn {
+            position: absolute;
+            top: 6px;
+            right: 6px;
+            width: 26px;
+            height: 26px;
+            border-radius: 50%;
+            background: rgba(181,26,63,0.9);
+            color: white;
+            border: none;
+            cursor: pointer;
+            font-size: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            transition: 0.15s;
+        }
+        .sub-image-item:hover .remove-btn {
+            opacity: 1;
+        }
+        .sub-image-item .remove-btn:hover {
+            background: #b51a3f;
+            transform: scale(1.1);
+        }
+        .sub-image-item .index-badge {
+            position: absolute;
+            top: 6px;
+            left: 6px;
+            background: rgba(10,30,47,0.75);
+            color: white;
+            font-size: 11px;
+            padding: 2px 8px;
+            border-radius: 20px;
+            font-weight: 500;
+        }
+        /* 上传卡片 */
+        .upload-card {
+            aspect-ratio: 1/1;
+            border-radius: 10px;
+            border: 2px dashed #dce5ef;
+            background: #fafcfe;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            color: #94a3b8;
+            cursor: pointer;
+            transition: 0.15s;
+            font-size: 12px;
+        }
+        .upload-card:hover {
+            border-color: #4dabf7;
+            background: #f0f7fe;
+            color: #4dabf7;
+        }
+        .upload-card i {
+            font-size: 24px;
+            margin-bottom: 6px;
+        }
+        .upload-card.disabled {
+            opacity: 0.4;
+            cursor: not-allowed;
+            pointer-events: none;
+        }
+
+        /* Toast */
+        .toast {
+            position: fixed;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #0a1e2f;
+            color: white;
+            padding: 12px 28px;
+            border-radius: 40px;
+            font-size: 14px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+            display: none;
+            z-index: 9999;
+            white-space: nowrap;
+        }
+        .toast.show { display: block; animation: fadeUp 0.3s ease; }
+        .toast.success { background: #0d7c4f; }
+        .toast.error { background: #b51a3f; }
+        @keyframes fadeUp {
+            from { opacity: 0; transform: translateX(-50%) translateY(20px); }
+            to { opacity: 1; transform: translateX(-50%) translateY(0); }
+        }
+
+        /* 加载中 */
+        .loading-overlay {
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(255,255,255,0.9);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 9998;
+        }
+        .loading-overlay.show { display: flex; }
+        .loading-overlay .spinner {
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            border: 4px solid #e8edf4;
+            border-top-color: #4dabf7;
+            animation: spin 0.8s linear infinite;
+        }
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        @media (max-width: 1024px) {
+            .sub-images-grid { grid-template-columns: repeat(4, 1fr); }
+        }
+        @media (max-width: 768px) {
+            .header { padding: 12px 16px; flex-wrap: wrap; gap: 10px; }
+            .header .nav-links { width: 100%; overflow-x: auto; }
+            .container { padding: 16px; }
+            .main-image-preview { width: 100%; max-width: 300px; }
+            .sub-images-grid { grid-template-columns: repeat(3, 1fr); }
+        }
+        @media (max-width: 480px) {
+            .sub-images-grid { grid-template-columns: repeat(2, 1fr); }
+        }
+    </style>
+</head>
+<body>
+
+<header class="header">
+    <div class="logo">
+        <i class="fas fa-bolt"></i>
+        智控电商 · 图片管理
+    </div>
+    <div class="nav-links">
+        <a href="products.html"><i class="fas fa-box"></i> 商品展示</a>
+        <a href="ai_assistant.html"><i class="fas fa-robot"></i> AI 助手</a>
+        <a href="images.html" class="active"><i class="fas fa-images"></i> 图片管理</a>
+        <a href="logs.html"><i class="fas fa-history"></i> 操作日志</a>
+    </div>
+</header>
+
+<div class="container">
+    <div class="page-title">
+        <div>
+            <h1>图片管理</h1>
+            <p class="subtitle">上传主图 / 副图 · 副图最多 5 张 · 单张不超过 2MB</p>
+        </div>
+        <button class="refresh-btn" onclick="loadProducts()">
+            <i class="fas fa-sync-alt"></i> 刷新
+        </button>
+    </div>
+
+    <!-- 商品选择器 -->
+    <div class="product-selector">
+        <label><i class="fas fa-box" style="color:#4dabf7;"></i> 选择商品：</label>
+        <select id="productSelect" onchange="onProductChange()">
+            <option value="">加载中...</option>
+        </select>
+        <span id="productInfo" style="font-size:13px; color:#5f7d95; margin-left:auto;"></span>
+    </div>
+
+    <!-- 主图 -->
+    <div class="image-section">
+        <div class="section-header">
+            <h3><i class="fas fa-star"></i> 主图 <span class="count">（1 张）</span></h3>
+        </div>
+        <div class="main-image-area">
+            <div class="main-image-preview" id="mainImagePreview">
+                <div class="placeholder">
+                    <i class="fas fa-image"></i>
+                    <p>暂无主图</p>
+                </div>
+            </div>
+            <div class="main-image-actions">
+                <button class="btn primary" onclick="document.getElementById('mainFileInput').click()">
+                    <i class="fas fa-upload"></i> <span id="mainBtnText">上传主图</span>
+                </button>
+                <button class="btn danger" id="deleteMainBtn" onclick="deleteMainImage()" disabled>
+                    <i class="fas fa-trash"></i> 删除主图
+                </button>
+                <p class="tip"><i class="fas fa-info-circle"></i> 支持 JPG、PNG、WEBP，单张不超过 2MB</p>
+                <input type="file" id="mainFileInput" accept="image/*" style="display:none;" onchange="handleMainUpload(event)">
+            </div>
+        </div>
+    </div>
+
+    <!-- 副图 -->
+    <div class="image-section">
+        <div class="section-header">
+            <h3><i class="fas fa-images"></i> 副图 <span class="count" id="subCount">（0 / 5）</span></h3>
+        </div>
+        <div class="sub-images-grid" id="subImagesGrid">
+            <!-- 动态生成 -->
+        </div>
+        <input type="file" id="subFileInput" accept="image/*" style="display:none;" onchange="handleSubUpload(event)">
+    </div>
+</div>
+
+<!-- 加载中 -->
+<div class="loading-overlay" id="loadingOverlay">
+    <div class="spinner"></div>
+</div>
+
+<!-- Toast -->
+<div id="toast" class="toast"></div>
+
+<script>
+    const BACKEND_URL = 'https://ai-ecommerce-backend-production-0776.up.railway.app';
+    const MAX_SUB_IMAGES = 5;
+
+    let allProducts = [];
+    let currentProduct = null;
+
+    // ================================================================
+    // 加载商品列表
+    // ================================================================
+    async function loadProducts() {
+        const select = document.getElementById('productSelect');
+        try {
+            const res = await fetch(BACKEND_URL + '/api/products');
+            const data = await res.json();
+            allProducts = data.products || [];
+
+            if (allProducts.length === 0) {
+                select.innerHTML = '<option value="">暂无商品</option>';
+                return;
+            }
+
+            // 保留当前选中
+            const currentId = select.value;
+            select.innerHTML = allProducts.map(p =>
+                `<option value="${p.id}">${p.name}（${p.category} · ${p.platform}）</option>`
+            ).join('');
+
+            // 恢复选中，或默认选第一个
+            if (currentId && allProducts.find(p => String(p.id) === currentId)) {
+                select.value = currentId;
+            }
+            onProductChange();
+        } catch (err) {
+            select.innerHTML = `<option value="">加载失败</option>`;
+            showToast('❌ 加载商品列表失败：' + err.message, 'error');
+        }
+    }
+
+    // ================================================================
+    // 商品切换
+    // ================================================================
+    function onProductChange() {
+        const id = document.getElementById('productSelect').value;
+        currentProduct = allProducts.find(p => String(p.id) === id);
+
+        if (!currentProduct) {
+            document.getElementById('mainImagePreview').innerHTML = `
+                <div class="placeholder">
+                    <i class="fas fa-image"></i>
+                    <p>暂无主图</p>
+                </div>`;
+            document.getElementById('subImagesGrid').innerHTML = '';
+            return;
+        }
+
+        renderMainImage();
+        renderSubImages();
+
+        document.getElementById('productInfo').textContent =
+            `当前商品：${currentProduct.name} · ¥${currentProduct.price} · 库存 ${currentProduct.stock}`;
+    }
+
+    // ================================================================
+    // 渲染主图
+    // ================================================================
+    function renderMainImage() {
+        const preview = document.getElementById('mainImagePreview');
+        const deleteBtn = document.getElementById('deleteMainBtn');
+        const btnText = document.getElementById('mainBtnText');
+
+        if (currentProduct.main_image) {
+            preview.className = 'main-image-preview has-image';
+            preview.innerHTML = `<img src="${currentProduct.main_image}" alt="主图">`;
+            deleteBtn.disabled = false;
+            btnText.textContent = '替换主图';
+        } else {
+            preview.className = 'main-image-preview';
+            preview.innerHTML = `
+                <div class="placeholder">
+                    <i class="fas fa-image"></i>
+                    <p>暂无主图</p>
+                </div>`;
+            deleteBtn.disabled = true;
+            btnText.textContent = '上传主图';
+        }
+    }
+
+    // ================================================================
+    // 渲染副图
+    // ================================================================
+    function renderSubImages() {
+        const grid = document.getElementById('subImagesGrid');
+        const subs = currentProduct.sub_images || [];
+        const countEl = document.getElementById('subCount');
+        countEl.textContent = `（${subs.length} / ${MAX_SUB_IMAGES}）`;
+
+        let html = '';
+        subs.forEach((img, index) => {
+            html += `
+                <div class="sub-image-item">
+                    <img src="${img}" alt="副图 ${index + 1}">
+                    <span class="index-badge">#${index + 1}</span>
+                    <button class="remove-btn" onclick="deleteSubImage(${index})" title="删除">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+            `;
+        });
+
+        // 上传卡片
+        if (subs.length < MAX_SUB_IMAGES) {
+            html += `
+                <div class="upload-card" onclick="document.getElementById('subFileInput').click()">
+                    <i class="fas fa-plus"></i>
+                    <span>添加副图</span>
+                </div>
+            `;
+        } else {
+            html += `
+                <div class="upload-card disabled">
+                    <i class="fas fa-check-circle"></i>
+                    <span>已达上限</span>
+                </div>
+            `;
+        }
+
+        grid.innerHTML = html;
+    }
+
+    // ================================================================
+    // 上传主图
+    // ================================================================
+    async function handleMainUpload(event) {
+        const file = event.target.files[0];
+        if (!file || !currentProduct) return;
+
+        if (!file.type.startsWith('image/')) {
+            showToast('❌ 只支持图片文件', 'error');
+            return;
+        }
+        if (file.size > 2 * 1024 * 1024) {
+            showToast('❌ 图片不能超过 2MB', 'error');
+            return;
+        }
+
+        showLoading(true);
+        const formData = new FormData();
+        formData.append('product_name', currentProduct.name);
+        formData.append('image_type', 'main');
+        formData.append('file', file);
+
+        try {
+            const res = await fetch(BACKEND_URL + '/api/images/upload', {
+                method: 'POST',
+                body: formData
+            });
+            const data = await res.json();
+            showLoading(false);
+
+            if (data.success) {
+                showToast('✅ ' + data.message, 'success');
+                await loadProducts();
+            } else {
+                showToast('❌ ' + data.message, 'error');
+            }
+        } catch (err) {
+            showLoading(false);
+            showToast('❌ 上传失败：' + err.message, 'error');
+        }
+
+        event.target.value = '';
+    }
+
+    // ================================================================
+    // 上传副图
+    // ================================================================
+    async function handleSubUpload(event) {
+        const file = event.target.files[0];
+        if (!file || !currentProduct) return;
+
+        const subs = currentProduct.sub_images || [];
+        if (subs.length >= MAX_SUB_IMAGES) {
+            showToast(`❌ 副图已达上限（${MAX_SUB_IMAGES} 张）`, 'error');
+            return;
+        }
+
+        if (!file.type.startsWith('image/')) {
+            showToast('❌ 只支持图片文件', 'error');
+            return;
+        }
+        if (file.size > 2 * 1024 * 1024) {
+            showToast('❌ 图片不能超过 2MB', 'error');
+            return;
+        }
+
+        showLoading(true);
+        const formData = new FormData();
+        formData.append('product_name', currentProduct.name);
+        formData.append('image_type', 'sub');
+        formData.append('file', file);
+
+        try {
+            const res = await fetch(BACKEND_URL + '/api/images/upload', {
+                method: 'POST',
+                body: formData
+            });
+            const data = await res.json();
+            showLoading(false);
+
+            if (data.success) {
+                showToast('✅ ' + data.message, 'success');
+                await loadProducts();
+            } else {
+                showToast('❌ ' + data.message, 'error');
+            }
+        } catch (err) {
+            showLoading(false);
+            showToast('❌ 上传失败：' + err.message, 'error');
+        }
+
+        event.target.value = '';
+    }
+
+    // ================================================================
+    // 删除主图
+    // ================================================================
+    async function deleteMainImage() {
+        if (!currentProduct || !currentProduct.main_image) return;
+        if (!confirm(`确定要删除「${currentProduct.name}」的主图吗？`)) return;
+
+        showLoading(true);
+        try {
+            const res = await fetch(BACKEND_URL + '/api/images/delete', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    product_name: currentProduct.name,
+                    image_type: 'main'
+                })
+            });
+            const data = await res.json();
+            showLoading(false);
+
+            if (data.success) {
+                showToast('✅ ' + data.message, 'success');
+                await loadProducts();
+            } else {
+                showToast('❌ ' + data.message, 'error');
+            }
+        } catch (err) {
+            showLoading(false);
+            showToast('❌ 删除失败：' + err.message, 'error');
+        }
+    }
+
+    // ================================================================
+    // 删除副图
+    // ================================================================
+    async function deleteSubImage(index) {
+        if (!currentProduct) return;
+        if (!confirm(`确定要删除第 ${index + 1} 张副图吗？`)) return;
+
+        showLoading(true);
+        try {
+            const res = await fetch(BACKEND_URL + '/api/images/delete', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    product_name: currentProduct.name,
+                    image_type: 'sub',
+                    index: index
+                })
+            });
+            const data = await res.json();
+            showLoading(false);
+
+            if (data.success) {
+                showToast('✅ ' + data.message, 'success');
+                await loadProducts();
+            } else {
+                showToast('❌ ' + data.message, 'error');
+            }
+        } catch (err) {
+            showLoading(false);
+            showToast('❌ 删除失败：' + err.message, 'error');
+        }
+    }
+
+    // ================================================================
+    // 工具函数
+    // ================================================================
+    function showLoading(show) {
+        document.getElementById('loadingOverlay').classList.toggle('show', show);
+    }
+
+    function showToast(msg, type = '') {
+        let toast = document.getElementById('toast');
+        toast.className = 'toast ' + type;
+        toast.innerHTML = msg;
+        toast.classList.add('show');
+        clearTimeout(toast._timer);
+        toast._timer = setTimeout(() => { toast.classList.remove('show'); }, 3000);
+    }
+
+    // ================================================================
+    // 初始化
+    // ================================================================
+    document.addEventListener('DOMContentLoaded', function() {
+        loadProducts();
+    });
+
+    console.log('🖼️ 图片管理页已加载');
+    console.log('💡 后端:', BACKEND_URL);
+</script>
+</body>
+</html>
