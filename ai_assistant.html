@@ -285,9 +285,21 @@
         setTimeout(() => { container.scrollTop = container.scrollHeight; }, 50);
     }
 
+    // ================================================================
+    // 构建预览卡片（修复：图片指令移到前面，避免被默认值覆盖）
+    // ================================================================
     function buildCard(data) {
         const t = data.type;
         const a = data.args;
+
+        // ===== 图片指令（优先匹配） =====
+        if (t === 'query_images') return { title: '🖼️ 查看图片', desc: `商品：${a.product_name}` };
+        if (t === 'delete_main_image') return { title: '🗑️ 删除主图预览', desc: `商品：${a.product_name}\n⚠️ 删除后需重新上传`, isDanger: true };
+        if (t === 'remove_sub_image') return { title: '🗑️ 删除副图预览', desc: `商品：${a.product_name}\n删除第 ${a.index} 张副图`, isDanger: true };
+        if (t === 'clear_sub_images') return { title: '🧹 清空副图预览', desc: `商品：${a.product_name}\n⚠️ 将删除所有副图`, isDanger: true };
+        if (t === 'clear_all_images') return { title: '🧹 清空所有图片预览', desc: `商品：${a.product_name}\n⚠️ 将删除主图 + 所有副图`, isDanger: true };
+
+        // ===== 单商品操作 =====
         if (t === 'update_price') return { title: '💰 价格修改预览', desc: `商品：${a.product_name}\n新价格：¥${a.new_price}` };
         if (t === 'update_stock') {
             const actionText = a.action === 'increase' ? '增加' : a.action === 'decrease' ? '减少' : '设置为';
@@ -300,6 +312,8 @@
         if (t === 'put_on_shelf') return { title: '⬆️ 上架预览', desc: `商品：${a.product_name}` };
         if (t === 'query_sales') return { title: '📊 销量查询', desc: `商品：${a.product_name}` };
         if (t === 'create_coupon') return { title: '🎟️ 优惠券预览', desc: `满 ${a.threshold} 减 ${a.discount}\n有效天数：${a.days || 7} 天` };
+
+        // ===== 批量操作 =====
         if (t === 'batch_take_off') return { title: '⬇️ 批量下架预览', desc: `分类：${a.category}\n将下架该分类所有商品` };
         if (t === 'batch_update_price') {
             const adjText = a.adjust_type === 'percent' ? `${a.adjust_value > 0 ? '+' : ''}${a.adjust_value}%` : `${a.adjust_value > 0 ? '+' : ''}${a.adjust_value}元`;
@@ -312,28 +326,28 @@
             const orderText = a.order === 'asc' ? '从低到高' : '从高到低';
             return { title: '📊 销量排行查询', desc: `按销量${orderText}排序，显示前 ${a.limit || 10} 个` };
         }
-        if (t === 'add_product') return { title: '➕ 新增商品预览', desc: `名称：${a.name}\n价格：¥${a.price}\n库存：${a.stock || 0} 件\n分类：${a.category || '文创'}\n平台：${a.platform || '淘宝'}` };
-        if (t === 'delete_product') return { title: '🗑️ 删除商品预览', desc: `商品：${a.product_name}\n⚠️ 删除后不可恢复` };
         if (t === 'batch_update_stock') {
             const actionText = a.action === 'increase' ? '增加' : a.action === 'decrease' ? '减少' : '设置为';
             return { title: '📦 批量改库存预览', desc: `分类：${a.category}\n操作：${actionText} ${a.amount} 件` };
         }
+        if (t === 'batch_put_on_shelf') return { title: '⬆️ 批量上架预览', desc: `分类：${a.category}\n将上架该分类所有商品` };
+        if (t === 'batch_delete_by_category') return { title: '🗑️ 批量删除预览', desc: `分类：${a.category}\n⚠️ 将删除该分类所有商品，不可恢复`, isDanger: true };
+
+        // ===== 商品增删 =====
+        if (t === 'add_product') return { title: '➕ 新增商品预览', desc: `名称：${a.name}\n价格：¥${a.price}\n库存：${a.stock || 0} 件\n分类：${a.category || '文创'}\n平台：${a.platform || '淘宝'}` };
+        if (t === 'delete_product') return { title: '🗑️ 删除商品预览', desc: `商品：${a.product_name}\n⚠️ 删除后不可恢复`, isDanger: true };
+        if (t === 'duplicate_product') return { title: '📋 复制商品预览', desc: `原商品：${a.product_name}\n新名称：${a.new_name}` };
+
+        // ===== 查询 =====
         if (t === 'query_by_platform') return { title: '🔍 按平台查询', desc: `平台：${a.platform}` };
         if (t === 'query_by_status') return { title: '📋 按状态查询', desc: `状态：${a.status}` };
-        if (t === 'batch_put_on_shelf') return { title: '⬆️ 批量上架预览', desc: `分类：${a.category}\n将上架该分类所有商品` };
-        if (t === 'duplicate_product') return { title: '📋 复制商品预览', desc: `原商品：${a.product_name}\n新名称：${a.new_name}` };
         if (t === 'query_by_category') return { title: '🔍 按分类查询', desc: `分类：${a.category}` };
         if (t === 'export_products') return { title: '📤 导出商品数据', desc: `将导出所有商品数据` };
         if (t === 'search_product') return { title: '🔎 关键词搜索', desc: `关键词：${a.keyword}` };
-        if (t === 'batch_delete_by_category') return { title: '🗑️ 批量删除预览', desc: `分类：${a.category}\n⚠️ 将删除该分类所有商品，不可恢复`, isDanger: true };
         if (t === 'query_restock_alert') return { title: '⚠️ 库存预警查询', desc: `查询库存低于 ${a.threshold || 50} 件的商品` };
         if (t === 'export_to_excel') return { title: '📤 导出CSV', desc: `将导出所有商品数据为 CSV 文件` };
-        // ===== 图片指令 =====
-        if (t === 'query_images') return { title: '🖼️ 查看图片', desc: `商品：${a.product_name}` };
-        if (t === 'delete_main_image') return { title: '🗑️ 删除主图预览', desc: `商品：${a.product_name}\n⚠️ 删除后需重新上传`, isDanger: true };
-        if (t === 'remove_sub_image') return { title: '🗑️ 删除副图预览', desc: `商品：${a.product_name}\n删除第 ${a.index} 张副图`, isDanger: true };
-        if (t === 'clear_sub_images') return { title: '🧹 清空副图预览', desc: `商品：${a.product_name}\n⚠️ 将删除所有副图`, isDanger: true };
-        if (t === 'clear_all_images') return { title: '🧹 清空所有图片预览', desc: `商品：${a.product_name}\n⚠️ 将删除主图 + 所有副图`, isDanger: true };
+
+        // 兜底
         return { title: '操作预览', desc: JSON.stringify(a) };
     }
 
