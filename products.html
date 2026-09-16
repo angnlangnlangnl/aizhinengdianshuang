@@ -572,22 +572,46 @@
         .param-item .param-value .badge.warn { background: #fef0e6; color: #b55a1a; }
         .param-item .param-value .badge.danger { background: #fde8ed; color: #b51a3f; }
 
-        /* ====== 图文详情：图片强制铺满，保持原图比例 ====== */
+        /* ============================================================
+           图文详情：强制所有内容自适应宽度
+           ============================================================ */
         .detail-html-content {
             font-size: 14px;
             line-height: 1.8;
             color: #0a1e2f;
             word-break: break-word;
+            width: 100%;
+            overflow: hidden;
         }
+
+        /* 所有子元素：宽度不超过父容器 */
+        .detail-html-content * {
+            max-width: 100% !important;
+            box-sizing: border-box;
+        }
+
+        /* 所有图片：宽度铺满，保持原图比例 */
         .detail-html-content img {
             width: 100% !important;
             height: auto !important;
             max-width: 100% !important;
             border-radius: 8px;
-            margin: 10px 0;
+            margin: 10px 0 !important;
             display: block;
             object-fit: contain;
         }
+
+        /* 覆盖淘宝/1688详情页的固定宽度容器 */
+        .detail-html-content div[class*="desc"],
+        .detail-html-content div[class*="singleImage"],
+        .detail-html-content div[class*="descV"],
+        .detail-html-content div[style*="width"],
+        .detail-html-content table {
+            width: 100% !important;
+            max-width: 100% !important;
+            overflow-x: auto;
+        }
+
         .detail-html-content h2 { font-size: 20px; margin: 16px 0 8px; }
         .detail-html-content h3 { font-size: 17px; margin: 14px 0 6px; }
         .detail-html-content p { margin: 8px 0; }
