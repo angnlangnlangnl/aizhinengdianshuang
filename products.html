@@ -109,6 +109,7 @@
             position: relative;
             display: flex;
             flex-direction: column;
+            cursor: pointer;
         }
         .product-card:hover {
             box-shadow: 0 8px 24px rgba(0,0,0,0.1);
@@ -325,8 +326,309 @@
         }
         .lightbox .close:hover { color: #4dabf7; }
 
+        /* ================================================================
+           全屏商品详情层
+           ================================================================ */
+        .detail-overlay {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: #f5f7fa;
+            z-index: 9000;
+            overflow-y: auto;
+        }
+        .detail-overlay.show { display: block; }
+
+        .detail-header {
+            position: sticky;
+            top: 0;
+            background: white;
+            padding: 14px 32px;
+            box-shadow: 0 1px 4px rgba(0,0,0,0.04);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            z-index: 100;
+        }
+        .detail-header .back-btn {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 18px;
+            border-radius: 30px;
+            border: 1px solid #dce5ef;
+            background: white;
+            font-size: 14px;
+            color: #1e3a5f;
+            cursor: pointer;
+            transition: 0.15s;
+        }
+        .detail-header .back-btn:hover {
+            border-color: #4dabf7;
+            color: #2a7faa;
+        }
+        .detail-header .detail-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: #0a1e2f;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .detail-header .detail-title i { color: #4dabf7; }
+        .detail-header .detail-price-top {
+            font-size: 20px;
+            font-weight: 700;
+            color: #ff5000;
+        }
+        .detail-header .detail-price-top small {
+            font-size: 13px;
+            font-weight: 400;
+        }
+
+        .detail-body {
+            max-width: 1280px;
+            margin: 0 auto;
+            padding: 24px 32px 60px;
+        }
+
+        /* 详情段落通用 */
+        .detail-block {
+            background: white;
+            border-radius: 16px;
+            padding: 24px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+        }
+        .detail-block .block-header {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 18px;
+            font-size: 16px;
+            font-weight: 600;
+            color: #0a1e2f;
+        }
+        .detail-block .block-header i {
+            color: #4dabf7;
+            font-size: 18px;
+        }
+        .detail-block .block-header .count {
+            font-size: 13px;
+            color: #5f7d95;
+            font-weight: 400;
+            margin-left: 4px;
+        }
+
+        /* ========== 视频+图片滚动卡片 ========== */
+        .media-scroller {
+            display: flex;
+            gap: 16px;
+            overflow-x: auto;
+            padding-bottom: 12px;
+            scroll-behavior: smooth;
+        }
+        .media-scroller::-webkit-scrollbar { height: 6px; }
+        .media-scroller::-webkit-scrollbar-track { background: #f0f4f9; border-radius: 10px; }
+        .media-scroller::-webkit-scrollbar-thumb { background: #cfdbe8; border-radius: 10px; }
+        .media-scroller::-webkit-scrollbar-thumb:hover { background: #b5c6d8; }
+
+        .media-card {
+            flex: 0 0 auto;
+            width: 300px;
+            border-radius: 14px;
+            overflow: hidden;
+            background: #fafcfe;
+            border: 1px solid #e8edf4;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+            transition: 0.2s;
+            position: relative;
+        }
+        .media-card:hover {
+            box-shadow: 0 8px 24px rgba(0,0,0,0.1);
+            transform: translateY(-2px);
+        }
+        .media-card.video-card {
+            border-color: #cfe3f8;
+        }
+        .media-card .media-inner {
+            width: 100%;
+            height: 300px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #0a0e14;
+            position: relative;
+            overflow: hidden;
+        }
+        .media-card .media-inner img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+        }
+        .media-card .media-inner video {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            background: #000;
+            display: block;
+        }
+        .media-card .media-inner .placeholder-icon {
+            font-size: 56px;
+            color: #4dabf7;
+        }
+        .media-card .media-caption {
+            padding: 10px 14px;
+            font-size: 12px;
+            color: #5f7d95;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: white;
+            border-top: 1px solid #f0f4f9;
+        }
+        .media-card .media-caption .label {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-weight: 500;
+        }
+        .media-card .media-caption .label i { color: #4dabf7; }
+        .media-card .media-caption .tag {
+            font-size: 11px;
+            padding: 2px 10px;
+            border-radius: 30px;
+            background: #f0f4f9;
+            color: #5f7d95;
+        }
+        .media-card.video-card .media-caption .tag {
+            background: #e8f4ff;
+            color: #2a7faa;
+        }
+        .media-card .media-badge {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            font-size: 11px;
+            padding: 3px 12px;
+            border-radius: 30px;
+            font-weight: 500;
+            z-index: 2;
+            background: rgba(10,30,47,0.75);
+            color: white;
+            backdrop-filter: blur(4px);
+        }
+        .media-card.video-card .media-badge {
+            background: rgba(77,171,247,0.9);
+        }
+        .media-card.main-media {
+            width: 340px;
+        }
+        .media-card.main-media .media-inner {
+            height: 340px;
+        }
+
+        /* ========== 商品参数 ========== */
+        .params-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 0;
+            border: 1px solid #f0f4f9;
+            border-radius: 12px;
+            overflow: hidden;
+        }
+        .param-item {
+            display: flex;
+            padding: 14px 18px;
+            border-bottom: 1px solid #f0f4f9;
+            font-size: 14px;
+            align-items: baseline;
+        }
+        .param-item:nth-child(odd) { background: #fafcfe; }
+        .param-item:nth-child(even) { background: white; }
+        .param-item .param-label {
+            width: 100px;
+            flex-shrink: 0;
+            color: #5f7d95;
+            font-size: 13px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .param-item .param-label i { color: #94a3b8; font-size: 12px; width: 14px; }
+        .param-item .param-value {
+            color: #0a1e2f;
+            font-weight: 500;
+            word-break: break-all;
+        }
+        .param-item .param-value.price {
+            color: #ff5000;
+            font-size: 18px;
+            font-weight: 700;
+        }
+        .param-item .param-value.stock-low {
+            color: #b51a3f;
+            font-weight: 600;
+        }
+        .param-item .param-value .badge {
+            display: inline-block;
+            padding: 2px 10px;
+            border-radius: 30px;
+            font-size: 12px;
+            background: #e6f7ec;
+            color: #0d7c4f;
+            font-weight: 500;
+        }
+        .param-item .param-value .badge.warn { background: #fef0e6; color: #b55a1a; }
+        .param-item .param-value .badge.danger { background: #fde8ed; color: #b51a3f; }
+
+        /* ========== 图文详情 ========== */
+        .detail-html-content {
+            font-size: 14px;
+            line-height: 1.8;
+            color: #0a1e2f;
+            word-break: break-word;
+        }
+        .detail-html-content img {
+            max-width: 100%;
+            height: auto;
+            border-radius: 8px;
+            margin: 10px 0;
+            display: block;
+        }
+        .detail-html-content h2 { font-size: 20px; margin: 16px 0 8px; }
+        .detail-html-content h3 { font-size: 17px; margin: 14px 0 6px; }
+        .detail-html-content p { margin: 8px 0; }
+        .detail-html-content ul, .detail-html-content ol { padding-left: 24px; margin: 8px 0; }
+        .detail-html-content a { color: #4dabf7; }
+        .detail-html-content blockquote {
+            border-left: 4px solid #4dabf7;
+            padding: 8px 16px;
+            margin: 10px 0;
+            background: #f0f7fe;
+            border-radius: 0 8px 8px 0;
+            color: #3a5a7a;
+        }
+        .detail-html-empty {
+            text-align: center;
+            padding: 40px 20px;
+            color: #94a3b8;
+            font-size: 14px;
+        }
+        .detail-html-empty i {
+            font-size: 40px;
+            color: #dce5ef;
+            margin-bottom: 10px;
+            display: block;
+        }
+
         @media (max-width: 1024px) {
             .products-grid { grid-template-columns: repeat(3, 1fr); }
+            .media-card { width: 260px; }
+            .media-card .media-inner { height: 260px; }
+            .media-card.main-media { width: 300px; }
+            .media-card.main-media .media-inner { height: 300px; }
         }
         @media (max-width: 768px) {
             .products-grid { grid-template-columns: repeat(2, 1fr); }
@@ -334,9 +636,23 @@
             .header .nav-links { width: 100%; overflow-x: auto; }
             .container { padding: 16px; }
             .product-card .thumb { height: 180px; }
+            .detail-header { padding: 12px 16px; flex-wrap: wrap; gap: 8px; }
+            .detail-body { padding: 16px; }
+            .params-grid { grid-template-columns: 1fr; }
+            .param-item:nth-child(odd),
+            .param-item:nth-child(even) { background: white; }
+            .detail-block { padding: 18px; }
+            .media-card { width: 240px; }
+            .media-card .media-inner { height: 240px; }
+            .media-card.main-media { width: 280px; }
+            .media-card.main-media .media-inner { height: 280px; }
         }
         @media (max-width: 480px) {
             .products-grid { grid-template-columns: 1fr; }
+            .media-card { width: 220px; }
+            .media-card .media-inner { height: 220px; }
+            .media-card.main-media { width: 260px; }
+            .media-card.main-media .media-inner { height: 260px; }
         }
     </style>
 </head>
@@ -381,10 +697,30 @@
     <img id="lightboxImg" src="" alt="预览">
 </div>
 
+<!-- ================================================================
+     全屏商品详情层
+     ================================================================ -->
+<div class="detail-overlay" id="detailOverlay">
+    <div class="detail-header">
+        <button class="back-btn" onclick="closeDetail()">
+            <i class="fas fa-arrow-left"></i> 返回商品列表
+        </button>
+        <div class="detail-title" id="detailTitle">
+            <i class="fas fa-box"></i>
+            <span>商品详情</span>
+        </div>
+        <div class="detail-price-top" id="detailPriceTop"></div>
+    </div>
+    <div class="detail-body" id="detailBody">
+        <!-- 动态渲染 -->
+    </div>
+</div>
+
 <script>
     const BACKEND_URL = 'https://ai-ecommerce-backend-production-0776.up.railway.app';
 
     let lastProductsJSON = '';
+    let currentProducts = [];
 
     async function loadProducts() {
         const grid = document.getElementById('productsGrid');
@@ -393,6 +729,7 @@
             const res = await fetch(BACKEND_URL + '/api/products');
             const data = await res.json();
             const products = data.products || [];
+            currentProducts = products;
 
             document.getElementById('productCount').textContent = `（共 ${products.length} 件）`;
 
@@ -410,19 +747,17 @@
                     const mainImg = p.main_image || '';
                     const subs = p.sub_images || [];
 
-                    // 主图 HTML：有图用 img，onerror 时回退到图标
                     const mainImgHTML = mainImg
                         ? `<img class="main-img" src="${mainImg}" alt="${p.name}" onerror="this.style.display='none'; this.nextElementSibling.style.display='block';">
                            <i class="fas ${p.icon || 'fa-box'} fallback-icon"></i>`
                         : `<i class="fas ${p.icon || 'fa-box'} fallback-icon" style="display:block;"></i>`;
 
-                    // 副图缩略图条
                     let subThumbsHTML = '';
                     if (subs.length > 0) {
                         subThumbsHTML = `
                             <div class="sub-thumbs">
                                 ${subs.map((img, i) => `
-                                    <div class="thumb-item" onclick="openLightbox('${img.replace(/'/g, "\\'")}')">
+                                    <div class="thumb-item" onclick="event.stopPropagation(); openLightbox('${img.replace(/'/g, "\\'")}')">
                                         <img src="${img}" alt="副图${i+1}" onerror="this.parentElement.style.display='none';">
                                     </div>
                                 `).join('')}
@@ -437,7 +772,7 @@
                     }
 
                     return `
-                    <div class="product-card ${hasChanged ? 'updated' : ''}" data-id="${p.id}">
+                    <div class="product-card ${hasChanged ? 'updated' : ''}" data-id="${p.id}" onclick="openDetail(${p.id})">
                         <div class="thumb">
                             <span class="status-badge ${p.status}">${p.status}</span>
                             ${mainImgHTML}
@@ -469,6 +804,15 @@
                     setTimeout(() => {
                         tip.innerHTML = '<i class="fas fa-circle-notch fa-spin"></i><span>每 5 秒自动刷新</span>';
                     }, 2000);
+
+                    // 如果详情层开着，同步刷新详情内容
+                    if (document.getElementById('detailOverlay').classList.contains('show')) {
+                        const currentId = document.getElementById('detailOverlay').dataset.productId;
+                        if (currentId) {
+                            const p = products.find(x => String(x.id) === currentId);
+                            if (p) renderDetailContent(p);
+                        }
+                    }
                 }
             }
         } catch (err) {
@@ -476,7 +820,198 @@
         }
     }
 
-    // 图片放大预览
+    /* ================================================================
+       打开全屏详情
+       ================================================================ */
+    function openDetail(productId) {
+        const p = currentProducts.find(x => x.id === productId);
+        if (!p) return;
+
+        document.getElementById('detailOverlay').dataset.productId = productId;
+        document.getElementById('detailTitle').innerHTML = `
+            <i class="fas fa-box"></i>
+            <span>${p.name}</span>
+        `;
+        document.getElementById('detailPriceTop').innerHTML = `<small>¥</small>${p.price}`;
+
+        renderDetailContent(p);
+
+        document.getElementById('detailOverlay').classList.add('show');
+        document.body.style.overflow = 'hidden';
+        document.getElementById('detailOverlay').scrollTop = 0;
+    }
+
+    function closeDetail() {
+        document.getElementById('detailOverlay').classList.remove('show');
+        document.body.style.overflow = '';
+        document.getElementById('detailOverlay').dataset.productId = '';
+    }
+
+    /* ================================================================
+       渲染详情内容：视频+图片滚动卡片 / 参数 / 图文详情
+       ================================================================ */
+    function renderDetailContent(p) {
+        const body = document.getElementById('detailBody');
+
+        // ---------- 1. 视频+图片滚动卡片 ----------
+        const mainImg = p.main_image || '';
+        const subs = p.sub_images || [];
+        const video = p.video || '';
+
+        let mediaCards = '';
+
+        // 主图卡片
+        if (mainImg) {
+            mediaCards += `
+                <div class="media-card main-media">
+                    <span class="media-badge"><i class="fas fa-star"></i> 主图</span>
+                    <div class="media-inner">
+                        <img src="${mainImg}" alt="主图" onclick="openLightbox('${mainImg.replace(/'/g, "\\'")}')" style="cursor:zoom-in;">
+                    </div>
+                    <div class="media-caption">
+                        <span class="label"><i class="fas fa-image"></i> 商品主图</span>
+                        <span class="tag">点击放大</span>
+                    </div>
+                </div>
+            `;
+        }
+
+        // 视频卡片
+        if (video) {
+            mediaCards += `
+                <div class="media-card video-card">
+                    <span class="media-badge"><i class="fas fa-play"></i> 视频</span>
+                    <div class="media-inner">
+                        <video src="${video}" controls preload="metadata"></video>
+                    </div>
+                    <div class="media-caption">
+                        <span class="label"><i class="fas fa-video"></i> 商品视频</span>
+                        <span class="tag">可播放</span>
+                    </div>
+                </div>
+            `;
+        }
+
+        // 副图卡片
+        subs.forEach((img, i) => {
+            mediaCards += `
+                <div class="media-card">
+                    <span class="media-badge">#${i + 1}</span>
+                    <div class="media-inner">
+                        <img src="${img}" alt="副图${i + 1}" onclick="openLightbox('${img.replace(/'/g, "\\'")}')" style="cursor:zoom-in;">
+                    </div>
+                    <div class="media-caption">
+                        <span class="label"><i class="fas fa-image"></i> 副图 ${i + 1}</span>
+                        <span class="tag">点击放大</span>
+                    </div>
+                </div>
+            `;
+        });
+
+        // 占位
+        if (!mediaCards) {
+            mediaCards = `
+                <div class="media-card" style="width:100%;">
+                    <div class="media-inner">
+                        <i class="fas fa-image placeholder-icon"></i>
+                    </div>
+                    <div class="media-caption">
+                        <span class="label"><i class="fas fa-image"></i> 暂无媒体</span>
+                    </div>
+                </div>
+            `;
+        }
+
+        const mediaHTML = `
+            <div class="detail-block">
+                <div class="block-header">
+                    <i class="fas fa-photo-video"></i>
+                    视频 / 图片
+                    <span class="count">（${(mainImg ? 1 : 0) + (video ? 1 : 0) + subs.length} 项）</span>
+                </div>
+                <div class="media-scroller">
+                    ${mediaCards}
+                </div>
+            </div>
+        `;
+
+        // ---------- 2. 商品参数 ----------
+        const statusClass = p.status === '在售' ? '' : (p.status === '待审核' ? 'warn' : 'danger');
+        const stockClass = p.stock < 50 ? 'stock-low' : '';
+
+        const paramsHTML = `
+            <div class="detail-block">
+                <div class="block-header">
+                    <i class="fas fa-list-alt"></i>
+                    商品参数
+                </div>
+                <div class="params-grid">
+                    <div class="param-item">
+                        <span class="param-label"><i class="fas fa-tag"></i> 商品名称</span>
+                        <span class="param-value">${p.name}</span>
+                    </div>
+                    <div class="param-item">
+                        <span class="param-label"><i class="fas fa-yen-sign"></i> 价格</span>
+                        <span class="param-value price">¥${p.price}</span>
+                    </div>
+                    <div class="param-item">
+                        <span class="param-label"><i class="fas fa-folder"></i> 分类</span>
+                        <span class="param-value">${p.category}</span>
+                    </div>
+                    <div class="param-item">
+                        <span class="param-label"><i class="fas fa-store"></i> 平台</span>
+                        <span class="param-value">${p.platform}</span>
+                    </div>
+                    <div class="param-item">
+                        <span class="param-label"><i class="fas fa-cubes"></i> 库存</span>
+                        <span class="param-value ${stockClass}">${p.stock} ${p.stock < 50 ? '（库存紧张）' : ''}</span>
+                    </div>
+                    <div class="param-item">
+                        <span class="param-label"><i class="fas fa-chart-line"></i> 已售</span>
+                        <span class="param-value">${p.sales}</span>
+                    </div>
+                    <div class="param-item">
+                        <span class="param-label"><i class="fas fa-circle"></i> 状态</span>
+                        <span class="param-value"><span class="badge ${statusClass}">${p.status}</span></span>
+                    </div>
+                    <div class="param-item">
+                        <span class="param-label"><i class="fas fa-hashtag"></i> 商品ID</span>
+                        <span class="param-value">${p.id}</span>
+                    </div>
+                </div>
+            </div>
+        `;
+
+        // ---------- 3. 图文详情 ----------
+        const detailHTML = p.detail || p.detail_html || '';
+        let detailContent = '';
+        if (detailHTML && detailHTML.trim()) {
+            detailContent = `<div class="detail-html-content">${detailHTML}</div>`;
+        } else {
+            detailContent = `
+                <div class="detail-html-empty">
+                    <i class="fas fa-file-alt"></i>
+                    暂无图文详情
+                </div>
+            `;
+        }
+
+        const detailSectionHTML = `
+            <div class="detail-block">
+                <div class="block-header">
+                    <i class="fas fa-align-left"></i>
+                    图文详情
+                </div>
+                ${detailContent}
+            </div>
+        `;
+
+        body.innerHTML = mediaHTML + paramsHTML + detailSectionHTML;
+    }
+
+    /* ================================================================
+       图片放大预览
+       ================================================================ */
     function openLightbox(src) {
         document.getElementById('lightboxImg').src = src;
         document.getElementById('lightbox').classList.add('show');
@@ -487,13 +1022,20 @@
         document.getElementById('lightboxImg').src = '';
     }
     document.addEventListener('keydown', function(e) {
-        if (e.key === 'Escape') closeLightbox();
+        if (e.key === 'Escape') {
+            if (document.getElementById('lightbox').classList.contains('show')) {
+                closeLightbox();
+            } else if (document.getElementById('detailOverlay').classList.contains('show')) {
+                closeDetail();
+            }
+        }
     });
 
+    // 初始化
     loadProducts();
     setInterval(loadProducts, 5000);
 
-    console.log('📦 商品展示页已加载（淘宝风格 + 图片展示）');
+    console.log('📦 商品展示页已加载（全屏详情 + 视频/图片滚动卡片）');
 </script>
 </body>
 </html>
