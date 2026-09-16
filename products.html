@@ -321,7 +321,6 @@
         }
         .lightbox .close:hover { color: #4dabf7; }
 
-        /* 全屏商品详情层 */
         .detail-overlay {
             display: none;
             position: fixed;
@@ -412,7 +411,6 @@
             margin-left: 4px;
         }
 
-        /* 视频+图片滚动卡片 */
         .media-scroller {
             display: flex;
             gap: 16px;
@@ -521,7 +519,6 @@
             height: 340px;
         }
 
-        /* 商品参数 */
         .params-grid {
             display: grid;
             grid-template-columns: repeat(2, 1fr);
@@ -575,7 +572,7 @@
         .param-item .param-value .badge.warn { background: #fef0e6; color: #b55a1a; }
         .param-item .param-value .badge.danger { background: #fde8ed; color: #b51a3f; }
 
-        /* ====== 图文详情：图片宽度铺满，保持原图比例 ====== */
+        /* ====== 图文详情：图片强制铺满，保持原图比例 ====== */
         .detail-html-content {
             font-size: 14px;
             line-height: 1.8;
@@ -583,8 +580,9 @@
             word-break: break-word;
         }
         .detail-html-content img {
-            width: 100%;
-            height: auto;
+            width: 100% !important;
+            height: auto !important;
+            max-width: 100% !important;
             border-radius: 8px;
             margin: 10px 0;
             display: block;
@@ -684,13 +682,11 @@
     <span>每 5 秒自动刷新</span>
 </div>
 
-<!-- 图片放大预览 -->
 <div class="lightbox" id="lightbox" onclick="closeLightbox(event)">
     <button class="close" onclick="closeLightbox()">&times;</button>
     <img id="lightboxImg" src="" alt="预览">
 </div>
 
-<!-- 全屏商品详情层 -->
 <div class="detail-overlay" id="detailOverlay">
     <div class="detail-header">
         <button class="back-btn" onclick="closeDetail()">
@@ -702,9 +698,7 @@
         </div>
         <div class="detail-price-top" id="detailPriceTop"></div>
     </div>
-    <div class="detail-body" id="detailBody">
-        <!-- 动态渲染 -->
-    </div>
+    <div class="detail-body" id="detailBody"></div>
 </div>
 
 <script>
@@ -837,7 +831,6 @@
     function renderDetailContent(p) {
         const body = document.getElementById('detailBody');
 
-        // ---------- 1. 视频+图片滚动卡片 ----------
         const mainImg = p.main_image || '';
         const subs = p.sub_images || [];
         const video = p.video || '';
@@ -915,7 +908,6 @@
             </div>
         `;
 
-        // ---------- 2. 商品参数 ----------
         const statusClass = p.status === '在售' ? '' : (p.status === '待审核' ? 'warn' : 'danger');
         const stockClass = p.stock < 50 ? 'stock-low' : '';
 
@@ -962,7 +954,6 @@
             </div>
         `;
 
-        // ---------- 3. 图文详情 ----------
         const detailHTML = p.detail || p.detail_html || '';
         let detailContent = '';
         if (detailHTML && detailHTML.trim()) {
