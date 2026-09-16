@@ -99,7 +99,6 @@
         }
         .page-title .refresh-btn:hover { border-color: #4dabf7; color: #2a7faa; }
 
-        /* 商品选择器 */
         .product-selector {
             background: white;
             border-radius: 16px;
@@ -133,7 +132,6 @@
             box-shadow: 0 0 0 3px rgba(77,171,247,0.08);
         }
 
-        /* 图片区域 */
         .image-section {
             background: white;
             border-radius: 16px;
@@ -157,16 +155,13 @@
             align-items: center;
             gap: 8px;
         }
-        .image-section .section-header h3 i {
-            color: #4dabf7;
-        }
+        .image-section .section-header h3 i { color: #4dabf7; }
         .image-section .section-header .count {
             font-size: 13px;
             color: #5f7d95;
             font-weight: 400;
         }
 
-        /* 主图区域 */
         .main-image-area {
             display: flex;
             gap: 20px;
@@ -208,9 +203,7 @@
             margin-bottom: 12px;
             display: block;
         }
-        .main-image-preview .placeholder p {
-            font-size: 13px;
-        }
+        .main-image-preview .placeholder p { font-size: 13px; }
         .main-image-actions {
             display: flex;
             flex-direction: column;
@@ -231,27 +224,13 @@
             gap: 8px;
             transition: 0.15s;
         }
-        .main-image-actions .btn.primary {
-            background: #0a1e2f;
-            color: white;
-        }
+        .main-image-actions .btn.primary { background: #0a1e2f; color: white; }
         .main-image-actions .btn.primary:hover { background: #1a3a5a; }
-        .main-image-actions .btn.danger {
-            background: #fde8ed;
-            color: #b51a3f;
-        }
+        .main-image-actions .btn.danger { background: #fde8ed; color: #b51a3f; }
         .main-image-actions .btn.danger:hover { background: #fcd0d9; }
-        .main-image-actions .btn:disabled {
-            opacity: 0.4;
-            cursor: not-allowed;
-        }
-        .main-image-actions .tip {
-            font-size: 12px;
-            color: #94a3b8;
-            margin-top: 6px;
-        }
+        .main-image-actions .btn:disabled { opacity: 0.4; cursor: not-allowed; }
+        .main-image-actions .tip { font-size: 12px; color: #94a3b8; margin-top: 6px; }
 
-        /* 副图网格 */
         .sub-images-grid {
             display: grid;
             grid-template-columns: repeat(6, 1fr);
@@ -270,11 +249,7 @@
             border-color: #4dabf7;
             box-shadow: 0 4px 12px rgba(77,171,247,0.15);
         }
-        .sub-image-item img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-        }
+        .sub-image-item img { width: 100%; height: 100%; object-fit: cover; }
         .sub-image-item .remove-btn {
             position: absolute;
             top: 6px;
@@ -293,13 +268,8 @@
             opacity: 0;
             transition: 0.15s;
         }
-        .sub-image-item:hover .remove-btn {
-            opacity: 1;
-        }
-        .sub-image-item .remove-btn:hover {
-            background: #b51a3f;
-            transform: scale(1.1);
-        }
+        .sub-image-item:hover .remove-btn { opacity: 1; }
+        .sub-image-item .remove-btn:hover { background: #b51a3f; transform: scale(1.1); }
         .sub-image-item .index-badge {
             position: absolute;
             top: 6px;
@@ -311,7 +281,6 @@
             border-radius: 20px;
             font-weight: 500;
         }
-        /* 上传卡片 */
         .upload-card {
             aspect-ratio: 1/1;
             border-radius: 10px;
@@ -331,17 +300,9 @@
             background: #f0f7fe;
             color: #4dabf7;
         }
-        .upload-card i {
-            font-size: 24px;
-            margin-bottom: 6px;
-        }
-        .upload-card.disabled {
-            opacity: 0.4;
-            cursor: not-allowed;
-            pointer-events: none;
-        }
+        .upload-card i { font-size: 24px; margin-bottom: 6px; }
+        .upload-card.disabled { opacity: 0.4; cursor: not-allowed; pointer-events: none; }
 
-        /* ========== 视频区域 ========== */
         .video-section {
             background: white;
             border-radius: 16px;
@@ -366,11 +327,7 @@
             gap: 8px;
         }
         .video-section .section-header h3 i { color: #4dabf7; }
-        .video-section .section-header .count {
-            font-size: 13px;
-            color: #5f7d95;
-            font-weight: 400;
-        }
+        .video-section .section-header .count { font-size: 13px; color: #5f7d95; font-weight: 400; }
         .video-area {
             display: flex;
             gap: 20px;
@@ -397,16 +354,8 @@
             border-color: #e8edf4;
             background: #0a0e14;
         }
-        .video-preview video {
-            width: 100%;
-            height: 100%;
-            object-fit: contain;
-            background: #000;
-        }
-        .video-preview .placeholder {
-            text-align: center;
-            padding: 20px;
-        }
+        .video-preview video { width: 100%; height: 100%; object-fit: contain; background: #000; }
+        .video-preview .placeholder { text-align: center; padding: 20px; }
         .video-preview .placeholder i {
             font-size: 48px;
             color: #dce5ef;
@@ -439,13 +388,8 @@
         .video-actions .btn.danger { background: #fde8ed; color: #b51a3f; }
         .video-actions .btn.danger:hover { background: #fcd0d9; }
         .video-actions .btn:disabled { opacity: 0.4; cursor: not-allowed; }
-        .video-actions .tip {
-            font-size: 12px;
-            color: #94a3b8;
-            margin-top: 6px;
-        }
+        .video-actions .tip { font-size: 12px; color: #94a3b8; margin-top: 6px; }
 
-        /* ========== 图文详情区域 ========== */
         .detail-section {
             background: white;
             border-radius: 16px;
@@ -470,11 +414,7 @@
             gap: 8px;
         }
         .detail-section .section-header h3 i { color: #4dabf7; }
-        .detail-section .section-header .count {
-            font-size: 13px;
-            color: #5f7d95;
-            font-weight: 400;
-        }
+        .detail-section .section-header .count { font-size: 13px; color: #5f7d95; font-weight: 400; }
         .detail-editor-toolbar {
             display: flex;
             flex-wrap: wrap;
@@ -508,10 +448,7 @@
             background: #e8edf4;
             margin: 4px 6px;
         }
-        .detail-editor-toolbar .upload-img-btn {
-            position: relative;
-            overflow: hidden;
-        }
+        .detail-editor-toolbar .upload-img-btn { position: relative; overflow: hidden; }
         .detail-editor-toolbar .upload-img-btn input {
             position: absolute;
             top: 0; left: 0; right: 0; bottom: 0;
@@ -573,13 +510,9 @@
         }
         .detail-actions .btn.primary { background: #0a1e2f; color: white; }
         .detail-actions .btn.primary:hover { background: #1a3a5a; }
-        .detail-actions .btn.secondary {
-            background: #f0f4f9;
-            color: #1e3a5f;
-        }
+        .detail-actions .btn.secondary { background: #f0f4f9; color: #1e3a5f; }
         .detail-actions .btn.secondary:hover { background: #e2e9f2; }
 
-        /* Toast */
         .toast {
             position: fixed;
             bottom: 30px;
@@ -603,7 +536,6 @@
             to { opacity: 1; transform: translateX(-50%) translateY(0); }
         }
 
-        /* 加载中 */
         .loading-overlay {
             position: fixed;
             top: 0; left: 0; right: 0; bottom: 0;
@@ -666,7 +598,6 @@
         </button>
     </div>
 
-    <!-- 商品选择器 -->
     <div class="product-selector">
         <label><i class="fas fa-box" style="color:#4dabf7;"></i> 选择商品：</label>
         <select id="productSelect" onchange="onProductChange()">
@@ -675,7 +606,6 @@
         <span id="productInfo" style="font-size:13px; color:#5f7d95; margin-left:auto;"></span>
     </div>
 
-    <!-- 主图 -->
     <div class="image-section">
         <div class="section-header">
             <h3><i class="fas fa-star"></i> 主图 <span class="count">（1 张）</span></h3>
@@ -700,18 +630,14 @@
         </div>
     </div>
 
-    <!-- 副图 -->
     <div class="image-section">
         <div class="section-header">
             <h3><i class="fas fa-images"></i> 副图 <span class="count" id="subCount">（0 / 5）</span></h3>
         </div>
-        <div class="sub-images-grid" id="subImagesGrid">
-            <!-- 动态生成 -->
-        </div>
+        <div class="sub-images-grid" id="subImagesGrid"></div>
         <input type="file" id="subFileInput" accept="image/*" style="display:none;" onchange="handleSubUpload(event)">
     </div>
 
-    <!-- 视频区域 -->
     <div class="video-section">
         <div class="section-header">
             <h3><i class="fas fa-video"></i> 商品视频 <span class="count">（1 个）</span></h3>
@@ -736,13 +662,11 @@
         </div>
     </div>
 
-    <!-- 图文详情区域 -->
     <div class="detail-section">
         <div class="section-header">
             <h3><i class="fas fa-align-left"></i> 图文详情 <span class="count">（支持富文本 + 图片）</span></h3>
         </div>
 
-        <!-- 工具栏 -->
         <div class="detail-editor-toolbar" id="detailToolbar">
             <button type="button" onclick="execCmd('bold')" title="加粗"><i class="fas fa-bold"></i></button>
             <button type="button" onclick="execCmd('italic')" title="斜体"><i class="fas fa-italic"></i></button>
@@ -764,10 +688,8 @@
             <button type="button" onclick="execCmd('removeFormat')" title="清除格式"><i class="fas fa-eraser"></i></button>
         </div>
 
-        <!-- 编辑区 -->
-        <div class="detail-editor" id="detailEditor" contenteditable="true" data-placeholder="在这里输入商品图文详情，可以插入图片、设置格式..."></div>
+        <div class="detail-editor" id="detailEditor" contenteditable="true" data-placeholder="在这里输入商品图文详情，可以直接粘贴图片（Ctrl+V）..."></div>
 
-        <!-- 操作按钮 -->
         <div class="detail-actions">
             <button class="btn secondary" onclick="resetDetail()">
                 <i class="fas fa-undo"></i> 重置
@@ -779,12 +701,10 @@
     </div>
 </div>
 
-<!-- 加载中 -->
 <div class="loading-overlay" id="loadingOverlay">
     <div class="spinner"></div>
 </div>
 
-<!-- Toast -->
 <div id="toast" class="toast"></div>
 
 <script>
@@ -794,6 +714,7 @@
     let allProducts = [];
     let currentProduct = null;
     let originalDetailHTML = '';
+    let savedRange = null;  // 记录光标位置
 
     // ================================================================
     // 加载商品列表
@@ -825,9 +746,6 @@
         }
     }
 
-    // ================================================================
-    // 商品切换
-    // ================================================================
     function onProductChange() {
         const id = document.getElementById('productSelect').value;
         currentProduct = allProducts.find(p => String(p.id) === id);
@@ -857,9 +775,6 @@
             `当前商品：${currentProduct.name} · ¥${currentProduct.price} · 库存 ${currentProduct.stock}`;
     }
 
-    // ================================================================
-    // 渲染主图
-    // ================================================================
     function renderMainImage() {
         const preview = document.getElementById('mainImagePreview');
         const deleteBtn = document.getElementById('deleteMainBtn');
@@ -882,9 +797,6 @@
         }
     }
 
-    // ================================================================
-    // 渲染副图
-    // ================================================================
     function renderSubImages() {
         const grid = document.getElementById('subImagesGrid');
         const subs = currentProduct.sub_images || [];
@@ -923,9 +835,6 @@
         grid.innerHTML = html;
     }
 
-    // ================================================================
-    // 渲染视频
-    // ================================================================
     function renderVideo() {
         const preview = document.getElementById('videoPreview');
         const deleteBtn = document.getElementById('deleteVideoBtn');
@@ -948,9 +857,6 @@
         }
     }
 
-    // ================================================================
-    // 渲染图文详情
-    // ================================================================
     function renderDetail() {
         const editor = document.getElementById('detailEditor');
         const detailHTML = currentProduct.detail || currentProduct.detail_html || '';
@@ -1201,7 +1107,7 @@
         document.getElementById('detailEditor').focus();
     }
 
-    // 插入图片到详情
+    // 插入图片到详情（从文件按钮）
     async function handleDetailImageUpload(event) {
         const file = event.target.files[0];
         if (!file) return;
@@ -1311,43 +1217,91 @@
     document.addEventListener('DOMContentLoaded', function() {
         loadProducts();
 
-        // 图文详情 - 粘贴处理（支持图片 + 纯文本）
         const editor = document.getElementById('detailEditor');
-        editor.addEventListener('paste', async function(e) {
-            const items = e.clipboardData.items;
-            let hasImage = false;
 
-            // 优先检查是否有图片
+        // 记录光标位置（在粘贴前）
+        editor.addEventListener('keyup', saveSelection);
+        editor.addEventListener('mouseup', saveSelection);
+        editor.addEventListener('blur', saveSelection);
+
+        function saveSelection() {
+            const sel = window.getSelection();
+            if (sel.rangeCount > 0) {
+                const range = sel.getRangeAt(0);
+                // 只在编辑器内记录
+                if (editor.contains(range.commonAncestorContainer)) {
+                    savedRange = range.cloneRange();
+                }
+            }
+        }
+
+        // 粘贴处理（支持图片）
+        editor.addEventListener('paste', function(e) {
+            const items = e.clipboardData.items;
+            let imageFile = null;
+
+            // 找剪贴板里的图片
             for (let i = 0; i < items.length; i++) {
                 if (items[i].type.indexOf('image') !== -1) {
-                    hasImage = true;
-                    e.preventDefault();
-                    const file = items[i].getAsFile();
-                    if (!file) continue;
-
-                    // 检查大小
-                    if (file.size > 2 * 1024 * 1024) {
-                        showToast('❌ 粘贴的图片不能超过 2MB', 'error');
-                        return;
-                    }
-
-                    // 转 Base64 并插入
-                    const reader = new FileReader();
-                    reader.onload = function(ev) {
-                        document.execCommand('insertImage', false, ev.target.result);
-                        showToast('✅ 图片已粘贴', 'success');
-                    };
-                    reader.readAsDataURL(file);
+                    imageFile = items[i].getAsFile();
                     break;
                 }
             }
 
-            // 没有图片，过滤成纯文本
-            if (!hasImage) {
+            if (imageFile) {
+                // 有图片：阻止默认粘贴，异步处理
                 e.preventDefault();
-                const text = e.clipboardData.getData('text/plain');
-                document.execCommand('insertText', false, text);
+
+                if (imageFile.size > 2 * 1024 * 1024) {
+                    showToast('❌ 粘贴的图片不能超过 2MB', 'error');
+                    return;
+                }
+
+                // 先记录当前光标位置（如果 saveSelection 没记录到）
+                const sel = window.getSelection();
+                if (sel.rangeCount > 0) {
+                    const range = sel.getRangeAt(0);
+                    if (editor.contains(range.commonAncestorContainer)) {
+                        savedRange = range.cloneRange();
+                    }
+                }
+
+                const reader = new FileReader();
+                reader.onload = function(ev) {
+                    const dataUrl = ev.target.result;
+                    editor.focus();
+
+                    // 恢复光标位置
+                    if (savedRange) {
+                        const newSel = window.getSelection();
+                        newSel.removeAllRanges();
+                        newSel.addRange(savedRange);
+                    }
+
+                    // 尝试用 execCommand 插入
+                    const ok = document.execCommand('insertImage', false, dataUrl);
+
+                    // 兜底：如果 execCommand 失败，手动 append
+                    if (!ok) {
+                        const img = document.createElement('img');
+                        img.src = dataUrl;
+                        if (savedRange) {
+                            savedRange.insertNode(img);
+                            savedRange.setStartAfter(img);
+                            savedRange.collapse(true);
+                        } else {
+                            editor.appendChild(img);
+                        }
+                    }
+
+                    showToast('✅ 图片已粘贴', 'success');
+
+                    // 更新光标位置
+                    saveSelection();
+                };
+                reader.readAsDataURL(imageFile);
             }
+            // 没有图片：让浏览器默认处理（保留富文本格式）
         });
     });
 
