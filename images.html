@@ -341,7 +341,7 @@
             pointer-events: none;
         }
 
-        /* ========== 新增：视频区域 ========== */
+        /* ========== 视频区域 ========== */
         .video-section {
             background: white;
             border-radius: 16px;
@@ -445,7 +445,7 @@
             margin-top: 6px;
         }
 
-        /* ========== 新增：图文详情区域 ========== */
+        /* ========== 图文详情区域 ========== */
         .detail-section {
             background: white;
             border-radius: 16px;
@@ -711,7 +711,7 @@
         <input type="file" id="subFileInput" accept="image/*" style="display:none;" onchange="handleSubUpload(event)">
     </div>
 
-    <!-- ========== 新增：视频区域 ========== -->
+    <!-- 视频区域 -->
     <div class="video-section">
         <div class="section-header">
             <h3><i class="fas fa-video"></i> 商品视频 <span class="count">（1 个）</span></h3>
@@ -736,7 +736,7 @@
         </div>
     </div>
 
-    <!-- ========== 新增：图文详情区域 ========== -->
+    <!-- 图文详情区域 -->
     <div class="detail-section">
         <div class="section-header">
             <h3><i class="fas fa-align-left"></i> 图文详情 <span class="count">（支持富文本 + 图片）</span></h3>
@@ -924,7 +924,7 @@
     }
 
     // ================================================================
-    // 新增：渲染视频
+    // 渲染视频
     // ================================================================
     function renderVideo() {
         const preview = document.getElementById('videoPreview');
@@ -949,7 +949,7 @@
     }
 
     // ================================================================
-    // 新增：渲染图文详情
+    // 渲染图文详情
     // ================================================================
     function renderDetail() {
         const editor = document.getElementById('detailEditor');
@@ -1053,7 +1053,7 @@
     }
 
     // ================================================================
-    // 新增：上传视频
+    // 上传视频
     // ================================================================
     async function handleVideoUpload(event) {
         const file = event.target.files[0];
@@ -1162,7 +1162,7 @@
     }
 
     // ================================================================
-    // 新增：删除视频
+    // 删除视频
     // ================================================================
     async function deleteVideo() {
         if (!currentProduct || !currentProduct.video) return;
@@ -1194,7 +1194,7 @@
     }
 
     // ================================================================
-    // 新增：图文详情 - 富文本命令
+    // 图文详情 - 富文本命令
     // ================================================================
     function execCmd(command, value = null) {
         document.execCommand(command, false, value);
@@ -1230,7 +1230,6 @@
             showLoading(false);
 
             if (data.success && data.url) {
-                // 在光标位置插入图片
                 document.getElementById('detailEditor').focus();
                 document.execCommand('insertImage', false, data.url);
                 showToast('✅ 图片已插入', 'success');
@@ -1270,7 +1269,6 @@
             if (data.success) {
                 showToast('✅ 详情已保存', 'success');
                 originalDetailHTML = html;
-                // 更新本地数据
                 if (currentProduct) {
                     currentProduct.detail = html;
                     currentProduct.detail_html = html;
@@ -1313,16 +1311,47 @@
     document.addEventListener('DOMContentLoaded', function() {
         loadProducts();
 
-        // 图文详情 - 粘贴时过滤格式，只保留文本和图片
+        // 图文详情 - 粘贴处理（支持图片 + 纯文本）
         const editor = document.getElementById('detailEditor');
-        editor.addEventListener('paste', function(e) {
-            e.preventDefault();
-            const text = e.clipboardData.getData('text/plain');
-            document.execCommand('insertText', false, text);
+        editor.addEventListener('paste', async function(e) {
+            const items = e.clipboardData.items;
+            let hasImage = false;
+
+            // 优先检查是否有图片
+            for (let i = 0; i < items.length; i++) {
+                if (items[i].type.indexOf('image') !== -1) {
+                    hasImage = true;
+                    e.preventDefault();
+                    const file = items[i].getAsFile();
+                    if (!file) continue;
+
+                    // 检查大小
+                    if (file.size > 2 * 1024 * 1024) {
+                        showToast('❌ 粘贴的图片不能超过 2MB', 'error');
+                        return;
+                    }
+
+                    // 转 Base64 并插入
+                    const reader = new FileReader();
+                    reader.onload = function(ev) {
+                        document.execCommand('insertImage', false, ev.target.result);
+                        showToast('✅ 图片已粘贴', 'success');
+                    };
+                    reader.readAsDataURL(file);
+                    break;
+                }
+            }
+
+            // 没有图片，过滤成纯文本
+            if (!hasImage) {
+                e.preventDefault();
+                const text = e.clipboardData.getData('text/plain');
+                document.execCommand('insertText', false, text);
+            }
         });
     });
 
-    console.log('🖼️ 图片管理页已加载（含视频 + 图文详情）');
+    console.log('🖼️ 图片管理页已加载（含视频 + 图文详情 + 粘贴图片）');
     console.log('💡 后端:', BACKEND_URL);
 </script>
 </body>
