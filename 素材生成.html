@@ -953,14 +953,15 @@
 
         <!-- ===== 参考图片（可选）—— 移动到生成类型标题上方 ===== -->
         <div class="form-group">
-            <label><i class="fas fa-cloud-upload-alt"></i> 参考图片（可选）</label>
+            <label><i class="fas fa-cloud-upload-alt"></i> 参考图片（可选）<span style="font-size:11px;color:#4dabf7;margin-left:6px;">已支持作为图生图/参考图输入</span></label>
             <div class="upload-zone" onclick="document.getElementById('fileUpload').click()">
                 <i class="fas fa-cloud-upload-alt"></i>
                 <div class="hint">点击上传 3-5 张参考图</div>
-                <div style="font-size:11px; color:#94a3b8;">AI 将参考图片风格生成</div>
+                <div style="font-size:11px; color:#94a3b8;">AI 将参考图片风格生成图片/视频</div>
                 <input type="file" id="fileUpload" multiple accept="image/*" style="display:none;" onchange="handleFileUpload(event)">
             </div>
             <div id="uploadPreview" style="display:flex; gap:6px; flex-wrap:wrap; margin-top:8px;"></div>
+            <div id="uploadHint" style="font-size:11px; color:#94a3b8; margin-top:4px; display:none;"></div>
         </div>
 
         <!-- 生成类型卡片（高端版） -->
@@ -1174,7 +1175,6 @@
     const AGNES_IMAGE_MODEL = 'agnes-image-2.0-flash';
     const AGNES_VIDEO_MODEL = 'agnes-video-2.5-flash';
 
-    // 占位后端（保留用于文案/详情页的模拟，图片和视频走 Agnes）
     const BACKEND_URL = 'https://ai-ecommerce-backend-production-0776.up.railway.app';
 
     function getAgnesApiKey() {
@@ -1203,6 +1203,7 @@
         selectedTypes: ['images', 'carousel', 'copy', 'detail'],
         generatedData: {},
         history: [],
+        referenceImages: [],   // ← 新增：已上传参考图的 data URL 数组
         carouselPrompts: [
             '商品正面主图，突出包装设计，暖色调，自然光',
             '商品细节特写，展示材质质感，微距拍摄',
@@ -1499,22 +1500,61 @@
     }
 
     // ================================================================
-    // 上传
+    // 上传（修复：保存 data URL 到 state.referenceImages）
     // ================================================================
     function handleFileUpload(event) {
         const files = event.target.files;
         const preview = document.getElementById('uploadPreview');
+        const hint = document.getElementById('uploadHint');
+        if (!files || files.length === 0) return;
+
+        // 单张大小上限，避免 data URL 过大导致接口 413
+        const MAX_SIZE = 4 * 1024 * 1024; // 4MB
+        let loaded = 0;
+        const total = files.length;
+
         for (let i = 0; i < files.length; i++) {
+            const file = files[i];
+
+            if (!file.type.startsWith('image/')) {
+                showToast('⚠️ 跳过非图片文件：' + file.name);
+                continue;
+            }
+            if (file.size > MAX_SIZE) {
+                showToast('⚠️ 图片过大已跳过（>4MB）：' + file.name);
+                continue;
+            }
+
             const reader = new FileReader();
             reader.onload = (e) => {
+                const dataUrl = e.target.result;
+                // 存入 state
+                state.referenceImages.push(dataUrl);
+
+                // 展示缩略图
                 const div = document.createElement('div');
-                div.style.cssText = 'width:56px;height:56px;border-radius:8px;border:1px solid #e8edf4;overflow:hidden;background:#f5f7fa;';
-                div.innerHTML = `<img src="${e.target.result}" style="width:100%;height:100%;object-fit:cover;">`;
+                div.style.cssText = 'width:56px;height:56px;border-radius:8px;border:1px solid #e8edf4;overflow:hidden;background:#f5f7fa;position:relative;';
+                div.innerHTML = `
+                    <img src="${dataUrl}" style="width:100%;height:100%;object-fit:cover;">
+                    <span style="position:absolute;bottom:2px;right:2px;background:rgba(10,30,47,0.75);color:#fff;font-size:9px;padding:1px 5px;border-radius:8px;">参考</span>
+                `;
                 preview.appendChild(div);
+
+                loaded++;
+                if (loaded === total) {
+                    hint.style.display = 'block';
+                    hint.innerHTML = `<i class="fas fa-check-circle" style="color:#0d7c4f;"></i> 已上传 <strong>${state.referenceImages.length}</strong> 张参考图（图片生成最多参考 5 张，视频参考最多 5 张）`;
+                    showToast(`📤 已上传 ${state.referenceImages.length} 张参考图`);
+                }
             };
-            reader.readAsDataURL(files[i]);
+            reader.onerror = () => {
+                showToast('⚠️ 读取图片失败：' + file.name);
+            };
+            reader.readAsDataURL(file);
         }
-        showToast(`📤 已上传 ${files.length} 张参考图`);
+
+        // 允许重复选择同一文件
+        event.target.value = '';
     }
 
     // ================================================================
@@ -1524,7 +1564,9 @@
         document.getElementById('productName').value = '';
         document.getElementById('productFeatures').value = '';
         document.getElementById('uploadPreview').innerHTML = '';
+        document.getElementById('uploadHint').style.display = 'none';
         document.getElementById('fileUpload').value = '';
+        state.referenceImages = [];   // ← 清空参考图
         state.selectedTypes = ['images', 'carousel', 'copy', 'detail'];
         document.querySelectorAll('.gen-type-card').forEach((el, i) => {
             el.classList.toggle('selected', i < 4);
@@ -1562,9 +1604,9 @@
     }
 
     // ================================================================
-    // Agnes 图片生成
+    // Agnes 图片生成（支持参考图输入）
     // ================================================================
-    async function generateAgnesImage(prompt, size = '1024x1024') {
+    async function generateAgnesImage(prompt, size = '1024x1024', referenceImages = []) {
         const apiKey = getAgnesApiKey();
         if (!apiKey) {
             throw new Error('请先填写 Agnes AI API Key');
@@ -1576,6 +1618,21 @@
             prompt: prompt,
             size: size
         };
+
+        // 有参考图时，带上参考图字段（兼容常见命名）
+        if (referenceImages && referenceImages.length > 0) {
+            // 取前 5 张，避免超出限制
+            const refs = referenceImages.slice(0, 5);
+            // 主流 OpenAI Images 兼容规范
+            body.image = refs;
+            // 部分平台用 reference_images / images
+            body.reference_images = refs;
+            body.images = refs;
+            // 提示词中标注参考图（部分模型需要）
+            if (!/参考|reference|<Picture/i.test(prompt)) {
+                body.prompt = prompt + '（参考上传的图片风格与主体）';
+            }
+        }
 
         const res = await fetch(AGNES_API_BASE + '/images/generations', {
             method: 'POST',
@@ -1602,21 +1659,36 @@
     }
 
     // ================================================================
-    // Agnes 视频生成（异步轮询）
-    // 【修复版】对照官方文档：
-    //   1. 创建任务 POST /v1/videos，model=agnes-video-2.5-flash
-    //   2. 保存响应中的 video_id
-    //   3. 轮询 GET /agnesapi?video_id=..&model_name=agnes-video-2.5-flash
-    //   4. 建议每 1–2 秒查询一次
-    //   5. status === 'completed' 时，从【顶层 url 字段】取视频地址
-    //      （旧代码错误地取了 metadata.url，导致永远取不到 URL）
+    // Agnes 视频生成（异步轮询 + 参考图）
     // ================================================================
-    async function generateAgnesVideo(prompt, seconds = '5') {
+    async function generateAgnesVideo(prompt, seconds = '5', referenceImages = [], onProgress) {
         const apiKey = getAgnesApiKey();
         if (!apiKey) {
             throw new Error('请先填写 Agnes AI API Key');
         }
         saveAgnesApiKey();
+
+        const hasRefs = referenceImages && referenceImages.length > 0;
+
+        // 组装请求体
+        const body = {
+            model: AGNES_VIDEO_MODEL,
+            prompt: prompt,
+            seconds: seconds,
+            mode: hasRefs ? 'reference' : 'text',
+            size: '720P',
+            aspect_ratio: '9:16',
+            n: 1
+        };
+
+        if (hasRefs) {
+            // Flash 最多 5 张
+            body.images = referenceImages.slice(0, 5);
+            // 提示词中加参考图标记，便于模型引用
+            if (!/<Picture\s*\d+/i.test(prompt)) {
+                body.prompt = prompt + '。以 <Picture 1> 中的商品外观、色调和风格为参考，保持主体一致性。';
+            }
+        }
 
         // ---- 1. 创建视频任务 ----
         const createRes = await fetch(AGNES_API_BASE + '/videos', {
@@ -1625,15 +1697,7 @@
                 'Authorization': 'Bearer ' + apiKey,
                 'Content-Type': 'application/json'
             },
-            body: JSON.stringify({
-                model: AGNES_VIDEO_MODEL,
-                prompt: prompt,
-                seconds: seconds,
-                mode: 'text',
-                size: '720P',
-                aspect_ratio: '9:16',
-                n: 1
-            })
+            body: JSON.stringify(body)
         });
 
         if (!createRes.ok) {
@@ -1642,15 +1706,25 @@
         }
 
         const createData = await createRes.json();
-        // 文档：视频 ID 使用响应里的 video_id；同时 id/task_id 也可作为任务 ID
-        const videoId = createData.video_id || createData.id || createData.task_id;
+        // 文档：video_id 用于查询；id/task_id 是任务 ID
+        const videoId = createData.video_id;
         if (!videoId) {
-            throw new Error('视频任务创建未返回 video_id');
+            console.error('创建任务响应:', createData);
+            throw new Error('创建任务未返回 video_id');
         }
 
-        // ---- 2. 轮询等待完成 ----
-        // 文档建议每 1–2 秒查询一次；这里用 2 秒，最多 90 次（约 3 分钟）
-        const maxAttempts = 90;
+        // 持久化任务，便于刷新后继续查询
+        try {
+            localStorage.setItem('agnes_last_video_task', JSON.stringify({
+                videoId: videoId,
+                createdAt: Date.now(),
+                prompt: prompt,
+                hasRefs: hasRefs
+            }));
+        } catch (e) {}
+
+        // ---- 2. 轮询等待完成（10 分钟）----
+        const maxAttempts = 300;    // 300 × 2s = 10 分钟
         const intervalMs = 2000;
         let lastStatus = '';
 
@@ -1661,23 +1735,21 @@
             try {
                 queryRes = await fetch(
                     `https://apihub.agnes-ai.com/agnesapi?video_id=${encodeURIComponent(videoId)}&model_name=${encodeURIComponent(AGNES_VIDEO_MODEL)}`,
-                    {
-                        headers: { 'Authorization': 'Bearer ' + apiKey }
-                    }
+                    { headers: { 'Authorization': 'Bearer ' + apiKey } }
                 );
             } catch (netErr) {
-                // 单次网络抖动，不直接失败，继续重试
                 console.warn('查询视频任务失败（将重试）:', netErr);
                 continue;
             }
 
             if (!queryRes.ok) {
-                // 4xx/5xx 时读取错误信息，但不立即退出（可能瞬时服务波动）
                 const errText = await queryRes.text().catch(() => '');
                 console.warn(`查询视频任务返回 ${queryRes.status}:`, errText);
-                // 若是明显的鉴权错误，直接抛出
                 if (queryRes.status === 401 || queryRes.status === 403) {
                     throw new Error(`查询视频任务鉴权失败 (${queryRes.status}): ${errText.slice(0, 200)}`);
+                }
+                if (queryRes.status === 404) {
+                    throw new Error(`video_id 无效或任务不存在: ${errText.slice(0, 200)}`);
                 }
                 continue;
             }
@@ -1686,22 +1758,30 @@
             const status = queryData.status;
             lastStatus = status || lastStatus;
 
-            // 进度信息（若后端返回）
-            if (typeof queryData.progress === 'number') {
-                updateProgress(
-                    60 + Math.min(35, queryData.progress * 0.35),
-                    `正在生成视频... (${queryData.progress}%)`
-                );
+            // 状态文案
+            let statusText = '';
+            if (status === 'pending' || status === 'queued') {
+                statusText = `排队中... (第 ${i + 1} 次查询)`;
+            } else if (status === 'processing' || status === 'running') {
+                const pct = (typeof queryData.progress === 'number')
+                    ? queryData.progress
+                    : Math.min(99, Math.round((i / maxAttempts) * 100));
+                statusText = `生成中... (${pct}%)`;
+            } else {
+                statusText = `状态：${status}`;
+            }
+            if (typeof onProgress === 'function') {
+                onProgress(i + 1, maxAttempts, status, statusText);
             }
 
             if (status === 'completed') {
-                // ✅ 关键修复：视频地址在【顶层 url】字段
-                const url = queryData.url;
-                if (url) return url;
-
-                // 兼容：部分服务可能把 url 放在 data 里
-                if (queryData.data && queryData.data.url) {
-                    return queryData.data.url;
+                // 顶层 url 优先
+                const url = queryData.url
+                    || (queryData.data && queryData.data.url)
+                    || null;
+                if (url) {
+                    try { localStorage.removeItem('agnes_last_video_task'); } catch (e) {}
+                    return url;
                 }
                 throw new Error('视频已完成但未返回 URL（顶层 url 为空）');
             }
@@ -1712,15 +1792,16 @@
                     || '未知错误';
                 throw new Error('视频生成失败：' + errMsg);
             }
-
-            // 其它状态（queued / processing / pending）继续轮询
         }
 
-        throw new Error(`视频生成超时（最后状态：${lastStatus || 'unknown'}），请稍后重试`);
+        throw new Error(
+            `视频生成超时（10 分钟内未完成，最后状态：${lastStatus || 'unknown'}）。` +
+            `任务已保留，可刷新页面后重试，或稍等片刻再生成。`
+        );
     }
 
     // ================================================================
-    // 核心生成（接入 Agnes）
+    // 核心生成（接入 Agnes + 参考图）
     // ================================================================
     async function startGenerate() {
         if (state.isGenerating) {
@@ -1752,19 +1833,27 @@
         const style = document.getElementById('designStyle').value;
         const platforms = getSelectedPlatforms();
 
+        // 参考图（用于图片 + 视频生成）
+        const refImages = state.referenceImages.slice();
+        if (refImages.length > 0) {
+            showToast(`🖼️ 将使用 ${refImages.length} 张参考图辅助生成`);
+        }
+
         state.isGenerating = true;
         showGeneratingOverlay(state.selectedTypes);
 
         try {
-            // ---- 图片生成（主图 + 轮播图）通过 Agnes ----
+            // ---- 图片生成（主图 + 轮播图）通过 Agnes，带参考图 ----
             let images = [];
             if (state.selectedTypes.includes('images') || state.selectedTypes.includes('carousel')) {
                 const prompts = state.carouselPrompts.slice(0, 5);
-                updateProgress(15, '正在调用 Agnes AI 生成图片...');
+                updateProgress(15, refImages.length > 0
+                    ? `正在调用 Agnes AI 生成图片（参考 ${refImages.length} 张）...`
+                    : '正在调用 Agnes AI 生成图片...');
 
                 for (let i = 0; i < prompts.length; i++) {
                     try {
-                        const url = await generateAgnesImage(prompts[i], '1024x1024');
+                        const url = await generateAgnesImage(prompts[i], '1024x1024', refImages);
                         images.push({
                             url: url,
                             style: style,
@@ -1792,18 +1881,23 @@
             const copyVersions = fallbackData.copyVersions;
             const detailHTML = fallbackData.detailHTML;
 
-            // ---- 视频生成通过 Agnes ----
+            // ---- 视频生成通过 Agnes，带参考图 ----
             let videoUrl = '';
             if (state.selectedTypes.includes('video')) {
                 const videoPrompt = state.videoPrompts.map(v => v.prompt).filter(Boolean).join('。') || `${name} 商品展示短视频`;
-                updateProgress(60, '正在调用 Agnes AI 生成视频（约 1-2 分钟）...');
+                updateProgress(60, refImages.length > 0
+                    ? `正在调用 Agnes AI 生成视频（参考 ${refImages.length} 张，排队中，最长 10 分钟）...`
+                    : '正在调用 Agnes AI 生成视频（排队中，最长 10 分钟）...');
                 try {
-                    videoUrl = await generateAgnesVideo(videoPrompt, '5');
+                    videoUrl = await generateAgnesVideo(videoPrompt, '5', refImages, (attempt, total, status, text) => {
+                        const pct = 60 + Math.min(35, (attempt / total) * 35);
+                        updateProgress(pct, '视频：' + text);
+                    });
                     updateProgress(95, '视频生成完成');
                 } catch (vidErr) {
                     console.warn('视频生成失败:', vidErr);
                     videoUrl = '';
-                    showToast('⚠️ 视频生成失败：' + vidErr.message);
+                    showToast('⚠️ 视频：' + vidErr.message);
                 }
             }
 
@@ -1884,9 +1978,7 @@
             document.getElementById('resultImages').style.display = 'none';
         }
 
-        if (state.selectedTypes.includes('carousel') && data.images && data.images.length > 1) {
-            renderImageGrid('carouselGrid', 'resultCarousel', data.images, productName, 'carousel');
-        } else if (state.selectedTypes.includes('carousel') && data.images) {
+        if (state.selectedTypes.includes('carousel') && data.images && data.images.length > 0) {
             renderImageGrid('carouselGrid', 'resultCarousel', data.images, productName, 'carousel');
         } else {
             document.getElementById('resultCarousel').style.display = 'none';
@@ -2132,7 +2224,7 @@
             }
         });
 
-        // 初始化时同步卡片选中态到 state（避免状态不一致）
+        // 同步初始选中状态
         state.selectedTypes = [];
         document.querySelectorAll('.gen-type-card.selected').forEach(el => {
             state.selectedTypes.push(el.dataset.type);
@@ -2143,7 +2235,7 @@
         renderVideoScript();
         updatePromptSections();
         loadHistory();
-        console.log('🎨 智能素材生成已就绪（Agnes AI 接入 · 视频修复版）');
+        console.log('🎨 智能素材生成已就绪（Agnes AI 接入 · 参考图 + 视频修复版）');
         console.log('🖼️ 图片模型:', AGNES_IMAGE_MODEL);
         console.log('🎬 视频模型:', AGNES_VIDEO_MODEL);
     });
