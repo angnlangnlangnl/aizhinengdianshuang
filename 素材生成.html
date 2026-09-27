@@ -1177,7 +1177,6 @@
     // 占位后端（保留用于文案/详情页的模拟，图片和视频走 Agnes）
     const BACKEND_URL = 'https://ai-ecommerce-backend-production-0776.up.railway.app';
 
-    // 从 localStorage 读取 API Key
     function getAgnesApiKey() {
         return document.getElementById('agnesApiKey').value.trim() || localStorage.getItem('agnes_api_key') || 'sk-XmLjN9e3Mhh8wf';
     }
@@ -1604,6 +1603,13 @@
 
     // ================================================================
     // Agnes 视频生成（异步轮询）
+    // 【修复版】对照官方文档：
+    //   1. 创建任务 POST /v1/videos，model=agnes-video-2.5-flash
+    //   2. 保存响应中的 video_id
+    //   3. 轮询 GET /agnesapi?video_id=..&model_name=agnes-video-2.5-flash
+    //   4. 建议每 1–2 秒查询一次
+    //   5. status === 'completed' 时，从【顶层 url 字段】取视频地址
+    //      （旧代码错误地取了 metadata.url，导致永远取不到 URL）
     // ================================================================
     async function generateAgnesVideo(prompt, seconds = '5') {
         const apiKey = getAgnesApiKey();
@@ -1612,7 +1618,7 @@
         }
         saveAgnesApiKey();
 
-        // 1. 创建任务
+        // ---- 1. 创建视频任务 ----
         const createRes = await fetch(AGNES_API_BASE + '/videos', {
             method: 'POST',
             headers: {
@@ -1625,7 +1631,8 @@
                 seconds: seconds,
                 mode: 'text',
                 size: '720P',
-                aspect_ratio: '9:16'
+                aspect_ratio: '9:16',
+                n: 1
             })
         });
 
@@ -1635,42 +1642,81 @@
         }
 
         const createData = await createRes.json();
-        const videoId = createData.video_id || createData.id;
+        // 文档：视频 ID 使用响应里的 video_id；同时 id/task_id 也可作为任务 ID
+        const videoId = createData.video_id || createData.id || createData.task_id;
         if (!videoId) {
             throw new Error('视频任务创建未返回 video_id');
         }
 
-        // 2. 轮询等待完成
-        const maxAttempts = 60;
-        const intervalMs = 3000;
+        // ---- 2. 轮询等待完成 ----
+        // 文档建议每 1–2 秒查询一次；这里用 2 秒，最多 90 次（约 3 分钟）
+        const maxAttempts = 90;
+        const intervalMs = 2000;
+        let lastStatus = '';
 
         for (let i = 0; i < maxAttempts; i++) {
             await new Promise(r => setTimeout(r, intervalMs));
 
-            const queryRes = await fetch(
-                `https://apihub.agnes-ai.com/agnesapi?video_id=${videoId}&model_name=${AGNES_VIDEO_MODEL}`,
-                {
-                    headers: { 'Authorization': 'Bearer ' + apiKey }
-                }
-            );
+            let queryRes;
+            try {
+                queryRes = await fetch(
+                    `https://apihub.agnes-ai.com/agnesapi?video_id=${encodeURIComponent(videoId)}&model_name=${encodeURIComponent(AGNES_VIDEO_MODEL)}`,
+                    {
+                        headers: { 'Authorization': 'Bearer ' + apiKey }
+                    }
+                );
+            } catch (netErr) {
+                // 单次网络抖动，不直接失败，继续重试
+                console.warn('查询视频任务失败（将重试）:', netErr);
+                continue;
+            }
 
-            if (!queryRes.ok) continue;
+            if (!queryRes.ok) {
+                // 4xx/5xx 时读取错误信息，但不立即退出（可能瞬时服务波动）
+                const errText = await queryRes.text().catch(() => '');
+                console.warn(`查询视频任务返回 ${queryRes.status}:`, errText);
+                // 若是明显的鉴权错误，直接抛出
+                if (queryRes.status === 401 || queryRes.status === 403) {
+                    throw new Error(`查询视频任务鉴权失败 (${queryRes.status}): ${errText.slice(0, 200)}`);
+                }
+                continue;
+            }
 
             const queryData = await queryRes.json();
             const status = queryData.status;
+            lastStatus = status || lastStatus;
+
+            // 进度信息（若后端返回）
+            if (typeof queryData.progress === 'number') {
+                updateProgress(
+                    60 + Math.min(35, queryData.progress * 0.35),
+                    `正在生成视频... (${queryData.progress}%)`
+                );
+            }
 
             if (status === 'completed') {
-                const url = queryData.metadata && queryData.metadata.url;
+                // ✅ 关键修复：视频地址在【顶层 url】字段
+                const url = queryData.url;
                 if (url) return url;
-                throw new Error('视频已完成但未返回 URL');
+
+                // 兼容：部分服务可能把 url 放在 data 里
+                if (queryData.data && queryData.data.url) {
+                    return queryData.data.url;
+                }
+                throw new Error('视频已完成但未返回 URL（顶层 url 为空）');
             }
+
             if (status === 'failed') {
-                throw new Error('视频生成失败：' + (queryData.error?.message || '未知错误'));
+                const errMsg = (queryData.error && (queryData.error.message || queryData.error.code))
+                    || queryData.error
+                    || '未知错误';
+                throw new Error('视频生成失败：' + errMsg);
             }
-            // 继续轮询
+
+            // 其它状态（queued / processing / pending）继续轮询
         }
 
-        throw new Error('视频生成超时，请稍后重试');
+        throw new Error(`视频生成超时（最后状态：${lastStatus || 'unknown'}），请稍后重试`);
     }
 
     // ================================================================
@@ -1753,9 +1799,11 @@
                 updateProgress(60, '正在调用 Agnes AI 生成视频（约 1-2 分钟）...');
                 try {
                     videoUrl = await generateAgnesVideo(videoPrompt, '5');
+                    updateProgress(95, '视频生成完成');
                 } catch (vidErr) {
                     console.warn('视频生成失败:', vidErr);
                     videoUrl = '';
+                    showToast('⚠️ 视频生成失败：' + vidErr.message);
                 }
             }
 
@@ -2073,17 +2121,21 @@
     // 初始化
     // ================================================================
     document.addEventListener('DOMContentLoaded', () => {
-        // 从 localStorage 恢复 API Key
         const savedKey = localStorage.getItem('agnes_api_key');
         if (savedKey) {
             document.getElementById('agnesApiKey').value = savedKey;
         }
 
-        // API Key 变更时自动保存
         document.getElementById('agnesApiKey').addEventListener('input', function() {
             if (this.value.trim()) {
                 localStorage.setItem('agnes_api_key', this.value.trim());
             }
+        });
+
+        // 初始化时同步卡片选中态到 state（避免状态不一致）
+        state.selectedTypes = [];
+        document.querySelectorAll('.gen-type-card.selected').forEach(el => {
+            state.selectedTypes.push(el.dataset.type);
         });
 
         renderCarouselPrompts();
@@ -2091,7 +2143,7 @@
         renderVideoScript();
         updatePromptSections();
         loadHistory();
-        console.log('🎨 智能素材生成已就绪（Agnes AI 接入）');
+        console.log('🎨 智能素材生成已就绪（Agnes AI 接入 · 视频修复版）');
         console.log('🖼️ 图片模型:', AGNES_IMAGE_MODEL);
         console.log('🎬 视频模型:', AGNES_VIDEO_MODEL);
     });
