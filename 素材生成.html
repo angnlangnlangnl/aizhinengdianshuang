@@ -52,7 +52,6 @@
         /* ===== 主内容 ===== */
         .main { flex: 1; padding: 20px 28px 40px; max-width: calc(100% - 220px); min-width: 0; }
 
-        /* ===== 顶部栏 ===== */
         .topbar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 22px; flex-wrap: wrap; gap: 12px; }
         .topbar .left h2 { font-size: 20px; font-weight: 600; color: #0a1e2f; }
         .topbar .left p { font-size: 13px; color: #5f7d95; margin-top: 2px; }
@@ -65,14 +64,12 @@
         .topbar .right .btn i { color: #5f7d95; }
         .topbar .right .avatar { width: 36px; height: 36px; border-radius: 50%; background: #4dabf7; color: white; display: flex; align-items: center; justify-content: center; font-size: 16px; font-weight: 600; }
 
-        /* ===== 卡片 ===== */
         .card { background: white; border-radius: 14px; padding: 18px 20px; border: 1px solid #e8edf4; box-shadow: 0 2px 8px rgba(10,30,47,0.02); margin-bottom: 16px; }
         .card-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px; flex-wrap: wrap; gap: 8px; }
         .card-header h3 { font-size: 15px; font-weight: 600; color: #0a1e2f; display: flex; align-items: center; gap: 6px; }
         .card-header h3 i { color: #4dabf7; }
         .card-header .action { font-size: 12px; color: #4dabf7; font-weight: 500; cursor: pointer; }
 
-        /* ===== 表单 ===== */
         .form-group { margin-bottom: 12px; }
         .form-group label { display: block; font-size: 13px; font-weight: 500; color: #0a1e2f; margin-bottom: 4px; }
         .form-group label i { color: #4dabf7; margin-right: 4px; }
@@ -86,43 +83,525 @@
         .form-group textarea { min-height: 60px; resize: vertical; }
         .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
 
-        /* ===== 生成类型勾选 ===== */
+        /* ============================================================
+           生成类型卡片（高端版）
+           ============================================================ */
         .gen-type-grid {
             display: grid;
             grid-template-columns: repeat(5, 1fr);
-            gap: 10px;
-            margin-bottom: 6px;
+            gap: 12px;
+            margin-bottom: 8px;
         }
-        .gen-type-item {
+        .gen-type-card {
+            position: relative;
             border: 2px solid #e8edf4;
-            border-radius: 10px;
-            padding: 12px 8px;
+            border-radius: 12px;
+            padding: 14px 10px 12px;
             text-align: center;
             cursor: pointer;
-            transition: 0.15s;
-            background: #fafcfe;
+            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+            background: linear-gradient(180deg, #fafcfe 0%, #f5f8fc 100%);
             user-select: none;
+            overflow: hidden;
         }
-        .gen-type-item:hover { border-color: #4dabf7; background: #f0f7fe; }
-        .gen-type-item.selected { border-color: #4dabf7; background: #f0f7fe; box-shadow: 0 0 0 3px rgba(77,171,247,0.1); }
-        .gen-type-item i { font-size: 22px; color: #4dabf7; display: block; margin-bottom: 4px; }
-        .gen-type-item .name { font-size: 12px; font-weight: 500; color: #0a1e2f; }
-        .gen-type-item .check {
-            display: none;
+        .gen-type-card::before {
+            content: '';
             position: absolute;
-            top: 6px; right: 6px;
-            width: 18px; height: 18px;
-            border-radius: 50%;
-            background: #4dabf7;
-            color: white;
+            top: 0; left: 0; right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, #4dabf7, #0d7c4f);
+            opacity: 0;
+            transition: opacity 0.25s;
+        }
+        .gen-type-card:hover {
+            border-color: #4dabf7;
+            background: linear-gradient(180deg, #f0f7fe 0%, #e8f4ff 100%);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(77,171,247,0.12);
+        }
+        .gen-type-card.selected {
+            border-color: #4dabf7;
+            background: linear-gradient(180deg, #f0f7fe 0%, #e0f0ff 100%);
+            box-shadow: 0 4px 16px rgba(77,171,247,0.15);
+        }
+        .gen-type-card.selected::before { opacity: 1; }
+        .gen-type-card .type-icon {
+            font-size: 26px;
+            color: #4dabf7;
+            margin-bottom: 6px;
+            display: block;
+            transition: transform 0.25s;
+        }
+        .gen-type-card:hover .type-icon { transform: scale(1.1); }
+        .gen-type-card .type-name {
+            font-size: 13px;
+            font-weight: 600;
+            color: #0a1e2f;
+            margin-bottom: 3px;
+        }
+        .gen-type-card .type-desc {
             font-size: 10px;
+            color: #94a3b8;
+        }
+        /* 选中勾 */
+        .gen-type-card .check-mark {
+            position: absolute;
+            top: 8px; right: 8px;
+            width: 20px; height: 20px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #4dabf7, #2a7faa);
+            color: white;
+            font-size: 11px;
+            display: flex;
             align-items: center;
             justify-content: center;
+            opacity: 0;
+            transform: scale(0.5);
+            transition: all 0.25s;
+            box-shadow: 0 2px 8px rgba(77,171,247,0.4);
         }
-        .gen-type-item { position: relative; }
-        .gen-type-item.selected .check { display: flex; }
+        .gen-type-card.selected .check-mark { opacity: 1; transform: scale(1); }
 
-        /* ===== 上传区域 ===== */
+        /* 卡片上的操作齿轮 */
+        .gen-type-card .gear-btn {
+            position: absolute;
+            top: 8px; left: 8px;
+            width: 22px; height: 22px;
+            border-radius: 6px;
+            background: rgba(255,255,255,0.9);
+            border: 1px solid #dce5ef;
+            color: #94a3b8;
+            font-size: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            opacity: 0;
+            transition: all 0.2s;
+            z-index: 3;
+        }
+        .gen-type-card:hover .gear-btn { opacity: 1; }
+        .gen-type-card .gear-btn:hover {
+            background: #0a1e2f;
+            color: white;
+            border-color: #0a1e2f;
+            transform: rotate(45deg);
+        }
+
+        /* 参数浮层 */
+        .type-params-panel {
+            position: absolute;
+            top: 100%; left: 0; right: 0;
+            background: white;
+            border: 1px solid #4dabf7;
+            border-radius: 10px;
+            padding: 12px;
+            margin-top: 6px;
+            box-shadow: 0 10px 30px rgba(10,30,47,0.15);
+            z-index: 10;
+            display: none;
+            text-align: left;
+        }
+        .type-params-panel.show { display: block; animation: fadeIn 0.2s ease; }
+        .type-params-panel .param-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 8px;
+            font-size: 12px;
+        }
+        .type-params-panel .param-row:last-child { margin-bottom: 0; }
+        .type-params-panel .param-row label {
+            color: #5f7d95;
+            font-weight: 500;
+            font-size: 11px;
+        }
+        .type-params-panel .param-row input,
+        .type-params-panel .param-row select {
+            width: 80px;
+            padding: 4px 8px;
+            font-size: 11px;
+            border-radius: 6px;
+        }
+        .type-params-panel .close-params {
+            position: absolute;
+            top: 6px; right: 6px;
+            font-size: 12px;
+            color: #94a3b8;
+            cursor: pointer;
+            padding: 2px 6px;
+            border-radius: 4px;
+        }
+        .type-params-panel .close-params:hover { background: #f0f4f9; color: #0a1e2f; }
+
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(-4px); } to { opacity: 1; transform: translateY(0); } }
+
+        /* ============================================================
+           提示词区块（高端版）
+           ============================================================ */
+        .prompt-section {
+            margin-top: 14px;
+            padding: 14px 16px;
+            background: linear-gradient(135deg, #fafcfe 0%, #f0f7fe 100%);
+            border-radius: 12px;
+            border: 1px solid #e8edf4;
+            display: none;
+        }
+        .prompt-section.show { display: block; animation: fadeIn 0.25s ease; }
+
+        .prompt-section .section-title {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+        .prompt-section .section-title h4 {
+            font-size: 13px;
+            font-weight: 600;
+            color: #0a1e2f;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .prompt-section .section-title h4 i { color: #4dabf7; }
+        .prompt-section .section-title .hint {
+            font-size: 11px;
+            color: #94a3b8;
+        }
+
+        /* 轮播图提示词 - 横向滚动卡片 */
+        .carousel-prompts {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 10px;
+        }
+        .carousel-prompt-card {
+            background: white;
+            border: 1px solid #e8edf4;
+            border-radius: 10px;
+            padding: 10px;
+            transition: 0.2s;
+            position: relative;
+        }
+        .carousel-prompt-card:hover {
+            border-color: #4dabf7;
+            box-shadow: 0 4px 12px rgba(77,171,247,0.1);
+        }
+        .carousel-prompt-card .card-thumb {
+            width: 100%;
+            aspect-ratio: 1/1;
+            background: linear-gradient(135deg, #e8f4ff, #d0e8ff);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 28px;
+            color: #4dabf7;
+            margin-bottom: 8px;
+            position: relative;
+            overflow: hidden;
+        }
+        .carousel-prompt-card .card-thumb .num-badge {
+            position: absolute;
+            top: 6px; left: 6px;
+            font-size: 10px;
+            font-weight: 700;
+            padding: 2px 8px;
+            border-radius: 20px;
+            background: rgba(10,30,47,0.75);
+            color: white;
+            backdrop-filter: blur(4px);
+        }
+        .carousel-prompt-card .card-thumb .ai-tag {
+            position: absolute;
+            bottom: 6px; right: 6px;
+            font-size: 9px;
+            padding: 2px 6px;
+            border-radius: 4px;
+            background: rgba(77,171,247,0.9);
+            color: white;
+            font-weight: 500;
+        }
+        .carousel-prompt-card .prompt-input {
+            width: 100%;
+            border: 1px solid #e8edf4;
+            border-radius: 6px;
+            padding: 6px 8px;
+            font-size: 11px;
+            line-height: 1.5;
+            color: #0a1e2f;
+            background: #fafcfe;
+            resize: none;
+            font-family: inherit;
+            min-height: 60px;
+            transition: 0.15s;
+        }
+        .carousel-prompt-card .prompt-input:focus {
+            outline: none;
+            border-color: #4dabf7;
+            background: white;
+            box-shadow: 0 0 0 2px rgba(77,171,247,0.1);
+        }
+        .carousel-prompt-card .card-actions {
+            display: flex;
+            gap: 4px;
+            margin-top: 6px;
+        }
+        .carousel-prompt-card .card-actions .mini-btn {
+            flex: 1;
+            padding: 4px 6px;
+            border-radius: 6px;
+            border: none;
+            font-size: 10px;
+            font-weight: 500;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 3px;
+            transition: 0.15s;
+        }
+        .carousel-prompt-card .card-actions .mini-btn.ai {
+            background: rgba(77,171,247,0.1);
+            color: #2a7faa;
+        }
+        .carousel-prompt-card .card-actions .mini-btn.ai:hover { background: rgba(77,171,247,0.2); }
+        .carousel-prompt-card .card-actions .mini-btn.clear {
+            background: #f0f4f9;
+            color: #5f7d95;
+        }
+        .carousel-prompt-card .card-actions .mini-btn.clear:hover { background: #e8edf4; }
+
+        /* 详情页提示词 - 时间轴式 */
+        .detail-prompts {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        .detail-prompt-item {
+            display: grid;
+            grid-template-columns: 40px 100px 1fr auto;
+            gap: 12px;
+            align-items: center;
+            background: white;
+            border: 1px solid #e8edf4;
+            border-radius: 10px;
+            padding: 10px 12px;
+            transition: 0.2s;
+        }
+        .detail-prompt-item:hover {
+            border-color: #4dabf7;
+            box-shadow: 0 4px 12px rgba(77,171,247,0.08);
+        }
+        .detail-prompt-item .step-num {
+            width: 32px; height: 32px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #4dabf7, #2a7faa);
+            color: white;
+            font-size: 13px;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            box-shadow: 0 2px 6px rgba(77,171,247,0.3);
+        }
+        .detail-prompt-item .thumb-mini {
+            width: 100px; height: 60px;
+            border-radius: 6px;
+            background: linear-gradient(135deg, #e8f4ff, #d0e8ff);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            color: #4dabf7;
+            flex-shrink: 0;
+            overflow: hidden;
+        }
+        .detail-prompt-item .thumb-mini img {
+            width: 100%; height: 100%; object-fit: cover;
+        }
+        .detail-prompt-item .prompt-input-wrap {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+        .detail-prompt-item .prompt-label {
+            font-size: 10px;
+            color: #94a3b8;
+            font-weight: 500;
+        }
+        .detail-prompt-item .prompt-input {
+            width: 100%;
+            border: 1px solid #e8edf4;
+            border-radius: 6px;
+            padding: 6px 10px;
+            font-size: 12px;
+            color: #0a1e2f;
+            background: #fafcfe;
+            font-family: inherit;
+            transition: 0.15s;
+        }
+        .detail-prompt-item .prompt-input:focus {
+            outline: none;
+            border-color: #4dabf7;
+            background: white;
+            box-shadow: 0 0 0 2px rgba(77,171,247,0.1);
+        }
+        .detail-prompt-item .item-actions {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+        .detail-prompt-item .item-actions .mini-btn {
+            padding: 4px 8px;
+            border-radius: 6px;
+            border: none;
+            font-size: 10px;
+            cursor: pointer;
+            white-space: nowrap;
+            display: flex;
+            align-items: center;
+            gap: 3px;
+        }
+        .detail-prompt-item .item-actions .mini-btn.ai {
+            background: rgba(77,171,247,0.1);
+            color: #2a7faa;
+        }
+        .detail-prompt-item .item-actions .mini-btn.ai:hover { background: rgba(77,171,247,0.2); }
+        .detail-prompt-item .item-actions .mini-btn.del {
+            background: #fde8ed;
+            color: #b51a3f;
+        }
+        .detail-prompt-item .item-actions .mini-btn.del:hover { background: #fcd0d9; }
+
+        .add-detail-btn {
+            padding: 10px 16px;
+            border: 2px dashed #dce5ef;
+            border-radius: 10px;
+            background: #fafcfe;
+            color: #5f7d95;
+            font-size: 12px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            transition: 0.15s;
+        }
+        .add-detail-btn:hover {
+            border-color: #4dabf7;
+            color: #4dabf7;
+            background: #f0f7fe;
+        }
+
+        /* 视频提示词 - 剧本卡 */
+        .video-script {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        .video-shot {
+            display: grid;
+            grid-template-columns: 60px 1fr;
+            gap: 12px;
+            background: white;
+            border: 1px solid #e8edf4;
+            border-radius: 10px;
+            padding: 12px;
+            transition: 0.2s;
+        }
+        .video-shot:hover {
+            border-color: #4dabf7;
+            box-shadow: 0 4px 12px rgba(77,171,247,0.08);
+        }
+        .video-shot .time-badge {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(135deg, #b51a5a, #d94f7a);
+            color: white;
+            border-radius: 8px;
+            padding: 8px 4px;
+            font-size: 11px;
+            font-weight: 600;
+            text-align: center;
+            flex-shrink: 0;
+        }
+        .video-shot .time-badge .sec { font-size: 14px; font-weight: 700; }
+        .video-shot .shot-content {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+        .video-shot .shot-title {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 12px;
+            font-weight: 600;
+            color: #0a1e2f;
+        }
+        .video-shot .shot-title .type-tag {
+            font-size: 10px;
+            font-weight: 500;
+            padding: 2px 8px;
+            border-radius: 4px;
+            background: rgba(181,26,90,0.1);
+            color: #b51a5a;
+        }
+        .video-shot .shot-prompt {
+            width: 100%;
+            border: 1px solid #e8edf4;
+            border-radius: 6px;
+            padding: 6px 10px;
+            font-size: 12px;
+            color: #0a1e2f;
+            background: #fafcfe;
+            font-family: inherit;
+            resize: vertical;
+            min-height: 48px;
+            transition: 0.15s;
+        }
+        .video-shot .shot-prompt:focus {
+            outline: none;
+            border-color: #4dabf7;
+            background: white;
+            box-shadow: 0 0 0 2px rgba(77,171,247,0.1);
+        }
+        .video-shot .shot-actions {
+            display: flex;
+            gap: 6px;
+            flex-wrap: wrap;
+        }
+        .video-shot .shot-actions .mini-btn {
+            padding: 4px 10px;
+            border-radius: 6px;
+            border: none;
+            font-size: 10px;
+            font-weight: 500;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 3px;
+        }
+        .video-shot .shot-actions .mini-btn.ai {
+            background: rgba(77,171,247,0.1);
+            color: #2a7faa;
+        }
+        .video-shot .shot-actions .mini-btn.copy-sample {
+            background: rgba(13,124,79,0.1);
+            color: #0d7c4f;
+        }
+        .video-shot .shot-actions .mini-btn.copy-sample:hover { background: rgba(13,124,79,0.2); }
+
+        /* ============================================================
+           上传 & 平台
+           ============================================================ */
         .upload-zone {
             border: 2px dashed #dce5ef;
             border-radius: 10px;
@@ -136,7 +615,6 @@
         .upload-zone i { font-size: 28px; display: block; margin-bottom: 6px; color: #4dabf7; }
         .upload-zone .hint { font-size: 13px; }
 
-        /* ===== 平台标签 ===== */
         .platform-tag {
             display: inline-block;
             padding: 5px 14px;
@@ -153,21 +631,10 @@
         .platform-tag:hover { border-color: #4dabf7; }
         .platform-tag.active { background: #0a1e2f; border-color: #0a1e2f; color: white; }
 
-        /* ===== 生成结果 ===== */
+        /* ============================================================
+           结果区
+           ============================================================ */
         .result-section { margin-top: 24px; }
-        .result-header {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            margin-bottom: 14px;
-            padding-bottom: 10px;
-            border-bottom: 1px solid #e8edf4;
-        }
-        .result-header h3 { font-size: 16px; font-weight: 600; color: #0a1e2f; display: flex; align-items: center; gap: 8px; }
-        .result-header h3 i { color: #4dabf7; }
-        .result-header .meta { font-size: 12px; color: #5f7d95; }
-
-        /* 主图网格 */
         .image-grid {
             display: grid;
             grid-template-columns: repeat(5, 1fr);
@@ -179,7 +646,6 @@
             overflow: hidden;
             background: white;
             transition: 0.15s;
-            position: relative;
         }
         .image-item:hover { border-color: #4dabf7; box-shadow: 0 4px 12px rgba(77,171,247,0.1); }
         .image-item .preview {
@@ -194,25 +660,16 @@
         .image-item .preview img { width: 100%; height: 100%; object-fit: cover; }
         .image-item .preview .icon-fallback { font-size: 42px; color: #4dabf7; }
         .image-item .preview .badge-pos {
-            position: absolute;
-            top: 8px; left: 8px;
-            font-size: 10px;
-            padding: 2px 10px;
-            border-radius: 30px;
-            background: rgba(10,30,47,0.75);
-            color: white;
-            backdrop-filter: blur(4px);
-            font-weight: 500;
+            position: absolute; top: 8px; left: 8px;
+            font-size: 10px; padding: 2px 10px; border-radius: 30px;
+            background: rgba(10,30,47,0.75); color: white;
+            backdrop-filter: blur(4px); font-weight: 500;
         }
         .image-item .info { padding: 8px 10px; }
-        .image-item .info .title {
-            font-size: 12px; font-weight: 600; color: #0a1e2f;
-            white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
-        }
+        .image-item .info .title { font-size: 12px; font-weight: 600; color: #0a1e2f; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
         .image-item .info .meta { font-size: 11px; color: #94a3b8; margin-top: 2px; display: flex; gap: 6px; flex-wrap: wrap; }
         .image-item .info .actions { margin-top: 6px; display: flex; gap: 4px; flex-wrap: wrap; }
 
-        /* 文案列表 */
         .copy-list { display: flex; flex-direction: column; gap: 10px; }
         .copy-item {
             padding: 12px 16px;
@@ -220,7 +677,6 @@
             border-radius: 10px;
             background: white;
             transition: 0.15s;
-            position: relative;
         }
         .copy-item:hover { border-color: #c8d8e8; }
         .copy-item.recommended { border-color: #4dabf7; background: #f0f7fe; }
@@ -229,7 +685,6 @@
         .copy-item .content { font-size: 13px; color: #0a1e2f; margin-top: 8px; line-height: 1.7; white-space: pre-line; }
         .copy-item .actions { margin-top: 10px; display: flex; gap: 6px; flex-wrap: wrap; }
 
-        /* 详情预览 */
         .detail-preview {
             background: #f8fafc;
             border-radius: 10px;
@@ -243,7 +698,6 @@
         .detail-preview::-webkit-scrollbar { width: 4px; }
         .detail-preview::-webkit-scrollbar-thumb { background: #c8d8e8; border-radius: 10px; }
 
-        /* 视频预览 */
         .video-preview {
             background: linear-gradient(135deg, #1a1a2e, #2a2a4e);
             border-radius: 12px;
@@ -257,17 +711,8 @@
             justify-content: center;
         }
         .video-preview i.play-icon { font-size: 52px; color: #4dabf7; margin-bottom: 12px; }
-        .video-preview .title { font-size: 14px; font-weight: 500; }
 
-        /* ===== 徽章 ===== */
-        .badge {
-            padding: 2px 12px;
-            border-radius: 30px;
-            font-size: 11px;
-            font-weight: 500;
-            white-space: nowrap;
-            display: inline-block;
-        }
+        .badge { padding: 2px 12px; border-radius: 30px; font-size: 11px; font-weight: 500; white-space: nowrap; display: inline-block; }
         .badge.success { background: #e6f7ec; color: #0d7c4f; }
         .badge.warning { background: #fef0e6; color: #b55a1a; }
         .badge.danger { background: #fde8ed; color: #b51a3f; }
@@ -276,18 +721,10 @@
         .badge.gold { background: #fef3e2; color: #a67c00; }
         .badge.purple { background: #f0edf7; color: #6b4fa0; }
 
-        /* ===== 按钮 ===== */
         .btn-sm {
-            padding: 5px 14px;
-            border-radius: 20px;
-            border: none;
-            font-size: 12px;
-            font-weight: 500;
-            cursor: pointer;
-            transition: 0.1s;
-            display: inline-flex;
-            align-items: center;
-            gap: 4px;
+            padding: 5px 14px; border-radius: 20px; border: none;
+            font-size: 12px; font-weight: 500; cursor: pointer;
+            transition: 0.1s; display: inline-flex; align-items: center; gap: 4px;
         }
         .btn-sm:active { transform: scale(0.95); }
         .btn-sm.primary { background: #0a1e2f; color: white; }
@@ -301,24 +738,13 @@
         .btn-sm.blue { background: rgba(77,171,247,0.12); color: #2a7faa; }
         .btn-sm.blue:hover { background: rgba(77,171,247,0.2); }
         .btn-sm.gold { background: #fef3e2; color: #a67c00; }
-        .btn-sm.gold:hover { background: #fde8c8; }
 
-        /* ===== 进度条 ===== */
-        .progress-wrap {
-            height: 6px;
-            background: #e8edf4;
-            border-radius: 10px;
-            overflow: hidden;
-            margin-top: 10px;
-        }
-        .progress-wrap .fill {
-            height: 100%;
-            background: linear-gradient(90deg, #4dabf7, #0d7c4f);
-            border-radius: 10px;
-            transition: width 0.3s;
-        }
+        .progress-wrap { height: 6px; background: #e8edf4; border-radius: 10px; overflow: hidden; margin-top: 10px; }
+        .progress-wrap .fill { height: 100%; background: linear-gradient(90deg, #4dabf7, #0d7c4f); border-radius: 10px; transition: width 0.3s; }
 
-        /* ===== 生成中动画 ===== */
+        /* ============================================================
+           生成中遮罩
+           ============================================================ */
         .generating-overlay {
             display: none;
             position: fixed;
@@ -339,75 +765,49 @@
             width: 100%;
             text-align: center;
             box-shadow: 0 40px 80px rgba(0,0,0,0.25);
-            animation: dialogIn 0.3s ease;
         }
-        @keyframes dialogIn { from { opacity: 0; transform: scale(0.95); } to { opacity: 1; transform: scale(1); } }
         .generating-box .spinner {
-            width: 56px;
-            height: 56px;
-            border-radius: 50%;
-            border: 4px solid #e8edf4;
-            border-top-color: #4dabf7;
-            animation: spin 0.8s linear infinite;
-            margin: 0 auto 18px;
+            width: 56px; height: 56px; border-radius: 50%;
+            border: 4px solid #e8edf4; border-top-color: #4dabf7;
+            animation: spin 0.8s linear infinite; margin: 0 auto 18px;
         }
         @keyframes spin { to { transform: rotate(360deg); } }
         .generating-box .title { font-size: 18px; font-weight: 600; color: #0a1e2f; }
         .generating-box .desc { font-size: 14px; color: #5f7d95; margin-top: 6px; }
-        .generating-box .steps {
-            margin-top: 20px;
-            display: flex;
-            flex-direction: column;
-            gap: 8px;
-            text-align: left;
-        }
+        .generating-box .steps { margin-top: 20px; display: flex; flex-direction: column; gap: 8px; text-align: left; }
         .generating-box .step-item {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            font-size: 13px;
-            color: #94a3b8;
-            padding: 6px 10px;
-            border-radius: 8px;
-            transition: 0.3s;
+            display: flex; align-items: center; gap: 10px;
+            font-size: 13px; color: #94a3b8; padding: 6px 10px;
+            border-radius: 8px; transition: 0.3s;
         }
         .generating-box .step-item.active { background: #f0f7fe; color: #0a1e2f; font-weight: 500; }
         .generating-box .step-item.done { color: #0d7c4f; }
-        .generating-box .step-item .icon { width: 20px; text-align: center; }
 
-        /* ===== Toast ===== */
         .toast {
-            position: fixed;
-            bottom: 30px;
-            left: 50%;
-            transform: translateX(-50%);
-            background: #0a1e2f;
-            color: white;
-            padding: 12px 28px;
-            border-radius: 40px;
-            font-size: 14px;
+            position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%);
+            background: #0a1e2f; color: white; padding: 12px 28px;
+            border-radius: 40px; font-size: 14px;
             box-shadow: 0 10px 30px rgba(0,0,0,0.15);
-            display: none;
-            z-index: 10000;
-            max-width: 90vw;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            white-space: nowrap;
+            display: none; z-index: 10000;
+            max-width: 90vw; overflow: hidden;
+            text-overflow: ellipsis; white-space: nowrap;
             bottom: calc(30px + env(safe-area-inset-bottom, 0px));
         }
         .toast.show { display: block; animation: fadeUp 0.3s ease; }
         @keyframes fadeUp { from { opacity: 0; transform: translateX(-50%) translateY(20px); } to { opacity: 1; transform: translateX(-50%) translateY(0); } }
 
-        /* ===== 历史记录表 ===== */
         .history-table { width: 100%; border-collapse: collapse; font-size: 13px; }
         .history-table th { text-align: left; padding: 8px 6px; color: #5f7d95; font-weight: 500; border-bottom: 1px solid #e8edf4; font-size: 12px; }
         .history-table td { padding: 10px 6px; border-bottom: 1px solid #f5f8fc; }
         .history-table tr:hover { background: #fafcfe; }
 
-        /* ===== 响应式 ===== */
-        @media (max-width: 1024px) {
+        /* ============================================================
+           响应式
+           ============================================================ */
+        @media (max-width: 1200px) {
             .image-grid { grid-template-columns: repeat(3, 1fr); }
             .gen-type-grid { grid-template-columns: repeat(3, 1fr); }
+            .carousel-prompts { grid-template-columns: repeat(3, 1fr); }
         }
         @media (max-width: 768px) {
             .sidebar { width: 60px; }
@@ -423,15 +823,18 @@
             .topbar .left h2 { font-size: 17px; }
             .form-row { grid-template-columns: 1fr; }
             .image-grid { grid-template-columns: repeat(2, 1fr); gap: 8px; }
-            .gen-type-grid { grid-template-columns: repeat(3, 1fr); gap: 8px; }
-            .gen-type-item { padding: 10px 6px; }
-            .gen-type-item i { font-size: 18px; }
-            .gen-type-item .name { font-size: 11px; }
+            .gen-type-grid { grid-template-columns: repeat(2, 1fr); gap: 8px; }
+            .carousel-prompts { grid-template-columns: repeat(2, 1fr); gap: 8px; }
+            .detail-prompt-item { grid-template-columns: 1fr; gap: 8px; }
+            .detail-prompt-item .thumb-mini { width: 100%; height: 100px; }
+            .video-shot { grid-template-columns: 1fr; }
             .card { padding: 14px; }
             .generating-box { padding: 24px 20px; }
         }
         @media (max-width: 480px) {
             .image-grid { grid-template-columns: 1fr 1fr; }
+            .gen-type-grid { grid-template-columns: repeat(2, 1fr); }
+            .carousel-prompts { grid-template-columns: 1fr; }
         }
     </style>
 </head>
@@ -530,36 +933,76 @@
             </div>
         </div>
 
-        <!-- 生成类型勾选 -->
+        <!-- 生成类型卡片（高端版） -->
         <div class="form-group">
             <label><i class="fas fa-check-square"></i> 生成类型（可多选）</label>
             <div class="gen-type-grid" id="genTypeGrid">
-                <div class="gen-type-item selected" data-type="images" onclick="toggleGenType(this)">
-                    <span class="check"><i class="fas fa-check"></i></span>
-                    <i class="fas fa-images"></i>
-                    <div class="name">主图</div>
+                <div class="gen-type-card selected" data-type="images" onclick="toggleGenType(this)">
+                    <span class="check-mark"><i class="fas fa-check"></i></span>
+                    <span class="gear-btn" onclick="event.stopPropagation(); toggleTypeParams('images', this)"><i class="fas fa-cog"></i></span>
+                    <i class="fas fa-images type-icon"></i>
+                    <div class="type-name">主图</div>
+                    <div class="type-desc">1 张 · 1:1</div>
                 </div>
-                <div class="gen-type-item selected" data-type="carousel" onclick="toggleGenType(this)">
-                    <span class="check"><i class="fas fa-check"></i></span>
-                    <i class="fas fa-images"></i>
-                    <div class="name">轮播图</div>
+                <div class="gen-type-card selected" data-type="carousel" onclick="toggleGenType(this)">
+                    <span class="check-mark"><i class="fas fa-check"></i></span>
+                    <span class="gear-btn" onclick="event.stopPropagation(); toggleTypeParams('carousel', this)"><i class="fas fa-cog"></i></span>
+                    <i class="fas fa-images type-icon"></i>
+                    <div class="type-name">轮播图</div>
+                    <div class="type-desc">5 张 · 1:1</div>
                 </div>
-                <div class="gen-type-item selected" data-type="copy" onclick="toggleGenType(this)">
-                    <span class="check"><i class="fas fa-check"></i></span>
-                    <i class="fas fa-pen-fancy"></i>
-                    <div class="name">宣传文案</div>
+                <div class="gen-type-card selected" data-type="copy" onclick="toggleGenType(this)">
+                    <span class="check-mark"><i class="fas fa-check"></i></span>
+                    <span class="gear-btn" onclick="event.stopPropagation(); toggleTypeParams('copy', this)"><i class="fas fa-cog"></i></span>
+                    <i class="fas fa-pen-fancy type-icon"></i>
+                    <div class="type-name">宣传文案</div>
+                    <div class="type-desc">5 个版本</div>
                 </div>
-                <div class="gen-type-item selected" data-type="detail" onclick="toggleGenType(this)">
-                    <span class="check"><i class="fas fa-check"></i></span>
-                    <i class="fas fa-file-alt"></i>
-                    <div class="name">详情页</div>
+                <div class="gen-type-card selected" data-type="detail" onclick="toggleGenType(this)">
+                    <span class="check-mark"><i class="fas fa-check"></i></span>
+                    <span class="gear-btn" onclick="event.stopPropagation(); toggleTypeParams('detail', this)"><i class="fas fa-cog"></i></span>
+                    <i class="fas fa-file-alt type-icon"></i>
+                    <div class="type-name">详情页</div>
+                    <div class="type-desc">3-5 张</div>
                 </div>
-                <div class="gen-type-item" data-type="video" onclick="toggleGenType(this)">
-                    <span class="check"><i class="fas fa-check"></i></span>
-                    <i class="fas fa-video"></i>
-                    <div class="name">短视频</div>
+                <div class="gen-type-card" data-type="video" onclick="toggleGenType(this)">
+                    <span class="check-mark"><i class="fas fa-check"></i></span>
+                    <span class="gear-btn" onclick="event.stopPropagation(); toggleTypeParams('video', this)"><i class="fas fa-cog"></i></span>
+                    <i class="fas fa-video type-icon"></i>
+                    <div class="type-name">短视频</div>
+                    <div class="type-desc">15 秒 · 9:16</div>
                 </div>
             </div>
+        </div>
+
+        <!-- 轮播图提示词编辑区 -->
+        <div class="prompt-section" id="carouselPromptSection">
+            <div class="section-title">
+                <h4><i class="fas fa-list-ol"></i> 轮播图提示词（5 张，可单独编辑）</h4>
+                <span class="hint">AI 推荐提示词已自动填充，可自由修改</span>
+            </div>
+            <div class="carousel-prompts" id="carouselPrompts"></div>
+        </div>
+
+        <!-- 详情页提示词编辑区 -->
+        <div class="prompt-section" id="detailPromptSection">
+            <div class="section-title">
+                <h4><i class="fas fa-list-ol"></i> 详情页图片提示词（3-5 张，可单独编辑）</h4>
+                <span class="hint">点击"AI"按钮自动生成推荐提示词</span>
+            </div>
+            <div class="detail-prompts" id="detailPrompts"></div>
+            <div class="add-detail-btn" onclick="addDetailItem()">
+                <i class="fas fa-plus"></i> 添加详情图片
+            </div>
+        </div>
+
+        <!-- 视频提示词编辑区 -->
+        <div class="prompt-section" id="videoPromptSection">
+            <div class="section-title">
+                <h4><i class="fas fa-film"></i> 视频剧本提示词（分镜头）</h4>
+                <span class="hint">每个镜头独立提示词 · 支持复制参考样本</span>
+            </div>
+            <div class="video-script" id="videoScript"></div>
         </div>
 
         <!-- 上传 & 平台 -->
@@ -599,69 +1042,65 @@
 
     <!-- ===== 生成结果区 ===== -->
     <div id="resultArea" style="display:none;">
-
         <!-- 主图 -->
         <div class="card" id="resultImages" style="display:none;">
-            <div class="result-header">
+            <div class="card-header">
                 <h3><i class="fas fa-images"></i> 智能主图</h3>
-                <div class="meta" id="imagesMeta"></div>
+                <div class="flex" style="gap:8px;">
+                    <span class="badge info" id="imagesMeta"></span>
+                    <span class="btn-sm blue" onclick="applyAllImages()"><i class="fas fa-check"></i> 全部应用</span>
+                </div>
             </div>
             <div class="image-grid" id="imageGrid"></div>
-            <div style="margin-top:14px; display:flex; gap:8px; flex-wrap:wrap;">
-                <span class="btn-sm primary" onclick="applyAllImages()"><i class="fas fa-check"></i> 全部应用到商品</span>
-                <span class="btn-sm outline" onclick="downloadAllImages()"><i class="fas fa-download"></i> 打包下载</span>
-            </div>
         </div>
 
         <!-- 轮播图 -->
         <div class="card" id="resultCarousel" style="display:none;">
-            <div class="result-header">
+            <div class="card-header">
                 <h3><i class="fas fa-images"></i> 轮播图（5张）</h3>
-                <div class="meta" id="carouselMeta"></div>
+                <div class="flex" style="gap:8px;">
+                    <span class="badge info" id="carouselMeta"></span>
+                    <span class="btn-sm blue" onclick="applyCarousel()"><i class="fas fa-check"></i> 全部应用</span>
+                </div>
             </div>
             <div class="image-grid" id="carouselGrid"></div>
-            <div style="margin-top:14px; display:flex; gap:8px; flex-wrap:wrap;">
-                <span class="btn-sm primary" onclick="applyCarousel()"><i class="fas fa-check"></i> 全部应用到商品</span>
-                <span class="btn-sm outline" onclick="downloadAllCarousel()"><i class="fas fa-download"></i> 打包下载</span>
-            </div>
         </div>
 
         <!-- 文案 -->
         <div class="card" id="resultCopy" style="display:none;">
-            <div class="result-header">
+            <div class="card-header">
                 <h3><i class="fas fa-pen-fancy"></i> 宣传文案</h3>
-                <div class="meta" id="copyMeta"></div>
+                <span class="badge info" id="copyMeta"></span>
             </div>
             <div class="copy-list" id="copyList"></div>
         </div>
 
         <!-- 详情页 -->
         <div class="card" id="resultDetail" style="display:none;">
-            <div class="result-header">
+            <div class="card-header">
                 <h3><i class="fas fa-file-alt"></i> 智能详情页</h3>
-                <div class="meta" id="detailMeta"></div>
+                <div class="flex" style="gap:8px;">
+                    <span class="btn-sm primary" onclick="applyDetail()"><i class="fas fa-check"></i> 应用到商品</span>
+                    <span class="btn-sm outline" onclick="exportDetailHTML()"><i class="fas fa-file-code"></i> 导出 HTML</span>
+                </div>
             </div>
             <div class="detail-preview" id="detailPreview"></div>
-            <div style="margin-top:14px; display:flex; gap:8px; flex-wrap:wrap;">
-                <span class="btn-sm primary" onclick="applyDetail()"><i class="fas fa-check"></i> 应用到商品详情</span>
-                <span class="btn-sm outline" onclick="exportDetailHTML()"><i class="fas fa-file-code"></i> 导出 HTML</span>
-            </div>
         </div>
 
         <!-- 视频 -->
         <div class="card" id="resultVideo" style="display:none;">
-            <div class="result-header">
+            <div class="card-header">
                 <h3><i class="fas fa-video"></i> 短视频</h3>
-                <div class="meta">15秒 · 9:16 · 适配抖音/快手/视频号</div>
+                <div class="flex" style="gap:8px;">
+                    <span class="badge info">15秒 · 9:16</span>
+                    <span class="btn-sm primary" onclick="applyVideo()"><i class="fas fa-check"></i> 应用</span>
+                    <span class="btn-sm outline" onclick="downloadVideo()"><i class="fas fa-download"></i> 下载</span>
+                </div>
             </div>
             <div class="video-preview">
                 <i class="fas fa-play-circle play-icon"></i>
-                <div class="title" id="videoTitle">云山茶叶礼盒 · 15秒种草短视频</div>
+                <div style="font-size:14px; font-weight:500;" id="videoTitle">云山茶叶礼盒 · 15秒种草短视频</div>
                 <div style="font-size:12px; color:#94a3b8; margin-top:6px;">🎵 轻快流行 · 竖屏 9:16</div>
-            </div>
-            <div style="margin-top:14px; display:flex; gap:8px; flex-wrap:wrap;">
-                <span class="btn-sm primary" onclick="applyVideo()"><i class="fas fa-check"></i> 应用到商品</span>
-                <span class="btn-sm outline" onclick="downloadVideo()"><i class="fas fa-download"></i> 下载视频</span>
             </div>
         </div>
     </div>
@@ -670,9 +1109,7 @@
     <div class="card" id="historyCard" style="margin-top:16px;">
         <div class="card-header">
             <h3><i class="fas fa-history"></i> 生成历史</h3>
-            <div class="flex" style="gap:8px;">
-                <span class="action" onclick="clearHistory()">清空记录</span>
-            </div>
+            <span class="action" onclick="clearHistory()">清空记录</span>
         </div>
         <div style="max-height: 320px; overflow-y: auto;">
             <table class="history-table">
@@ -716,7 +1153,26 @@
         isGenerating: false,
         selectedTypes: ['images', 'carousel', 'copy', 'detail'],
         generatedData: {},
-        history: []
+        history: [],
+        carouselPrompts: [
+            '商品正面主图，突出包装设计，暖色调，自然光',
+            '商品细节特写，展示材质质感，微距拍摄',
+            '礼盒展开效果，展示内部商品，温馨氛围',
+            '商品使用场景图，茶席布置，优雅自然',
+            '商品+赠品组合图，展示超值感，促销风'
+        ],
+        detailPrompts: [
+            { step: 1, prompt: '品牌故事开篇，展示茶园风光，传递匠心精神' },
+            { step: 2, prompt: '核心卖点展示，明前采摘工艺，突出品质' },
+            { step: 3, prompt: '产品参数与规格，清晰展示礼盒内容物' },
+            { step: 4, prompt: '使用场景与评价，展示用户好评与复购' }
+        ],
+        videoPrompts: [
+            { time: '0-3s', type: '开场', prompt: '特写茶叶落入杯中的慢动作，配合轻快音乐' },
+            { time: '3-8s', type: '产品', prompt: '展示礼盒外观，打开礼盒展示内部，特写茶叶' },
+            { time: '8-12s', type: '卖点', prompt: '文字叠加"明前采摘 · 特级龙井"，配冲泡画面' },
+            { time: '12-15s', type: '收尾', prompt: '品牌logo+购买引导"点击下方链接购买"' }
+        ]
     };
 
     // ================================================================
@@ -731,17 +1187,267 @@
     }
 
     // ================================================================
-    // 生成类型切换
+    // 生成类型切换 + 参数浮层
     // ================================================================
     function toggleGenType(el) {
         el.classList.toggle('selected');
         const type = el.dataset.type;
         const idx = state.selectedTypes.indexOf(type);
-        if (idx >= 0) {
-            state.selectedTypes.splice(idx, 1);
-        } else {
-            state.selectedTypes.push(type);
+        if (idx >= 0) state.selectedTypes.splice(idx, 1);
+        else state.selectedTypes.push(type);
+        updatePromptSections();
+    }
+
+    function toggleTypeParams(type, gearEl) {
+        // 关闭其他浮层
+        document.querySelectorAll('.type-params-panel').forEach(p => p.remove());
+        // 在齿轮位置创建浮层
+        const panel = document.createElement('div');
+        panel.className = 'type-params-panel show';
+        panel.onclick = (e) => e.stopPropagation();
+        panel.innerHTML = `
+            <span class="close-params" onclick="this.parentElement.remove()">✕</span>
+            <div class="param-row">
+                <label>数量</label>
+                <input type="number" value="${getTypeDefault(type).count}" min="1" max="10" data-param="count">
+            </div>
+            <div class="param-row">
+                <label>尺寸</label>
+                <select data-param="size">
+                    <option value="1:1" selected>1:1 正方形</option>
+                    <option value="3:4">3:4 竖版</option>
+                    <option value="16:9">16:9 横版</option>
+                    <option value="9:16">9:16 竖版</option>
+                </select>
+            </div>
+            <div class="param-row">
+                <label>精度</label>
+                <select data-param="quality">
+                    <option value="standard">标准</option>
+                    <option value="hd" selected>高清</option>
+                    <option value="ultra">超清</option>
+                </select>
+            </div>
+        `;
+        gearEl.parentElement.appendChild(panel);
+    }
+
+    function getTypeDefault(type) {
+        const map = {
+            images: { count: 1 },
+            carousel: { count: 5 },
+            copy: { count: 5 },
+            detail: { count: 4 },
+            video: { count: 1 }
+        };
+        return map[type] || { count: 1 };
+    }
+
+    // 点击其他地方关闭浮层
+    document.addEventListener('click', () => {
+        document.querySelectorAll('.type-params-panel').forEach(p => p.remove());
+    });
+
+    // ================================================================
+    // 提示词区块显示/隐藏
+    // ================================================================
+    function updatePromptSections() {
+        document.getElementById('carouselPromptSection').classList.toggle('show', state.selectedTypes.includes('carousel'));
+        document.getElementById('detailPromptSection').classList.toggle('show', state.selectedTypes.includes('detail'));
+        document.getElementById('videoPromptSection').classList.toggle('show', state.selectedTypes.includes('video'));
+    }
+
+    // ================================================================
+    // 轮播图提示词渲染
+    // ================================================================
+    function renderCarouselPrompts() {
+        const container = document.getElementById('carouselPrompts');
+        container.innerHTML = state.carouselPrompts.map((p, i) => `
+            <div class="carousel-prompt-card">
+                <div class="card-thumb">
+                    <span class="num-badge">#${i + 1}</span>
+                    <i class="fas fa-image"></i>
+                    <span class="ai-tag">AI 推荐</span>
+                </div>
+                <textarea class="prompt-input" data-index="${i}" placeholder="输入提示词..." oninput="updateCarouselPrompt(${i}, this.value)">${p}</textarea>
+                <div class="card-actions">
+                    <button class="mini-btn ai" onclick="aiFillCarouselPrompt(${i})">
+                        <i class="fas fa-magic"></i> AI
+                    </button>
+                    <button class="mini-btn clear" onclick="clearCarouselPrompt(${i})">
+                        <i class="fas fa-eraser"></i> 清空
+                    </button>
+                </div>
+            </div>
+        `).join('');
+    }
+
+    function updateCarouselPrompt(idx, val) {
+        state.carouselPrompts[idx] = val;
+    }
+
+    function aiFillCarouselPrompt(idx) {
+        const name = document.getElementById('productName').value.trim() || '商品';
+        const features = document.getElementById('productFeatures').value.split(',').map(s => s.trim()).filter(Boolean);
+        const templates = [
+            `${name}正面主图，突出包装设计，暖色调，自然光`,
+            `${name}细节特写，展示${features[0] || '材质质感'}，微距拍摄`,
+            `礼盒展开效果，展示内部${features[1] || '商品'}，温馨氛围`,
+            `${name}使用场景图，${features[2] || '自然'}氛围，优雅`,
+            `${name}+赠品组合图，展示超值感，促销风`
+        ];
+        state.carouselPrompts[idx] = templates[idx % templates.length];
+        renderCarouselPrompts();
+        showToast('✨ 已生成推荐提示词');
+    }
+
+    function clearCarouselPrompt(idx) {
+        state.carouselPrompts[idx] = '';
+        renderCarouselPrompts();
+    }
+
+    // ================================================================
+    // 详情页提示词渲染
+    // ================================================================
+    function renderDetailPrompts() {
+        const container = document.getElementById('detailPrompts');
+        container.innerHTML = state.detailPrompts.map((d, i) => `
+            <div class="detail-prompt-item">
+                <div class="step-num">${d.step}</div>
+                <div class="thumb-mini">
+                    <i class="fas fa-image"></i>
+                </div>
+                <div class="prompt-input-wrap">
+                    <div class="prompt-label">第 ${i + 1} 张 · 内容提示词</div>
+                    <input type="text" class="prompt-input" value="${d.prompt}" 
+                           placeholder="输入图片内容描述..." 
+                           oninput="updateDetailPrompt(${i}, this.value)">
+                </div>
+                <div class="item-actions">
+                    <button class="mini-btn ai" onclick="aiFillDetailPrompt(${i})">
+                        <i class="fas fa-magic"></i> AI
+                    </button>
+                    <button class="mini-btn del" onclick="removeDetailItem(${i})">
+                        <i class="fas fa-trash"></i> 删除
+                    </button>
+                </div>
+            </div>
+        `).join('');
+    }
+
+    function updateDetailPrompt(idx, val) {
+        state.detailPrompts[idx].prompt = val;
+    }
+
+    function aiFillDetailPrompt(idx) {
+        const name = document.getElementById('productName').value.trim() || '商品';
+        const features = document.getElementById('productFeatures').value.split(',').map(s => s.trim()).filter(Boolean);
+        const templates = [
+            `品牌故事开篇，展示${name}产地风光，传递匠心精神`,
+            `核心卖点展示，${features[0] || '品质工艺'}，突出产品优势`,
+            `产品参数与规格，清晰展示${features[1] || '商品细节'}`,
+            `使用场景与评价，展示用户好评与复购`,
+            `品牌承诺与售后服务，增强购买信心`
+        ];
+        state.detailPrompts[idx].prompt = templates[idx % templates.length];
+        renderDetailPrompts();
+        showToast('✨ 已生成推荐提示词');
+    }
+
+    function removeDetailItem(idx) {
+        if (state.detailPrompts.length <= 1) {
+            showToast('⚠️ 至少保留一张详情图');
+            return;
         }
+        state.detailPrompts.splice(idx, 1);
+        state.detailPrompts.forEach((d, i) => d.step = i + 1);
+        renderDetailPrompts();
+    }
+
+    function addDetailItem() {
+        if (state.detailPrompts.length >= 8) {
+            showToast('⚠️ 最多 8 张详情图');
+            return;
+        }
+        state.detailPrompts.push({
+            step: state.detailPrompts.length + 1,
+            prompt: ''
+        });
+        renderDetailPrompts();
+    }
+
+    // ================================================================
+    // 视频剧本渲染
+    // ================================================================
+    function renderVideoScript() {
+        const container = document.getElementById('videoScript');
+        container.innerHTML = state.videoPrompts.map((v, i) => `
+            <div class="video-shot">
+                <div class="time-badge">
+                    <span class="sec">${v.time}</span>
+                    <span style="font-size:9px; opacity:0.8;">${v.type}</span>
+                </div>
+                <div class="shot-content">
+                    <div class="shot-title">
+                        <span>镜头 ${i + 1} · ${v.type}</span>
+                        <span class="type-tag">${v.time}</span>
+                    </div>
+                    <textarea class="shot-prompt" 
+                              placeholder="描述这个镜头的内容..."
+                              oninput="updateVideoPrompt(${i}, this.value)">${v.prompt}</textarea>
+                    <div class="shot-actions">
+                        <button class="mini-btn ai" onclick="aiFillVideoPrompt(${i})">
+                            <i class="fas fa-magic"></i> AI 生成
+                        </button>
+                        <button class="mini-btn copy-sample" onclick="copyVideoSample(${i})">
+                            <i class="fas fa-copy"></i> 复制参考样本
+                        </button>
+                    </div>
+                </div>
+            </div>
+        `).join('');
+    }
+
+    function updateVideoPrompt(idx, val) {
+        state.videoPrompts[idx].prompt = val;
+    }
+
+    function aiFillVideoPrompt(idx) {
+        const name = document.getElementById('productName').value.trim() || '商品';
+        const features = document.getElementById('productFeatures').value.split(',').map(s => s.trim()).filter(Boolean);
+        const templates = [
+            `特写${name}细节，慢动作展示，配合轻快音乐开场`,
+            `展示${name}外观与内部，${features[0] || '工艺'}特写`,
+            `文字叠加"${features.slice(0, 2).join(' · ')}"，配使用画面`,
+            `品牌 logo + 购买引导"点击下方链接购买"`
+        ];
+        state.videoPrompts[idx].prompt = templates[idx % templates.length];
+        renderVideoScript();
+        showToast('✨ 已生成推荐提示词');
+    }
+
+    function copyVideoSample(idx) {
+        // 参考样本库
+        const samples = {
+            '开场': '【参考样本】3秒黄金钩子：特写产品使用瞬间的慢动作（如茶叶落入杯中泛起的涟漪），配合轻快音乐 + 悬念文案"你知道明前龙井为什么这么珍贵吗？"',
+            '产品': '【参考样本】5秒产品展示：360度旋转展示产品外观 → 打开包装 → 展示内部细节 → 特写核心材质。配音："来自核心产区的明前特级龙井..."',
+            '卖点': '【参考样本】4秒卖点强化：文字叠加核心卖点（明前采摘 · 特级龙井），配合产品使用场景画面 + 权威认证图标。配音强调差异化优势。',
+            '收尾': '【参考样本】3秒行动号召：品牌 logo 露出 + 限时优惠信息 + 明确的购买引导按钮"点击下方链接购买"，配合紧迫感音乐结尾。'
+        };
+        const type = state.videoPrompts[idx].type;
+        const sample = samples[type] || samples['产品'];
+        navigator.clipboard.writeText(sample).then(() => {
+            showToast('📋 已复制参考样本到剪贴板');
+        }).catch(() => {
+            // 降级方案
+            const ta = document.createElement('textarea');
+            ta.value = sample;
+            document.body.appendChild(ta);
+            ta.select();
+            document.execCommand('copy');
+            document.body.removeChild(ta);
+            showToast('📋 已复制参考样本');
+        });
     }
 
     // ================================================================
@@ -757,7 +1463,7 @@
     }
 
     // ================================================================
-    // 文件上传预览
+    // 上传
     // ================================================================
     function handleFileUpload(event) {
         const files = event.target.files;
@@ -776,7 +1482,7 @@
     }
 
     // ================================================================
-    // 表单重置
+    // 重置
     // ================================================================
     function resetForm() {
         document.getElementById('productName').value = '';
@@ -784,9 +1490,25 @@
         document.getElementById('uploadPreview').innerHTML = '';
         document.getElementById('fileUpload').value = '';
         state.selectedTypes = ['images', 'carousel', 'copy', 'detail'];
-        document.querySelectorAll('.gen-type-item').forEach((el, i) => {
+        document.querySelectorAll('.gen-type-card').forEach((el, i) => {
             el.classList.toggle('selected', i < 4);
         });
+        state.carouselPrompts = [
+            '商品正面主图，突出包装设计，暖色调，自然光',
+            '商品细节特写，展示材质质感，微距拍摄',
+            '礼盒展开效果，展示内部商品，温馨氛围',
+            '商品使用场景图，茶席布置，优雅自然',
+            '商品+赠品组合图，展示超值感，促销风'
+        ];
+        state.detailPrompts = [
+            { step: 1, prompt: '品牌故事开篇，展示茶园风光，传递匠心精神' },
+            { step: 2, prompt: '核心卖点展示，明前采摘工艺，突出品质' },
+            { step: 3, prompt: '产品参数与规格，清晰展示礼盒内容物' },
+            { step: 4, prompt: '使用场景与评价，展示用户好评与复购' }
+        ];
+        renderCarouselPrompts();
+        renderDetailPrompts();
+        updatePromptSections();
         document.getElementById('resultArea').style.display = 'none';
         ['resultImages', 'resultCarousel', 'resultCopy', 'resultDetail', 'resultVideo'].forEach(id => {
             document.getElementById(id).style.display = 'none';
@@ -804,7 +1526,7 @@
     }
 
     // ================================================================
-    // 生成素材（调用真实后端）
+    // 核心生成
     // ================================================================
     async function startGenerate() {
         if (state.isGenerating) {
@@ -818,7 +1540,6 @@
             document.getElementById('productName').focus();
             return;
         }
-
         if (state.selectedTypes.length === 0) {
             showToast('⚠️ 请至少选择一种生成类型');
             return;
@@ -833,7 +1554,6 @@
         showGeneratingOverlay(state.selectedTypes);
 
         try {
-            // 调用后端 AI 生成接口
             const res = await fetch(BACKEND_URL + '/api/ai/generate', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
@@ -843,24 +1563,24 @@
                     features: features,
                     style: style,
                     platforms: platforms,
-                    types: state.selectedTypes
+                    types: state.selectedTypes,
+                    carousel_prompts: state.carouselPrompts,
+                    detail_prompts: state.detailPrompts,
+                    video_prompts: state.videoPrompts
                 })
             });
             const data = await res.json();
-
             updateProgress(100, '生成完成！');
 
             setTimeout(() => {
                 hideGeneratingOverlay();
                 state.isGenerating = false;
-
                 if (data.success) {
                     state.generatedData = data.result;
                     renderResults(data.result, name);
                     addHistory(name, state.selectedTypes, style, platforms);
                     showToast('✅ 素材生成完成');
                 } else {
-                    // 后端未接入时，使用本地模拟数据
                     const fallbackData = generateFallbackData(name, category, features, style, platforms);
                     state.generatedData = fallbackData;
                     renderResults(fallbackData, name);
@@ -869,7 +1589,6 @@
                 }
             }, 600);
         } catch (err) {
-            // 网络错误时，使用本地模拟
             updateProgress(100, '生成完成');
             setTimeout(() => {
                 hideGeneratingOverlay();
@@ -883,9 +1602,6 @@
         }
     }
 
-    // ================================================================
-    // 本地模拟数据（后端未就绪时使用）
-    // ================================================================
     function generateFallbackData(name, category, features, style, platforms) {
         const images = [];
         const styles = ['简约风', '自然风', '礼品风', '热卖风', '爆款风'];
@@ -896,7 +1612,8 @@
                 style: styles[i],
                 color: colors[i],
                 score: 85 + Math.floor(Math.random() * 15),
-                ctr: (3 + Math.random() * 3).toFixed(1)
+                ctr: (3 + Math.random() * 3).toFixed(1),
+                prompt: state.carouselPrompts[i] || ''
             });
         }
 
@@ -947,21 +1664,18 @@
     function renderResults(data, productName) {
         document.getElementById('resultArea').style.display = 'block';
 
-        // 主图
         if (state.selectedTypes.includes('images') && data.images) {
             renderImageGrid('imageGrid', 'resultImages', data.images, productName, 'images');
         } else {
             document.getElementById('resultImages').style.display = 'none';
         }
 
-        // 轮播图
         if (state.selectedTypes.includes('carousel') && data.images) {
             renderImageGrid('carouselGrid', 'resultCarousel', data.images, productName, 'carousel');
         } else {
             document.getElementById('resultCarousel').style.display = 'none';
         }
 
-        // 文案
         if (state.selectedTypes.includes('copy') && data.copyVersions) {
             renderCopyList(data.copyVersions);
             document.getElementById('resultCopy').style.display = 'block';
@@ -969,16 +1683,13 @@
             document.getElementById('resultCopy').style.display = 'none';
         }
 
-        // 详情页
         if (state.selectedTypes.includes('detail') && data.detailHTML) {
             document.getElementById('detailPreview').innerHTML = data.detailHTML;
-            document.getElementById('detailMeta').innerHTML = `<span class="badge success">AI 已生成</span>`;
             document.getElementById('resultDetail').style.display = 'block';
         } else {
             document.getElementById('resultDetail').style.display = 'none';
         }
 
-        // 视频
         if (state.selectedTypes.includes('video')) {
             document.getElementById('videoTitle').textContent = `${productName} · 15秒种草短视频`;
             document.getElementById('resultVideo').style.display = 'block';
@@ -986,7 +1697,6 @@
             document.getElementById('resultVideo').style.display = 'none';
         }
 
-        // 滚动到结果
         setTimeout(() => {
             document.getElementById('resultArea').scrollIntoView({ behavior: 'smooth', block: 'start' });
         }, 200);
@@ -1015,7 +1725,6 @@
                     <div class="actions">
                         <span class="btn-sm blue" onclick="editImage(${i}, '${type}')"><i class="fas fa-edit"></i> 编辑</span>
                         <span class="btn-sm success" onclick="applyImage(${i}, '${type}')"><i class="fas fa-check"></i> 应用</span>
-                        <span class="btn-sm outline" onclick="downloadImage(${i}, '${type}')"><i class="fas fa-download"></i></span>
                     </div>
                 </div>
             </div>
@@ -1024,7 +1733,7 @@
         document.getElementById(sectionId).style.display = 'block';
         const metaEl = document.getElementById(type === 'carousel' ? 'carouselMeta' : 'imagesMeta');
         const avgScore = Math.round(images.reduce((s, i) => s + (i.score || 90), 0) / images.length);
-        metaEl.innerHTML = `<span class="badge info">${images.length} 张</span> <span class="badge success">平均 AI 评分 ${avgScore}</span>`;
+        metaEl.innerHTML = `${images.length} 张 · 平均 ${avgScore}分`;
     }
 
     function renderCopyList(versions) {
@@ -1046,60 +1755,23 @@
                 </div>
             </div>
         `).join('');
-        document.getElementById('copyMeta').innerHTML = `<span class="badge info">${versions.length} 个版本</span>`;
+        document.getElementById('copyMeta').innerHTML = `${versions.length} 个版本`;
     }
 
     // ================================================================
     // 结果操作
     // ================================================================
-    function editImage(idx, type) {
-        showToast('✏️ 打开图片编辑器（待接入）');
-    }
-
-    function applyImage(idx, type) {
-        showToast('✅ 已应用到商品');
-    }
-
-    function downloadImage(idx, type) {
-        showToast('⬇️ 正在下载...');
-    }
-
-    function applyAllImages() {
-        showToast('✅ 全部主图已应用到商品');
-    }
-
-    function downloadAllImages() {
-        showToast('📥 正在打包下载全部主图...');
-    }
-
-    function applyCarousel() {
-        showToast('✅ 轮播图已应用到商品');
-    }
-
-    function downloadAllCarousel() {
-        showToast('📥 正在打包下载轮播图...');
-    }
-
+    function editImage(idx, type) { showToast('✏️ 打开图片编辑器（待接入）'); }
+    function applyImage(idx, type) { showToast('✅ 已应用到商品'); }
+    function applyAllImages() { showToast('✅ 全部主图已应用到商品'); }
+    function applyCarousel() { showToast('✅ 轮播图已应用到商品'); }
     function copyText(text) {
-        navigator.clipboard.writeText(text).then(() => {
-            showToast('📋 已复制到剪贴板');
-        }).catch(() => {
-            showToast('⚠️ 复制失败，请手动选择');
-        });
+        navigator.clipboard.writeText(text).then(() => showToast('📋 已复制到剪贴板'))
+            .catch(() => showToast('⚠️ 复制失败'));
     }
-
-    function editCopy(idx) {
-        showToast('✏️ 打开文案编辑器（待接入）');
-    }
-
-    function applyCopy(idx) {
-        showToast('✅ 已应用到商品');
-    }
-
-    function applyDetail() {
-        showToast('✅ 详情页已应用到商品');
-    }
-
+    function editCopy(idx) { showToast('✏️ 打开文案编辑器（待接入）'); }
+    function applyCopy(idx) { showToast('✅ 已应用到商品'); }
+    function applyDetail() { showToast('✅ 详情页已应用到商品'); }
     function exportDetailHTML() {
         const html = document.getElementById('detailPreview').innerHTML;
         const blob = new Blob([html], { type: 'text/html' });
@@ -1110,14 +1782,8 @@
         URL.revokeObjectURL(a.href);
         showToast('📥 已导出详情页HTML');
     }
-
-    function applyVideo() {
-        showToast('✅ 视频已应用到商品');
-    }
-
-    function downloadVideo() {
-        showToast('⬇️ 正在下载视频...');
-    }
+    function applyVideo() { showToast('✅ 视频已应用到商品'); }
+    function downloadVideo() { showToast('⬇️ 正在下载视频...'); }
 
     // ================================================================
     // 进度遮罩
@@ -1125,16 +1791,9 @@
     function showGeneratingOverlay(types) {
         const overlay = document.getElementById('generatingOverlay');
         const steps = document.getElementById('generateSteps');
+        const typeNames = { images: '主图', carousel: '轮播图', copy: '宣传文案', detail: '详情页', video: '短视频' };
 
-        const typeNames = {
-            images: '主图',
-            carousel: '轮播图',
-            copy: '宣传文案',
-            detail: '详情页',
-            video: '短视频'
-        };
-
-        steps.innerHTML = types.map((t, i) => `
+        steps.innerHTML = types.map(t => `
             <div class="step-item" data-step="${t}">
                 <span class="icon"><i class="far fa-circle"></i></span>
                 <span>${typeNames[t] || t}</span>
@@ -1144,17 +1803,12 @@
         overlay.classList.add('show');
         updateProgress(5, '正在启动AI引擎...');
 
-        // 模拟进度
         let progress = 5;
         const timer = setInterval(() => {
             progress += Math.random() * 12 + 3;
-            if (progress >= 100) {
-                progress = 100;
-                clearInterval(timer);
-            }
+            if (progress >= 100) { progress = 100; clearInterval(timer); }
             const stepIdx = Math.floor(progress / 100 * types.length);
             updateProgress(progress, `正在生成 ${typeNames[types[Math.min(stepIdx, types.length - 1)]]}...`);
-            // 更新步骤状态
             types.forEach((t, i) => {
                 const stepEl = document.querySelector(`.step-item[data-step="${t}"]`);
                 if (stepEl) {
@@ -1177,16 +1831,11 @@
         document.getElementById('generateProgress').style.width = pct + '%';
         if (text) document.getElementById('generateStatus').textContent = text;
         const remaining = Math.max(0, Math.ceil((100 - pct) / 100 * 60));
-        document.getElementById('generateTime').textContent = remaining > 0
-            ? `预计剩余 ${remaining} 秒`
-            : '即将完成...';
+        document.getElementById('generateTime').textContent = remaining > 0 ? `预计剩余 ${remaining} 秒` : '即将完成...';
     }
 
     function hideGeneratingOverlay() {
-        if (state._progressTimer) {
-            clearInterval(state._progressTimer);
-            state._progressTimer = null;
-        }
+        if (state._progressTimer) { clearInterval(state._progressTimer); state._progressTimer = null; }
         document.getElementById('generatingOverlay').classList.remove('show');
     }
 
@@ -1194,10 +1843,7 @@
     // 历史记录
     // ================================================================
     function addHistory(productName, types, style, platforms) {
-        const typeNames = {
-            images: '主图', carousel: '轮播图', copy: '文案',
-            detail: '详情', video: '视频'
-        };
+        const typeNames = { images: '主图', carousel: '轮播图', copy: '文案', detail: '详情', video: '视频' };
         const entry = {
             id: 'h_' + Date.now(),
             product: productName,
@@ -1209,9 +1855,7 @@
         };
         state.history.unshift(entry);
         if (state.history.length > 50) state.history.pop();
-        try {
-            localStorage.setItem('material_history', JSON.stringify(state.history));
-        } catch (e) {}
+        try { localStorage.setItem('material_history', JSON.stringify(state.history)); } catch (e) {}
         renderHistory();
     }
 
@@ -1242,10 +1886,7 @@
     }
 
     function clearHistory() {
-        if (state.history.length === 0) {
-            showToast('📭 暂无记录可清空');
-            return;
-        }
+        if (state.history.length === 0) { showToast('📭 暂无记录可清空'); return; }
         if (!confirm('确定清空所有生成记录吗？')) return;
         state.history = [];
         try { localStorage.removeItem('material_history'); } catch (e) {}
@@ -1257,25 +1898,37 @@
     // 初始化
     // ================================================================
     document.addEventListener('DOMContentLoaded', () => {
+        renderCarouselPrompts();
+        renderDetailPrompts();
+        renderVideoScript();
+        updatePromptSections();
         loadHistory();
-        console.log('🎨 智能素材生成已就绪');
+        console.log('🎨 智能素材生成已就绪（含提示词编辑）');
     });
 
-    // 暴露全局函数
+    // 暴露全局
     window.toggleGenType = toggleGenType;
+    window.toggleTypeParams = toggleTypeParams;
     window.togglePlatform = togglePlatform;
     window.handleFileUpload = handleFileUpload;
     window.resetForm = resetForm;
     window.focusForm = focusForm;
     window.scrollToHistory = scrollToHistory;
     window.startGenerate = startGenerate;
+    window.updateCarouselPrompt = updateCarouselPrompt;
+    window.aiFillCarouselPrompt = aiFillCarouselPrompt;
+    window.clearCarouselPrompt = clearCarouselPrompt;
+    window.updateDetailPrompt = updateDetailPrompt;
+    window.aiFillDetailPrompt = aiFillDetailPrompt;
+    window.removeDetailItem = removeDetailItem;
+    window.addDetailItem = addDetailItem;
+    window.updateVideoPrompt = updateVideoPrompt;
+    window.aiFillVideoPrompt = aiFillVideoPrompt;
+    window.copyVideoSample = copyVideoSample;
     window.editImage = editImage;
     window.applyImage = applyImage;
-    window.downloadImage = downloadImage;
     window.applyAllImages = applyAllImages;
-    window.downloadAllImages = downloadAllImages;
     window.applyCarousel = applyCarousel;
-    window.downloadAllCarousel = downloadAllCarousel;
     window.copyText = copyText;
     window.editCopy = editCopy;
     window.applyCopy = applyCopy;
