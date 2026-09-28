@@ -1203,7 +1203,7 @@
         selectedTypes: ['images', 'carousel', 'copy', 'detail'],
         generatedData: {},
         history: [],
-        referenceImages: [],   // ← 新增：已上传参考图的 data URL 数组
+        referenceImages: [],
         carouselPrompts: [
             '商品正面主图，突出包装设计，暖色调，自然光',
             '商品细节特写，展示材质质感，微距拍摄',
@@ -1500,7 +1500,7 @@
     }
 
     // ================================================================
-    // 上传（修复：保存 data URL 到 state.referenceImages）
+    // 上传（保存 data URL 到 state.referenceImages）
     // ================================================================
     function handleFileUpload(event) {
         const files = event.target.files;
@@ -1508,8 +1508,7 @@
         const hint = document.getElementById('uploadHint');
         if (!files || files.length === 0) return;
 
-        // 单张大小上限，避免 data URL 过大导致接口 413
-        const MAX_SIZE = 4 * 1024 * 1024; // 4MB
+        const MAX_SIZE = 4 * 1024 * 1024;
         let loaded = 0;
         const total = files.length;
 
@@ -1528,10 +1527,8 @@
             const reader = new FileReader();
             reader.onload = (e) => {
                 const dataUrl = e.target.result;
-                // 存入 state
                 state.referenceImages.push(dataUrl);
 
-                // 展示缩略图
                 const div = document.createElement('div');
                 div.style.cssText = 'width:56px;height:56px;border-radius:8px;border:1px solid #e8edf4;overflow:hidden;background:#f5f7fa;position:relative;';
                 div.innerHTML = `
@@ -1553,7 +1550,6 @@
             reader.readAsDataURL(file);
         }
 
-        // 允许重复选择同一文件
         event.target.value = '';
     }
 
@@ -1566,7 +1562,7 @@
         document.getElementById('uploadPreview').innerHTML = '';
         document.getElementById('uploadHint').style.display = 'none';
         document.getElementById('fileUpload').value = '';
-        state.referenceImages = [];   // ← 清空参考图
+        state.referenceImages = [];
         state.selectedTypes = ['images', 'carousel', 'copy', 'detail'];
         document.querySelectorAll('.gen-type-card').forEach((el, i) => {
             el.classList.toggle('selected', i < 4);
@@ -1619,16 +1615,11 @@
             size: size
         };
 
-        // 有参考图时，带上参考图字段（兼容常见命名）
         if (referenceImages && referenceImages.length > 0) {
-            // 取前 5 张，避免超出限制
             const refs = referenceImages.slice(0, 5);
-            // 主流 OpenAI Images 兼容规范
             body.image = refs;
-            // 部分平台用 reference_images / images
             body.reference_images = refs;
             body.images = refs;
-            // 提示词中标注参考图（部分模型需要）
             if (!/参考|reference|<Picture/i.test(prompt)) {
                 body.prompt = prompt + '（参考上传的图片风格与主体）';
             }
@@ -1659,7 +1650,54 @@
     }
 
     // ================================================================
-    // Agnes 视频生成（异步轮询 + 参考图）
+    // 创建视频任务（带 503/429 自动重试）
+    // ================================================================
+    async function createVideoTaskWithRetry(apiKey, body, maxRetries = 5) {
+        let lastErr = null;
+        for (let attempt = 1; attempt <= maxRetries; attempt++) {
+            let res;
+            try {
+                res = await fetch(AGNES_API_BASE + '/videos', {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': 'Bearer ' + apiKey,
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(body)
+                });
+            } catch (netErr) {
+                lastErr = netErr;
+                if (attempt === maxRetries) throw netErr;
+                const wait = 3000 * Math.pow(2, attempt - 1);
+                console.warn(`创建视频任务网络异常，${wait/1000}s 后重试...`, netErr);
+                await new Promise(r => setTimeout(r, wait));
+                continue;
+            }
+
+            if (res.ok) {
+                return await res.json();
+            }
+
+            const status = res.status;
+            const errText = await res.text().catch(() => '');
+            lastErr = new Error(`视频任务创建失败 (${status}): ${errText.slice(0, 200)}`);
+
+            const retryable = [429, 502, 503, 504].includes(status);
+
+            if (!retryable || attempt === maxRetries) {
+                throw lastErr;
+            }
+
+            const wait = 3000 * Math.pow(2, attempt - 1);
+            console.warn(`创建视频任务失败（${status}），${wait/1000}s 后第 ${attempt + 1} 次重试...`, errText.slice(0, 120));
+            showToast(`⏳ 视频队列繁忙，${Math.round(wait/1000)}s 后自动重试（${attempt}/${maxRetries}）`);
+            await new Promise(r => setTimeout(r, wait));
+        }
+        throw lastErr || new Error('视频任务创建失败');
+    }
+
+    // ================================================================
+    // Agnes 视频生成（异步轮询 + 参考图 + 创建重试）
     // ================================================================
     async function generateAgnesVideo(prompt, seconds = '5', referenceImages = [], onProgress) {
         const apiKey = getAgnesApiKey();
@@ -1670,7 +1708,6 @@
 
         const hasRefs = referenceImages && referenceImages.length > 0;
 
-        // 组装请求体
         const body = {
             model: AGNES_VIDEO_MODEL,
             prompt: prompt,
@@ -1682,38 +1719,21 @@
         };
 
         if (hasRefs) {
-            // Flash 最多 5 张
             body.images = referenceImages.slice(0, 5);
-            // 提示词中加参考图标记，便于模型引用
             if (!/<Picture\s*\d+/i.test(prompt)) {
                 body.prompt = prompt + '。以 <Picture 1> 中的商品外观、色调和风格为参考，保持主体一致性。';
             }
         }
 
-        // ---- 1. 创建视频任务 ----
-        const createRes = await fetch(AGNES_API_BASE + '/videos', {
-            method: 'POST',
-            headers: {
-                'Authorization': 'Bearer ' + apiKey,
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify(body)
-        });
+        // ---- 1. 创建视频任务（带 503/429 自动重试）----
+        const createData = await createVideoTaskWithRetry(apiKey, body, 5);
 
-        if (!createRes.ok) {
-            const errText = await createRes.text();
-            throw new Error(`视频任务创建失败 (${createRes.status}): ${errText.slice(0, 200)}`);
-        }
-
-        const createData = await createRes.json();
-        // 文档：video_id 用于查询；id/task_id 是任务 ID
         const videoId = createData.video_id;
         if (!videoId) {
             console.error('创建任务响应:', createData);
             throw new Error('创建任务未返回 video_id');
         }
 
-        // 持久化任务，便于刷新后继续查询
         try {
             localStorage.setItem('agnes_last_video_task', JSON.stringify({
                 videoId: videoId,
@@ -1724,7 +1744,7 @@
         } catch (e) {}
 
         // ---- 2. 轮询等待完成（10 分钟）----
-        const maxAttempts = 300;    // 300 × 2s = 10 分钟
+        const maxAttempts = 300;
         const intervalMs = 2000;
         let lastStatus = '';
 
@@ -1758,7 +1778,6 @@
             const status = queryData.status;
             lastStatus = status || lastStatus;
 
-            // 状态文案
             let statusText = '';
             if (status === 'pending' || status === 'queued') {
                 statusText = `排队中... (第 ${i + 1} 次查询)`;
@@ -1775,10 +1794,7 @@
             }
 
             if (status === 'completed') {
-                // 顶层 url 优先
-                const url = queryData.url
-                    || (queryData.data && queryData.data.url)
-                    || null;
+                const url = queryData.url || (queryData.data && queryData.data.url) || null;
                 if (url) {
                     try { localStorage.removeItem('agnes_last_video_task'); } catch (e) {}
                     return url;
@@ -1833,7 +1849,6 @@
         const style = document.getElementById('designStyle').value;
         const platforms = getSelectedPlatforms();
 
-        // 参考图（用于图片 + 视频生成）
         const refImages = state.referenceImages.slice();
         if (refImages.length > 0) {
             showToast(`🖼️ 将使用 ${refImages.length} 张参考图辅助生成`);
@@ -2224,7 +2239,6 @@
             }
         });
 
-        // 同步初始选中状态
         state.selectedTypes = [];
         document.querySelectorAll('.gen-type-card.selected').forEach(el => {
             state.selectedTypes.push(el.dataset.type);
@@ -2235,7 +2249,7 @@
         renderVideoScript();
         updatePromptSections();
         loadHistory();
-        console.log('🎨 智能素材生成已就绪（Agnes AI 接入 · 参考图 + 视频修复版）');
+        console.log('🎨 智能素材生成已就绪（Agnes AI 接入 · 参考图 + 视频重试版）');
         console.log('🖼️ 图片模型:', AGNES_IMAGE_MODEL);
         console.log('🎬 视频模型:', AGNES_VIDEO_MODEL);
     });
