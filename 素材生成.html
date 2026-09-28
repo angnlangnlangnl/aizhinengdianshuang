@@ -714,7 +714,7 @@
                 <div class="label">
                     <i class="fas fa-cog"></i>
                     <span>高级设置</span>
-                    <span style="font-size:11px; color:var(--text-3);">（参考图、卖点、风格、平台、提示词、API Key）</span>
+                    <span style="font-size:11px; color:var(--text-3);">（参考图、卖点、风格、提示词、API Key）</span>
                 </div>
                 <i class="fas fa-chevron-down arrow"></i>
             </div>
@@ -757,19 +757,6 @@
                                 <option value="国潮风">🏮 国潮风</option>
                             </select>
                         </div>
-                    </div>
-                </div>
-
-                <!-- 目标平台 -->
-                <div class="card">
-                    <div class="card-header">
-                        <h3><i class="fas fa-globe"></i> 目标平台</h3>
-                    </div>
-                    <div class="platform-tags" id="platformContainer">
-                        <span class="platform-tag active" data-platform="淘宝" onclick="togglePlatform(this)">🛒 淘宝</span>
-                        <span class="platform-tag active" data-platform="抖音" onclick="togglePlatform(this)">🎵 抖音</span>
-                        <span class="platform-tag active" data-platform="拼多多" onclick="togglePlatform(this)">🛍️ 拼多多</span>
-                        <span class="platform-tag active" data-platform="京东" onclick="togglePlatform(this)">📦 京东</span>
                     </div>
                 </div>
 
@@ -962,6 +949,19 @@
                 </div>
             </div>
 
+            <!-- 目标平台（新位置：同步方式卡片上方） -->
+            <div class="card">
+                <div class="card-header">
+                    <h3><i class="fas fa-globe"></i> 目标平台</h3>
+                </div>
+                <div class="platform-tags" id="platformContainer">
+                    <span class="platform-tag active" data-platform="淘宝" onclick="togglePlatform(this)">🛒 淘宝</span>
+                    <span class="platform-tag active" data-platform="抖音" onclick="togglePlatform(this)">🎵 抖音</span>
+                    <span class="platform-tag active" data-platform="拼多多" onclick="togglePlatform(this)">🛍️ 拼多多</span>
+                    <span class="platform-tag active" data-platform="京东" onclick="togglePlatform(this)">📦 京东</span>
+                </div>
+            </div>
+
             <!-- 同步方式 -->
             <div class="card">
                 <div class="card-header">
@@ -1119,7 +1119,6 @@
     // 步骤切换
     // ================================================================
     function goStep(n) {
-        // 从 step1 跳到 step2，若还没生成过，提示
         if (n === 2 && !state.generatedData.images && !state.generatedData.copyVersions && !state.generatedData.detailHTML) {
             // 允许跳到 step2 显示空状态
         }
@@ -1137,7 +1136,6 @@
             s.classList.toggle('done', sn < n);
         });
 
-        // 底部按钮切换
         const btnBack = document.getElementById('btnBack');
         const btnNext = document.getElementById('btnNext');
         const btnGen = document.getElementById('btnGenerate');
@@ -1155,16 +1153,13 @@
         } else if (n === 2) {
             btnNext.style.display = 'inline-flex';
             actionInfo.innerHTML = '<i class="fas fa-info-circle"></i> 检查生成结果，满意后点击「下一步」进行同步';
-            // 自动切到第一个有内容的 tab
             autoSelectFirstResultTab();
         } else if (n === 3) {
             btnSync.style.display = 'inline-flex';
             actionInfo.innerHTML = '<i class="fas fa-info-circle"></i> 选择要同步的商品和素材，确认后点击「同步到商品」';
-            // 进入 step3 时刷新商品列表
             loadSyncProducts();
         }
 
-        // 滚动到顶部
         document.querySelector('.content').scrollTop = 0;
     }
 
@@ -1176,7 +1171,6 @@
         if (state.currentStep < 3) goStep(state.currentStep + 1);
     }
 
-    // 自动选中第一个有内容的 result tab
     function autoSelectFirstResultTab() {
         const tabs = ['images', 'carousel', 'copy', 'detail', 'video'];
         const map = {
@@ -1237,7 +1231,6 @@
     }
 
     function updatePromptTabsVisibility() {
-        // 视频 tab 只在 video 选中时可用
         const videoTab = document.querySelector('.prompt-tab[data-tab="video"]');
         const hasVideo = state.selectedTypes.includes('video');
         videoTab.style.opacity = hasVideo ? '1' : '0.4';
@@ -1667,7 +1660,6 @@
                 addHistory(name, state.selectedTypes, style, platforms);
                 showToast('✅ 素材生成完成');
 
-                // 自动跳到结果步骤
                 goStep(2);
             }, 500);
 
@@ -1718,42 +1710,36 @@
     // 渲染结果
     // ================================================================
     function renderResults(data, productName) {
-        // 更新 count
         document.getElementById('cnt-images').textContent = (data.images || []).filter(i => i.url).length > 0 ? '1' : '0';
         document.getElementById('cnt-carousel').textContent = (data.images || []).filter(i => i.url).length;
         document.getElementById('cnt-copy').textContent = (data.copyVersions || []).length;
         document.getElementById('cnt-detail').textContent = data.detailHTML ? '1' : '0';
         document.getElementById('cnt-video').textContent = data.videoUrl ? '1' : '0';
 
-        // 主图
         if (state.selectedTypes.includes('images') && data.images && data.images.length > 0) {
             renderImageGrid('imageGrid', data.images.slice(0, 1), productName, '主图');
         } else {
             document.getElementById('imageGrid').innerHTML = `<div class="empty-state" style="grid-column:1/-1;"><i class="fas fa-image"></i><p>未生成主图</p></div>`;
         }
 
-        // 轮播图
         if (state.selectedTypes.includes('carousel') && data.images && data.images.length > 0) {
             renderImageGrid('carouselGrid', data.images, productName, '轮播图');
         } else {
             document.getElementById('carouselGrid').innerHTML = `<div class="empty-state" style="grid-column:1/-1;"><i class="fas fa-images"></i><p>未生成轮播图</p></div>`;
         }
 
-        // 文案
         if (state.selectedTypes.includes('copy') && data.copyVersions) {
             renderCopyList(data.copyVersions);
         } else {
             document.getElementById('copyList').innerHTML = `<div class="empty-state"><i class="fas fa-pen-fancy"></i><p>未生成文案</p></div>`;
         }
 
-        // 详情
         if (state.selectedTypes.includes('detail') && data.detailHTML) {
             document.getElementById('detailPreview').innerHTML = data.detailHTML;
         } else {
             document.getElementById('detailPreview').innerHTML = `<div class="empty-state"><i class="fas fa-file-alt"></i><p>未生成详情页</p></div>`;
         }
 
-        // 视频
         const videoContainer = document.getElementById('videoPreviewContainer');
         if (state.selectedTypes.includes('video')) {
             if (data.videoUrl) {
@@ -1908,7 +1894,6 @@
         syncState.filteredProducts.forEach(p => {
             if (!syncState.selectedProducts.includes(p.name)) newSel.push(p.name);
         });
-        // 保留未在filtered中的选中项
         syncState.selectedProducts.forEach(n => {
             if (!syncState.filteredProducts.find(p => p.name === n)) newSel.push(n);
         });
@@ -2042,7 +2027,6 @@
         const remaining = Math.max(0, Math.ceil((100 - pct) / 100 * 90));
         document.getElementById('generateTime').textContent = remaining > 0 ? `预计剩余 ${remaining} 秒` : '即将完成...';
 
-        // 步骤点亮
         const types = state.selectedTypes;
         const stepIdx = Math.floor(pct / 100 * types.length);
         types.forEach((t, i) => {
@@ -2133,35 +2117,20 @@
     // 初始化
     // ================================================================
     document.addEventListener('DOMContentLoaded', () => {
-        // 恢复 API Key
         const savedKey = localStorage.getItem('agnes_api_key');
         if (savedKey) document.getElementById('agnesApiKey').value = savedKey;
         document.getElementById('agnesApiKey').addEventListener('input', function() {
             if (this.value.trim()) localStorage.setItem('agnes_api_key', this.value.trim());
         });
 
-        // 渲染提示词
         renderCarouselPrompts();
         renderDetailPrompts();
         renderVideoScript();
-
-        // 初始化提示词 tab 可见性
         updatePromptTabsVisibility();
-
-        // 初始化同步子勾选
         toggleSubPicker();
-
-        // 加载历史
         loadHistory();
 
-        console.log('🎨 智能素材生成已就绪（三步向导版）');
-        console.log('🖼️ 图片模型:', AGNES_IMAGE_MODEL);
-        console.log('🎬 视频模型:', AGNES_VIDEO_MODEL);
-
-        // 提示：如果所有高级设置都默认用不到，让用户知道有折叠
-        setTimeout(() => {
-            // 首次进入提示高级设置位置（可选）
-        }, 500);
+        console.log('🎨 智能素材生成已就绪（三步向导版 · 目标平台已移至同步页）');
     });
 
     // 全局暴露
