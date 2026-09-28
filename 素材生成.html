@@ -1650,9 +1650,11 @@
     }
 
     // ================================================================
-    // 创建视频任务（带 503/429 自动重试）
+    // 创建视频任务（区分 503 和 429，采用保守重试策略）
+    //   - 503 队列满：长间隔重试（10s → 20s → 40s）
+    //   - 429 速率限制：不再重试，直接抛出并提示用户
     // ================================================================
-    async function createVideoTaskWithRetry(apiKey, body, maxRetries = 5) {
+    async function createVideoTaskWithRetry(apiKey, body, maxRetries = 4) {
         let lastErr = null;
         for (let attempt = 1; attempt <= maxRetries; attempt++) {
             let res;
@@ -1668,7 +1670,7 @@
             } catch (netErr) {
                 lastErr = netErr;
                 if (attempt === maxRetries) throw netErr;
-                const wait = 3000 * Math.pow(2, attempt - 1);
+                const wait = 10000 * Math.pow(2, attempt - 1);
                 console.warn(`创建视频任务网络异常，${wait/1000}s 后重试...`, netErr);
                 await new Promise(r => setTimeout(r, wait));
                 continue;
@@ -1680,15 +1682,24 @@
 
             const status = res.status;
             const errText = await res.text().catch(() => '');
-            lastErr = new Error(`视频任务创建失败 (${status}): ${errText.slice(0, 200)}`);
+            lastErr = new Error(`视频任务创建失败 (${status}): ${errText.slice(0, 300)}`);
 
-            const retryable = [429, 502, 503, 504].includes(status);
+            // ---- 429：速率限制，不再重试，直接抛出 ----
+            if (status === 429) {
+                console.warn('触发速率限制，不再重试:', errText.slice(0, 200));
+                throw new Error(
+                    '视频服务速率限制（免费账号）。请等待 1-2 分钟后再试，或升级 Token Plan 解除限制。'
+                );
+            }
+
+            // ---- 503 / 502 / 504：队列满或网关异常，长间隔重试 ----
+            const retryable = [502, 503, 504].includes(status);
 
             if (!retryable || attempt === maxRetries) {
                 throw lastErr;
             }
 
-            const wait = 3000 * Math.pow(2, attempt - 1);
+            const wait = 10000 * Math.pow(2, attempt - 1);
             console.warn(`创建视频任务失败（${status}），${wait/1000}s 后第 ${attempt + 1} 次重试...`, errText.slice(0, 120));
             showToast(`⏳ 视频队列繁忙，${Math.round(wait/1000)}s 后自动重试（${attempt}/${maxRetries}）`);
             await new Promise(r => setTimeout(r, wait));
@@ -1697,7 +1708,7 @@
     }
 
     // ================================================================
-    // Agnes 视频生成（异步轮询 + 参考图 + 创建重试）
+    // Agnes 视频生成（异步轮询 + 参考图 + 保守重试）
     // ================================================================
     async function generateAgnesVideo(prompt, seconds = '5', referenceImages = [], onProgress) {
         const apiKey = getAgnesApiKey();
@@ -1725,8 +1736,8 @@
             }
         }
 
-        // ---- 1. 创建视频任务（带 503/429 自动重试）----
-        const createData = await createVideoTaskWithRetry(apiKey, body, 5);
+        // ---- 1. 创建视频任务（503 长间隔重试；429 直接抛出）----
+        const createData = await createVideoTaskWithRetry(apiKey, body, 4);
 
         const videoId = createData.video_id;
         if (!videoId) {
@@ -2249,7 +2260,7 @@
         renderVideoScript();
         updatePromptSections();
         loadHistory();
-        console.log('🎨 智能素材生成已就绪（Agnes AI 接入 · 参考图 + 视频重试版）');
+        console.log('🎨 智能素材生成已就绪（Agnes AI 接入 · 参考图 + 429/503 区分重试版）');
         console.log('🖼️ 图片模型:', AGNES_IMAGE_MODEL);
         console.log('🎬 视频模型:', AGNES_VIDEO_MODEL);
     });
