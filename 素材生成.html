@@ -749,6 +749,103 @@
         .progress-wrap .fill { height: 100%; background: linear-gradient(90deg, #4dabf7, #0d7c4f); border-radius: 10px; transition: width 0.3s; }
 
         /* ============================================================
+           同步到商品（新增）
+           ============================================================ */
+        .sync-product-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+            gap: 8px;
+            max-height: 280px;
+            overflow-y: auto;
+            padding: 4px;
+            border: 1px solid #e8edf4;
+            border-radius: 10px;
+            background: #fafcfe;
+        }
+        .sync-product-list::-webkit-scrollbar { width: 4px; }
+        .sync-product-list::-webkit-scrollbar-thumb { background: #c8d8e8; border-radius: 10px; }
+        .sync-product-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 12px;
+            border-radius: 8px;
+            border: 1px solid #e8edf4;
+            background: white;
+            cursor: pointer;
+            transition: 0.15s;
+            font-size: 13px;
+        }
+        .sync-product-item:hover { border-color: #4dabf7; background: #f0f7fe; }
+        .sync-product-item.selected { background: #f0f7fe; border-color: #4dabf7; }
+        .sync-product-item input { width: 16px; height: 16px; accent-color: #4dabf7; cursor: pointer; }
+        .sync-product-item span { flex: 1; font-weight: 500; color: #0a1e2f; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .sync-product-item small { font-size: 11px; color: #94a3b8; white-space: nowrap; }
+
+        .sync-material-tabs {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            padding: 10px 12px;
+            background: #fafcfe;
+            border: 1px solid #e8edf4;
+            border-radius: 10px;
+        }
+        .sync-material-tabs label {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 13px;
+            color: #0a1e2f;
+            cursor: pointer;
+            user-select: none;
+        }
+        .sync-material-tabs input { width: 16px; height: 16px; accent-color: #4dabf7; cursor: pointer; }
+
+        #syncSubImageGrid {
+            display: grid;
+            grid-template-columns: repeat(6, 1fr);
+            gap: 8px;
+            padding: 8px;
+            background: #fafcfe;
+            border: 1px solid #e8edf4;
+            border-radius: 10px;
+        }
+        .sync-sub-item {
+            position: relative;
+            aspect-ratio: 1/1;
+            border-radius: 8px;
+            border: 2px solid #e8edf4;
+            background: white;
+            overflow: hidden;
+            cursor: pointer;
+            transition: 0.15s;
+        }
+        .sync-sub-item:hover { border-color: #4dabf7; }
+        .sync-sub-item input {
+            position: absolute;
+            top: 6px; left: 6px;
+            width: 16px; height: 16px;
+            accent-color: #4dabf7;
+            cursor: pointer;
+            z-index: 2;
+        }
+        .sync-sub-item img { width: 100%; height: 100%; object-fit: cover; }
+        .sync-sub-item i { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); font-size: 28px; color: #4dabf7; }
+        .sync-sub-item span {
+            position: absolute;
+            bottom: 4px; right: 4px;
+            background: rgba(10,30,47,0.75);
+            color: white;
+            font-size: 10px;
+            padding: 1px 6px;
+            border-radius: 8px;
+        }
+        @media (max-width: 768px) {
+            #syncSubImageGrid { grid-template-columns: repeat(3, 1fr); }
+        }
+
+        /* ============================================================
            生成中遮罩
            ============================================================ */
         .generating-overlay {
@@ -951,7 +1048,7 @@
             </div>
         </div>
 
-        <!-- ===== 参考图片（可选）—— 移动到生成类型标题上方 ===== -->
+        <!-- ===== 参考图片（可选）===== -->
         <div class="form-group">
             <label><i class="fas fa-cloud-upload-alt"></i> 参考图片（可选）<span style="font-size:11px;color:#4dabf7;margin-left:6px;">已支持作为图生图/参考图输入</span></label>
             <div class="upload-zone" onclick="document.getElementById('fileUpload').click()">
@@ -1036,7 +1133,7 @@
             <div class="video-script" id="videoScript"></div>
         </div>
 
-        <!-- 平台选择（留在原处） -->
+        <!-- 平台选择 -->
         <div class="form-row">
             <div class="form-group" style="grid-column: 1 / -1;">
                 <label><i class="fas fa-globe"></i> 目标平台</label>
@@ -1123,6 +1220,59 @@
                 <div style="font-size:14px; font-weight:500;" id="videoTitle">云山茶叶礼盒 · 5秒种草短视频</div>
                 <div style="font-size:12px; color:#94a3b8; margin-top:6px;">🎵 轻快流行 · 竖屏 9:16</div>
             </div>
+        </div>
+    </div>
+
+    <!-- ===== 同步到商品（新增） ===== -->
+    <div class="card" id="syncPanel" style="display:none; border-left: 4px solid #0d7c4f;">
+        <div class="card-header">
+            <h3><i class="fas fa-cloud-upload-alt" style="color:#0d7c4f;"></i> 同步到商品</h3>
+            <span class="action" onclick="loadSyncProducts()"><i class="fas fa-sync-alt"></i> 刷新商品</span>
+        </div>
+
+        <!-- 商品多选 -->
+        <div class="form-group">
+            <label><i class="fas fa-box"></i> 选择目标商品（可多选）</label>
+            <div class="sync-product-list" id="syncProductList">
+                <div style="text-align:center; padding:16px; color:#94a3b8;">加载中...</div>
+            </div>
+            <div style="font-size:12px; color:#5f7d95; margin-top:6px;">
+                已选 <strong id="syncSelectedCount" style="color:#0d7c4f;">0</strong> 个商品
+                <span style="margin-left:8px; color:#94a3b8;">（支持单选或多选）</span>
+            </div>
+        </div>
+
+        <!-- 素材勾选 -->
+        <div class="form-group">
+            <label><i class="fas fa-check-square"></i> 选择要同步的素材</label>
+            <div class="sync-material-tabs">
+                <label><input type="checkbox" id="syncMainImage" checked onchange="toggleSyncSubPicker()"> 主图</label>
+                <label><input type="checkbox" id="syncSubImages" checked onchange="toggleSyncSubPicker()"> 轮播图/副图</label>
+                <label><input type="checkbox" id="syncVideo" onchange="toggleSyncSubPicker()"> 视频</label>
+                <label><input type="checkbox" id="syncDetail" onchange="toggleSyncSubPicker()"> 详情页</label>
+            </div>
+        </div>
+
+        <!-- 副图细粒度勾选 -->
+        <div class="form-group" id="syncSubImagePicker" style="display:none;">
+            <label><i class="fas fa-images"></i> 选择要同步的副图（可多选，不勾则默认全同步）</label>
+            <div id="syncSubImageGrid"></div>
+        </div>
+
+        <!-- 同步方式 -->
+        <div class="form-group">
+            <label><i class="fas fa-cog"></i> 同步方式</label>
+            <select id="syncMode">
+                <option value="merge">合并（追加副图，最多 5 张）</option>
+                <option value="replace">覆盖（用生成素材替换原有）</option>
+            </select>
+        </div>
+
+        <div style="display:flex; gap:10px; flex-wrap:wrap;">
+            <span class="btn-sm primary" onclick="doSyncToProducts()" style="padding:10px 22px;">
+                <i class="fas fa-cloud-upload-alt"></i> 开始同步
+            </span>
+            <span class="btn-sm outline" onclick="clearSyncSelection()"><i class="fas fa-eraser"></i> 清空选择</span>
         </div>
     </div>
 
@@ -1223,6 +1373,16 @@
             { time: '8-12s', type: '卖点', prompt: '文字叠加"明前采摘 · 特级龙井"，配冲泡画面' },
             { time: '12-15s', type: '收尾', prompt: '品牌logo+购买引导"点击下方链接购买"' }
         ]
+    };
+
+    // ================================================================
+    // 同步状态（新增）
+    // ================================================================
+    const syncState = {
+        allProducts: [],
+        selectedProducts: [],
+        selectedSubIndexes: [],
+        lastResult: null,
     };
 
     // ================================================================
@@ -1587,6 +1747,9 @@
         ['resultImages', 'resultCarousel', 'resultCopy', 'resultDetail', 'resultVideo'].forEach(id => {
             document.getElementById(id).style.display = 'none';
         });
+        // 清空同步面板
+        document.getElementById('syncPanel').style.display = 'none';
+        clearSyncSelection();
         showToast('🔄 已重置');
     }
 
@@ -1651,8 +1814,6 @@
 
     // ================================================================
     // 创建视频任务（区分 503 和 429，采用保守重试策略）
-    //   - 503 队列满：长间隔重试（10s → 20s → 40s）
-    //   - 429 速率限制：不再重试，直接抛出并提示用户
     // ================================================================
     async function createVideoTaskWithRetry(apiKey, body, maxRetries = 4) {
         let lastErr = null;
@@ -1938,6 +2099,9 @@
                 renderResults(resultData, name);
                 addHistory(name, state.selectedTypes, style, platforms);
                 showToast('✅ 素材生成完成');
+
+                // 自动打开同步面板
+                openSyncPanel(resultData);
             }, 500);
 
         } catch (err) {
@@ -2151,6 +2315,164 @@
     }
 
     // ================================================================
+    // 同步到商品（新增）
+    // ================================================================
+    async function openSyncPanel(result) {
+        syncState.lastResult = result;
+        syncState.selectedProducts = [];
+        syncState.selectedSubIndexes = [];
+        document.getElementById('syncPanel').style.display = 'block';
+        document.getElementById('syncMainImage').checked = true;
+        document.getElementById('syncSubImages').checked = true;
+        document.getElementById('syncVideo').checked = !!result.videoUrl;
+        document.getElementById('syncDetail').checked = !!result.detailHTML;
+        document.getElementById('syncMode').value = 'merge';
+
+        await loadSyncProducts();
+        renderSyncSubImages(result.images || []);
+        toggleSyncSubPicker();
+    }
+
+    async function loadSyncProducts() {
+        const box = document.getElementById('syncProductList');
+        box.innerHTML = '<div style="text-align:center; padding:16px; color:#94a3b8;"><i class="fas fa-spinner fa-spin"></i> 加载中...</div>';
+        try {
+            const res = await fetch(BACKEND_URL + '/api/products');
+            const data = await res.json();
+            syncState.allProducts = data.products || [];
+            renderSyncProductList();
+        } catch (e) {
+            box.innerHTML = `<div style="text-align:center; padding:16px; color:#b51a3f;">加载失败：${e.message}</div>`;
+        }
+    }
+
+    function renderSyncProductList() {
+        const box = document.getElementById('syncProductList');
+        if (!syncState.allProducts.length) {
+            box.innerHTML = '<div style="text-align:center; padding:16px; color:#94a3b8;">暂无商品</div>';
+            return;
+        }
+        box.innerHTML = syncState.allProducts.map(p => `
+            <label class="sync-product-item ${syncState.selectedProducts.includes(p.name) ? 'selected' : ''}">
+                <input type="checkbox" value="${p.name}"
+                    ${syncState.selectedProducts.includes(p.name) ? 'checked' : ''}
+                    onchange="toggleSyncProduct('${p.name.replace(/'/g, "\\'")}', this.checked)">
+                <span>${p.name}</span>
+                <small>¥${p.price} · 库存${p.stock}</small>
+            </label>
+        `).join('');
+        document.getElementById('syncSelectedCount').textContent = syncState.selectedProducts.length;
+    }
+
+    function toggleSyncProduct(name, checked) {
+        const idx = syncState.selectedProducts.indexOf(name);
+        if (checked && idx < 0) syncState.selectedProducts.push(name);
+        if (!checked && idx >= 0) syncState.selectedProducts.splice(idx, 1);
+        renderSyncProductList();
+    }
+
+    function renderSyncSubImages(images) {
+        const grid = document.getElementById('syncSubImageGrid');
+        if (!images.length) {
+            grid.innerHTML = '<div style="color:#94a3b8; grid-column: 1/-1; text-align:center; padding:8px;">暂无副图</div>';
+            return;
+        }
+        grid.innerHTML = images.map((img, i) => `
+            <label class="sync-sub-item">
+                <input type="checkbox" value="${i}"
+                    ${syncState.selectedSubIndexes.includes(i) ? 'checked' : ''}
+                    onchange="toggleSyncSubImage(${i}, this.checked)">
+                ${img.url ? `<img src="${img.url}">` : `<i class="fas fa-image"></i>`}
+                <span>#${i+1}</span>
+            </label>
+        `).join('');
+    }
+
+    function toggleSyncSubImage(i, checked) {
+        const idx = syncState.selectedSubIndexes.indexOf(i);
+        if (checked && idx < 0) syncState.selectedSubIndexes.push(i);
+        if (!checked && idx >= 0) syncState.selectedSubIndexes.splice(idx, 1);
+    }
+
+    function toggleSyncSubPicker() {
+        const wantSub = document.getElementById('syncSubImages').checked;
+        document.getElementById('syncSubImagePicker').style.display = wantSub ? 'block' : 'none';
+    }
+
+    function clearSyncSelection() {
+        syncState.selectedProducts = [];
+        syncState.selectedSubIndexes = [];
+        renderSyncProductList();
+        const r = syncState.lastResult;
+        if (r) renderSyncSubImages(r.images || []);
+        showToast('🧹 已清空选择');
+    }
+
+    async function doSyncToProducts() {
+        if (syncState.selectedProducts.length === 0) {
+            showToast('⚠️ 请至少选择一个商品');
+            return;
+        }
+        const r = syncState.lastResult;
+        if (!r) { showToast('⚠️ 请先生成素材'); return; }
+
+        const wantMain   = document.getElementById('syncMainImage').checked;
+        const wantSub    = document.getElementById('syncSubImages').checked;
+        const wantVideo  = document.getElementById('syncVideo').checked;
+        const wantDetail = document.getElementById('syncDetail').checked;
+
+        const payload = {
+            product_names: syncState.selectedProducts.slice(),
+            mode: document.getElementById('syncMode').value,
+        };
+
+        if (wantMain) {
+            const firstValid = (r.images || []).find(x => x.url);
+            if (firstValid) payload.main_image = firstValid.url;
+        }
+
+        if (wantSub) {
+            // 有勾选则只同步勾选的；无勾选则默认同步全部有效图
+            const allValidIdx = (r.images || []).map((_, i) => i).filter(i => r.images[i].url);
+            const idxs = syncState.selectedSubIndexes.length
+                ? syncState.selectedSubIndexes.filter(i => r.images[i] && r.images[i].url)
+                : allValidIdx;
+            payload.sub_images = idxs.map(i => r.images[i].url).filter(Boolean);
+        }
+
+        if (wantVideo && r.videoUrl) payload.video = r.videoUrl;
+        if (wantDetail && r.detailHTML) payload.detail_html = r.detailHTML;
+
+        if (!payload.main_image && !payload.sub_images && !payload.video && !payload.detail_html) {
+            showToast('⚠️ 请至少勾选一种素材，且生成结果中该素材有效');
+            return;
+        }
+
+        showToast(`⏳ 正在同步到 ${syncState.selectedProducts.length} 个商品...`);
+        try {
+            const res = await fetch(BACKEND_URL + '/api/materials/sync', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
+            });
+            const data = await res.json();
+
+            if (data.success) {
+                showToast('✅ ' + data.message);
+                // 展示失败明细（如果有）
+                if (data.results && data.results.some(x => !x.ok)) {
+                    const failList = data.results.filter(x => !x.ok).map(x => `· ${x.name}：${x.msg}`).join('\n');
+                    console.warn('部分商品同步失败：\n' + failList);
+                }
+            } else {
+                showToast('❌ ' + (data.message || '同步失败'));
+            }
+        } catch (e) {
+            showToast('❌ 同步失败：' + e.message);
+        }
+    }
+
+    // ================================================================
     // 进度遮罩
     // ================================================================
     function showGeneratingOverlay(types) {
@@ -2260,7 +2582,7 @@
         renderVideoScript();
         updatePromptSections();
         loadHistory();
-        console.log('🎨 智能素材生成已就绪（Agnes AI 接入 · 参考图 + 429/503 区分重试版）');
+        console.log('🎨 智能素材生成已就绪（Agnes AI 接入 · 参考图 + 429/503 区分重试 + 同步到商品）');
         console.log('🖼️ 图片模型:', AGNES_IMAGE_MODEL);
         console.log('🎬 视频模型:', AGNES_VIDEO_MODEL);
     });
@@ -2298,6 +2620,14 @@
     window.clearHistory = clearHistory;
     window.showToast = showToast;
     window.toggleApiKeyVisibility = toggleApiKeyVisibility;
+    // 同步相关
+    window.openSyncPanel = openSyncPanel;
+    window.loadSyncProducts = loadSyncProducts;
+    window.toggleSyncProduct = toggleSyncProduct;
+    window.toggleSyncSubImage = toggleSyncSubImage;
+    window.toggleSyncSubPicker = toggleSyncSubPicker;
+    window.clearSyncSelection = clearSyncSelection;
+    window.doSyncToProducts = doSyncToProducts;
 </script>
 </body>
 </html>
