@@ -83,7 +83,6 @@
         .topbar .title i { color: var(--accent); font-size: 20px; }
         .topbar .title h1 { font-size: 16px; font-weight: 600; color: var(--text); }
 
-        /* 步骤条 */
         .stepper { display: flex; align-items: center; gap: 8px; flex: 1; justify-content: center; min-width: 0; }
         .stepper .step { display: flex; align-items: center; gap: 8px; padding: 6px 14px; border-radius: 20px; font-size: 13px; color: var(--text-3); cursor: pointer; transition: 0.15s; white-space: nowrap; }
         .stepper .step .num { width: 20px; height: 20px; border-radius: 50%; background: var(--border); color: var(--text-2); display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 700; }
@@ -101,7 +100,6 @@
         .topbar .actions .btn i { color: var(--text-2); }
         .topbar .actions .avatar { width: 34px; height: 34px; border-radius: 50%; background: var(--accent); color: white; display: flex; align-items: center; justify-content: center; font-size: 14px; font-weight: 600; }
 
-        /* 内容区 */
         .content { flex: 1; padding: 24px 28px 100px; overflow-y: auto; }
         .step-panel { display: none; }
         .step-panel.active { display: block; animation: fadeIn 0.25s ease; }
@@ -113,7 +111,6 @@
         .card-header h3 i { color: var(--accent); }
         .card-header .action { font-size: 12px; color: var(--accent); font-weight: 500; cursor: pointer; }
 
-        /* 表单 */
         .form-group { margin-bottom: 14px; }
         .form-group label { display: block; font-size: 13px; font-weight: 500; color: var(--text); margin-bottom: 6px; }
         .form-group label i { color: var(--accent); margin-right: 4px; }
@@ -129,7 +126,6 @@
 
         .hero-input { font-size: 16px !important; padding: 14px 16px !important; font-weight: 500; }
 
-        /* 生成类型 pills */
         .type-pills { display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px; margin-bottom: 8px; }
         .type-pill {
             position: relative;
@@ -156,7 +152,6 @@
         .type-pill .name { font-size: 13px; font-weight: 600; color: var(--text); margin-bottom: 2px; }
         .type-pill .desc { font-size: 10px; color: var(--text-3); }
 
-        /* 高级折叠 */
         .advanced-toggle {
             display: flex; align-items: center; justify-content: space-between;
             padding: 12px 16px; border-radius: 10px;
@@ -172,7 +167,6 @@
         .advanced-body { display: none; padding: 4px 0 0; }
         .advanced-body.open { display: block; animation: fadeIn 0.2s ease; }
 
-        /* 提示词 tab */
         .prompt-tabs { display: flex; gap: 4px; border-bottom: 1px solid var(--border); margin-bottom: 14px; }
         .prompt-tab { padding: 8px 16px; font-size: 13px; color: var(--text-2); cursor: pointer; border-bottom: 2px solid transparent; transition: 0.15s; background: none; border-top: none; border-left: none; border-right: none; font-family: inherit; }
         .prompt-tab:hover { color: var(--text); }
@@ -240,7 +234,6 @@
         .video-shot .content .mini-actions .ai { background: var(--accent-soft); color: var(--accent); }
         .video-shot .content .mini-actions .copy { background: rgba(13,124,79,0.1); color: var(--success); }
 
-        /* 平台 tags */
         .platform-tags { display: flex; gap: 8px; flex-wrap: wrap; }
         .platform-tag {
             padding: 6px 14px; border-radius: 20px; font-size: 13px; font-weight: 500;
@@ -251,7 +244,6 @@
         .platform-tag:hover { border-color: var(--accent); }
         .platform-tag.active { background: var(--primary); border-color: var(--primary); color: white; }
 
-        /* 上传 */
         .upload-zone {
             border: 2px dashed var(--border); border-radius: 10px; padding: 16px;
             text-align: center; color: var(--text-3); transition: 0.15s; cursor: pointer;
@@ -261,7 +253,141 @@
         .upload-zone .hint { font-size: 13px; color: var(--text-2); }
         .upload-zone .sub { font-size: 11px; color: var(--text-3); margin-top: 2px; }
 
-        /* 底部操作条 */
+        /* ★ 参考视频预览 chips */
+        .ref-video-chips {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin-top: 12px;
+        }
+        .ref-video-chip {
+            position: relative;
+            width: 160px;
+            border-radius: 10px;
+            overflow: hidden;
+            border: 2px solid var(--border);
+            background: #0a0e14;
+        }
+        .ref-video-chip video { width: 100%; display: block; max-height: 100px; object-fit: cover; }
+        .ref-video-chip .chip-play {
+            position: absolute;
+            top: 50%; left: 50%;
+            transform: translate(-50%, -50%);
+            color: white;
+            font-size: 20px;
+            text-shadow: 0 1px 6px rgba(0,0,0,0.8);
+            pointer-events: none;
+        }
+        .ref-video-chip .chip-info {
+            position: absolute;
+            bottom: 0; left: 0; right: 0;
+            background: rgba(10,30,47,0.85);
+            color: white;
+            font-size: 10px;
+            padding: 3px 8px;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+        .ref-video-chip .chip-info .kf-badge {
+            background: var(--success);
+            color: white;
+            padding: 0 5px;
+            border-radius: 6px;
+            font-size: 9px;
+            font-weight: 600;
+        }
+        .ref-video-chip .chip-remove {
+            position: absolute;
+            top: 4px; right: 4px;
+            width: 22px; height: 22px;
+            border-radius: 50%;
+            background: rgba(181,26,63,0.9);
+            color: white;
+            border: 2px solid white;
+            font-size: 11px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0;
+            z-index: 3;
+            font-family: inherit;
+        }
+        .ref-video-chip .chip-remove:hover { background: #8a1533; }
+
+        .kf-thumbnails {
+            display: flex;
+            gap: 6px;
+            margin-top: 8px;
+            flex-wrap: wrap;
+        }
+        .kf-thumbnail {
+            width: 56px;
+            height: 56px;
+            border-radius: 8px;
+            overflow: hidden;
+            border: 2px solid var(--border);
+            position: relative;
+        }
+        .kf-thumbnail img { width: 100%; height: 100%; object-fit: cover; display: block; }
+        .kf-thumbnail .kf-idx {
+            position: absolute;
+            bottom: 2px; right: 2px;
+            background: rgba(10,30,47,0.75);
+            color: white;
+            font-size: 9px;
+            padding: 0 4px;
+            border-radius: 4px;
+        }
+
+        .video-analysis-result {
+            background: linear-gradient(135deg, #f0f7fe, #e6f3ff);
+            border: 1px solid #b8d8f7;
+            border-radius: 10px;
+            padding: 12px 14px;
+            margin-top: 12px;
+            font-size: 13px;
+        }
+        .video-analysis-result .va-title {
+            font-weight: 600;
+            color: var(--text);
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .video-analysis-result .va-title i { color: var(--accent); }
+        .video-analysis-result .va-row {
+            display: flex;
+            gap: 6px;
+            margin-bottom: 4px;
+            line-height: 1.6;
+        }
+        .video-analysis-result .va-row .va-label {
+            color: #2a7faa;
+            font-weight: 500;
+            flex-shrink: 0;
+        }
+        .video-analysis-result .va-row .va-val {
+            color: var(--text);
+            word-break: break-word;
+        }
+        .video-analysis-result .va-tags {
+            display: flex;
+            gap: 4px;
+            flex-wrap: wrap;
+            margin-top: 8px;
+        }
+        .video-analysis-result .va-tags .va-tag {
+            font-size: 10px;
+            padding: 2px 8px;
+            border-radius: 10px;
+            background: white;
+            color: #2a7faa;
+            border: 1px solid #b8d8f7;
+        }
+
         .action-bar {
             position: fixed; bottom: 0; left: 220px; right: 0;
             background: white; border-top: 1px solid var(--border);
@@ -300,7 +426,6 @@
         .btn-sm.outline { background: transparent; border: 1px solid var(--border); color: var(--primary); }
         .btn-sm.danger { background: #fde8ed; color: var(--danger); }
 
-        /* 结果区 */
         .result-tabs {
             display: flex; gap: 4px; border-bottom: 1px solid var(--border);
             margin-bottom: 16px; overflow-x: auto;
@@ -375,7 +500,6 @@
         .empty-state i { font-size: 40px; margin-bottom: 10px; display: block; opacity: 0.4; }
         .empty-state p { font-size: 13px; }
 
-        /* 同步区 */
         .sync-search { display: flex; align-items: center; gap: 8px; margin-bottom: 10px; }
         .sync-search input { flex: 1; padding: 10px 14px; border: 1px solid var(--border); border-radius: 10px; font-size: 13px; font-family: inherit; background: #fafcfe; }
         .sync-search input:focus { outline: none; border-color: var(--accent); }
@@ -426,7 +550,6 @@
         .mode-picker .mode-title { font-size: 13px; font-weight: 600; }
         .mode-picker .mode-desc { font-size: 11px; color: var(--text-3); }
 
-        /* 进度遮罩 */
         .generating-overlay {
             display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0;
             background: rgba(0,0,0,0.45); backdrop-filter: blur(6px);
@@ -454,7 +577,6 @@
         .generating-box .step-item.done { color: var(--success); }
         .generating-box .time { font-size: 12px; color: var(--text-3); margin-top: 14px; }
 
-        /* Toast */
         .toast {
             position: fixed; bottom: 90px; left: 50%; transform: translateX(-50%);
             background: var(--primary); color: white; padding: 12px 24px;
@@ -466,7 +588,6 @@
         .toast.show { display: block; animation: fadeUp 0.3s ease; }
         @keyframes fadeUp { from { opacity: 0; transform: translateX(-50%) translateY(20px); } to { opacity: 1; transform: translateX(-50%) translateY(0); } }
 
-        /* 历史抽屉 */
         .drawer-overlay {
             position: fixed; top: 0; left: 0; right: 0; bottom: 0;
             background: rgba(0,0,0,0.4); z-index: 200; display: none;
@@ -489,7 +610,6 @@
         .history-item .meta { font-size: 11px; color: var(--text-3); margin-top: 4px; display: flex; gap: 8px; flex-wrap: wrap; }
         .history-item .badge { font-size: 10px; padding: 2px 8px; border-radius: 8px; background: var(--accent-soft); color: var(--accent); }
 
-        /* 响应式 */
         @media (max-width: 1200px) {
             .image-grid { grid-template-columns: repeat(3, 1fr); }
             .carousel-prompts { grid-template-columns: repeat(3, 1fr); }
@@ -650,13 +770,14 @@
                 <div class="label">
                     <i class="fas fa-cog"></i>
                     <span>高级设置</span>
-                    <span style="font-size:11px; color:var(--text-3);">（参考图、卖点、风格、提示词、API Key）</span>
+                    <span style="font-size:11px; color:var(--text-3);">（参考图、参考视频、卖点、风格、提示词、API Key）</span>
                 </div>
                 <i class="fas fa-chevron-down arrow"></i>
             </div>
 
             <div class="advanced-body" id="advancedBody">
 
+                <!-- 参考图 -->
                 <div class="card">
                     <div class="card-header">
                         <h3><i class="fas fa-cloud-upload-alt"></i> 参考图（可选）</h3>
@@ -669,6 +790,23 @@
                     </div>
                     <div id="uploadPreview" style="display:flex; gap:6px; flex-wrap:wrap; margin-top:10px;"></div>
                     <div id="uploadHint" style="font-size:11px; color:var(--text-3); margin-top:6px; display:none;"></div>
+                </div>
+
+                <!-- ★ 新增：参考视频 -->
+                <div class="card">
+                    <div class="card-header">
+                        <h3><i class="fas fa-video"></i> 参考视频（可选）</h3>
+                        <span class="action" onclick="clearReferenceVideo()" id="clearVideoBtn" style="display:none;">清空</span>
+                    </div>
+                    <div class="upload-zone" onclick="document.getElementById('videoUpload').click()" id="videoUploadZone">
+                        <i class="fas fa-video"></i>
+                        <div class="hint">点击上传参考视频（≤20MB）</div>
+                        <div class="sub">AI 将自动抽帧 + 反解画面与运镜 + 生成同款</div>
+                        <input type="file" id="videoUpload" accept="video/mp4,video/webm,video/quicktime" style="display:none;" onchange="handleVideoUpload(event)">
+                    </div>
+                    <div class="ref-video-chips" id="refVideoChips" style="display:none;"></div>
+                    <div class="kf-thumbnails" id="kfThumbnails"></div>
+                    <div id="videoAnalysisBox"></div>
                 </div>
 
                 <div class="card">
@@ -860,7 +998,6 @@
                 </div>
             </div>
 
-            <!-- 目标平台（新位置：同步方式卡片上方） -->
             <div class="card">
                 <div class="card-header">
                     <h3><i class="fas fa-globe"></i> 目标平台 <span class="action" onclick="toggleAllPlatforms()" id="platformToggleBtn">全选</span></h3>
@@ -910,7 +1047,6 @@
 
     </div>
 
-    <!-- 底部固定操作条 -->
     <div class="action-bar" id="actionBar">
         <div class="info" id="actionInfo">
             <i class="fas fa-info-circle"></i> 填写商品名称，选择生成类型，然后点击「开始生成」
@@ -932,7 +1068,6 @@
     </div>
 </div>
 
-<!-- 生成进度遮罩 -->
 <div class="generating-overlay" id="generatingOverlay">
     <div class="generating-box">
         <div class="spinner"></div>
@@ -946,7 +1081,6 @@
     </div>
 </div>
 
-<!-- 历史抽屉 -->
 <div class="drawer-overlay" id="drawerOverlay" onclick="closeHistoryDrawer()"></div>
 <div class="drawer" id="historyDrawer">
     <div class="drawer-header">
@@ -966,12 +1100,15 @@
     // 常量配置
     // ================================================================
     const AGNES_API_BASE = 'https://apihub.agnes-ai.com/v1';
-    // ✅ 升级到 Agnes Image 2.5 Flash
     const AGNES_IMAGE_MODEL = 'agnes-image-2.5-flash';
     const AGNES_VIDEO_MODEL = 'agnes-video-2.5-flash';
     const BACKEND_URL = 'https://ai-ecommerce-backend-production-0776.up.railway.app';
 
-    // 平台配置：每个平台的图片尺寸比例 + 视频比例
+    // ★ 参考视频配置
+    const REF_VIDEO_MAX = 1;
+    const REF_VIDEO_MAX_SIZE = 20 * 1024 * 1024;
+    const KEYFRAME_COUNT = 3;
+
     const PLATFORM_CONFIG = {
         '1688':       { imageRatio: '1:1',  videoRatio: '1:1'  },
         '淘宝':       { imageRatio: '1:1',  videoRatio: '9:16' },
@@ -1006,6 +1143,11 @@
         generatedData: {},
         history: [],
         referenceImages: [],
+        // ★ 参考视频状态
+        referenceVideo: null,       // {file, name, previewUrl}
+        keyframes: [],              // 抽帧 dataUrl 数组
+        keyframeUrls: [],           // 上传到临时图床后的 URL 数组
+        videoAnalysis: null,        // 反解结果
         carouselPrompts: [
             '商品正面主图，突出包装设计，暖色调，自然光',
             '商品细节特写，展示材质质感，微距拍摄',
@@ -1044,6 +1186,22 @@
         toast.classList.add('show');
         clearTimeout(toast._timer);
         toast._timer = setTimeout(() => toast.classList.remove('show'), 2500);
+    }
+    function fileToDataUrl(file) {
+        return new Promise((resolve, reject) => {
+            const reader = new FileReader();
+            reader.onload = e => resolve(e.target.result);
+            reader.onerror = reject;
+            reader.readAsDataURL(file);
+        });
+    }
+    function dataUrlToBlob(dataUrl) {
+        const [header, base64] = dataUrl.split(',');
+        const mime = header.match(/:(.*?);/)[1];
+        const binary = atob(base64);
+        const array = new Uint8Array(binary.length);
+        for (let i = 0; i < binary.length; i++) array[i] = binary.charCodeAt(i);
+        return new Blob([array], { type: mime });
     }
 
     // ================================================================
@@ -1143,9 +1301,6 @@
         if (!hasVideo && videoTab.classList.contains('active')) switchPromptTab('carousel');
     }
 
-    // ================================================================
-    // 提示词 Tab
-    // ================================================================
     function switchPromptTab(tab) {
         document.querySelectorAll('.prompt-tab').forEach(t => t.classList.toggle('active', t.dataset.tab === tab));
         document.querySelectorAll('.prompt-panel').forEach(p => p.classList.toggle('active', p.id === 'prompt-' + tab));
@@ -1172,7 +1327,6 @@
     function getSelectedPlatforms() {
         return Array.from(document.querySelectorAll('#platformContainer .platform-tag.active')).map(t => t.dataset.platform);
     }
-    // 根据平台列表，计算主流图片比例（取第一个平台的配置）
     function getImageRatioByPlatforms(platforms) {
         if (!platforms || platforms.length === 0) return '1:1';
         return PLATFORM_CONFIG[platforms[0]]?.imageRatio || '1:1';
@@ -1223,6 +1377,219 @@
             reader.readAsDataURL(file);
         }
         event.target.value = '';
+    }
+
+    // ================================================================
+    // ★ 参考视频：上传 + 抽帧
+    // ================================================================
+    async function handleVideoUpload(event) {
+        const file = event.target.files[0];
+        if (!file) return;
+
+        if (state.referenceVideo) {
+            showToast('⚠️ 已有参考视频，请先清空');
+            event.target.value = '';
+            return;
+        }
+        if (!file.type.startsWith('video/')) {
+            showToast('⚠️ 请上传视频文件');
+            event.target.value = '';
+            return;
+        }
+        if (file.size > REF_VIDEO_MAX_SIZE) {
+            showToast(`⚠️ 视频超过 ${REF_VIDEO_MAX_SIZE / 1024 / 1024}MB，请压缩后重试`);
+            event.target.value = '';
+            return;
+        }
+
+        const previewUrl = URL.createObjectURL(file);
+        state.referenceVideo = {
+            file,
+            name: file.name,
+            previewUrl,
+            size: file.size
+        };
+        state.keyframes = [];
+        state.keyframeUrls = [];
+        state.videoAnalysis = null;
+
+        renderReferenceVideoChip();
+        document.getElementById('clearVideoBtn').style.display = 'inline-block';
+
+        // 自动抽帧
+        showToast('🎬 正在从视频抽帧...');
+        try {
+            const keyframes = await extractVideoKeyframes(file, KEYFRAME_COUNT);
+            state.keyframes = keyframes;
+            renderKeyframeThumbnails();
+            showToast(`✅ 已抽取 ${keyframes.length} 张关键帧`);
+        } catch (err) {
+            console.warn('抽帧失败:', err);
+            state.keyframes = [];
+            showToast('⚠️ 抽帧失败，将使用纯文本模式生成');
+        }
+
+        event.target.value = '';
+    }
+
+    // ★ 前端抽帧
+    async function extractVideoKeyframes(file, count = KEYFRAME_COUNT) {
+        const url = URL.createObjectURL(file);
+        const video = document.createElement('video');
+        video.src = url;
+        video.muted = true;
+        video.crossOrigin = 'anonymous';
+        video.preload = 'metadata';
+
+        await new Promise((resolve, reject) => {
+            video.onloadedmetadata = resolve;
+            video.onerror = () => reject(new Error('视频加载失败'));
+        });
+
+        const duration = video.duration || 5;
+        const canvas = document.createElement('canvas');
+        const ctx = canvas.getContext('2d');
+        const frames = [];
+
+        const positions = [];
+        if (count === 1) positions.push(duration / 2);
+        else {
+            for (let i = 0; i < count; i++) {
+                positions.push((duration * i) / (count - 1));
+            }
+        }
+
+        for (const t of positions) {
+            await new Promise((resolve) => {
+                const onSeeked = () => {
+                    video.removeEventListener('seeked', onSeeked);
+                    resolve();
+                };
+                video.addEventListener('seeked', onSeeked);
+                video.currentTime = Math.min(t, Math.max(0, duration - 0.05));
+            });
+
+            canvas.width = video.videoWidth || 720;
+            canvas.height = video.videoHeight || 1280;
+            ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+            const dataUrl = canvas.toDataURL('image/jpeg', 0.85);
+            frames.push(dataUrl);
+        }
+
+        URL.revokeObjectURL(url);
+        return frames;
+    }
+
+    function renderReferenceVideoChip() {
+        const container = document.getElementById('refVideoChips');
+        if (!state.referenceVideo) {
+            container.style.display = 'none';
+            container.innerHTML = '';
+            return;
+        }
+        container.style.display = 'flex';
+        const v = state.referenceVideo;
+        container.innerHTML = `
+            <div class="ref-video-chip">
+                <video src="${v.previewUrl}" muted preload="metadata"></video>
+                <i class="fas fa-play chip-play"></i>
+                <button class="chip-remove" onclick="clearReferenceVideo()" title="移除">×</button>
+                <div class="chip-info">
+                    <i class="fas fa-video"></i>
+                    <span>${escapeHtml(v.name).slice(0, 16)}...</span>
+                    <span class="kf-badge">${state.keyframes.length}帧</span>
+                </div>
+            </div>
+        `;
+    }
+
+    function renderKeyframeThumbnails() {
+        const container = document.getElementById('kfThumbnails');
+        if (!state.keyframes || state.keyframes.length === 0) {
+            container.innerHTML = '';
+            return;
+        }
+        container.innerHTML = state.keyframes.map((url, i) => `
+            <div class="kf-thumbnail">
+                <img src="${url}" alt="关键帧${i+1}">
+                <span class="kf-idx">帧${i+1}</span>
+            </div>
+        `).join('');
+    }
+
+    function clearReferenceVideo() {
+        if (state.referenceVideo && state.referenceVideo.previewUrl) {
+            try { URL.revokeObjectURL(state.referenceVideo.previewUrl); } catch (e) {}
+        }
+        state.referenceVideo = null;
+        state.keyframes = [];
+        state.keyframeUrls = [];
+        state.videoAnalysis = null;
+        renderReferenceVideoChip();
+        renderKeyframeThumbnails();
+        document.getElementById('videoAnalysisBox').innerHTML = '';
+        document.getElementById('clearVideoBtn').style.display = 'none';
+        showToast('🧹 已清空参考视频');
+    }
+
+    function escapeHtml(s) {
+        return String(s || '').replace(/[&<>"']/g, c => ({
+            '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
+        })[c]);
+    }
+
+    // ================================================================
+    // ★ 上传关键帧到临时图床
+    // ================================================================
+    async function uploadKeyframesToTemp(keyframes) {
+        if (!keyframes || keyframes.length === 0) return [];
+        const formData = new FormData();
+        keyframes.forEach((dataUrl, i) => {
+            const blob = dataUrlToBlob(dataUrl);
+            const file = new File([blob], `keyframe_${i+1}.jpg`, { type: 'image/jpeg' });
+            formData.append('files', file);
+        });
+        formData.append('purpose', 'keyframe');
+
+        const res = await fetch(BACKEND_URL + '/api/upload/temp/batch', {
+            method: 'POST',
+            body: formData
+        });
+        const data = await res.json();
+        if (!data.success) throw new Error(data.message || '上传关键帧失败');
+        return (data.results || []).filter(r => r.success).map(r => r.url);
+    }
+
+    // ★ 调用反解接口
+    async function decomposeVideoReference(keyframeUrls, productName) {
+        const res = await fetch(BACKEND_URL + '/api/video/decompose', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                keyframe_urls: keyframeUrls,
+                product_name: productName || ''
+            })
+        });
+        const data = await res.json();
+        if (!data.success) throw new Error(data.message || '反解失败');
+        return data.analysis;
+    }
+
+    // ★ 渲染反解结果卡片
+    function renderVideoAnalysis(analysis) {
+        const box = document.getElementById('videoAnalysisBox');
+        if (!analysis) { box.innerHTML = ''; return; }
+        const a = analysis;
+        box.innerHTML = `
+            <div class="video-analysis-result">
+                <div class="va-title"><i class="fas fa-magnifying-glass-chart"></i> 参考视频反解结果</div>
+                ${a.content ? `<div class="va-row"><span class="va-label">画面：</span><span class="va-val">${escapeHtml(a.content)}</span></div>` : ''}
+                ${a.camera ? `<div class="va-row"><span class="va-label">运镜：</span><span class="va-val">${escapeHtml(a.camera)}</span></div>` : ''}
+                ${a.rhythm ? `<div class="va-row"><span class="va-label">节奏：</span><span class="va-val">${escapeHtml(a.rhythm)}</span></div>` : ''}
+                ${a.prompt ? `<div class="va-row"><span class="va-label">生成用 Prompt：</span><span class="va-val">${escapeHtml(a.prompt)}</span></div>` : ''}
+                ${a.style_tags && a.style_tags.length ? `<div class="va-tags">${a.style_tags.map(t => `<span class="va-tag">${escapeHtml(t)}</span>`).join('')}</div>` : ''}
+            </div>
+        `;
     }
 
     // ================================================================
@@ -1360,16 +1727,13 @@
         showToast('🔄 提示词已重置');
     }
 
-    // ================================================================
-    // 结果 Tab
-    // ================================================================
     function switchResultTab(tab) {
         document.querySelectorAll('.result-tab').forEach(t => t.classList.toggle('active', t.dataset.tab === tab));
         document.querySelectorAll('.result-panel').forEach(p => p.classList.toggle('active', p.id === 'result-' + tab));
     }
 
     // ================================================================
-    // ★ Agnes 图片生成（修复版：使用 2.5 Flash + extra_body.image）
+    // Agnes 图片生成
     // ================================================================
     async function generateAgnesImage(prompt, sizeTier = '1K', ratio = '1:1', referenceImages = []) {
         const apiKey = getAgnesApiKey();
@@ -1377,16 +1741,15 @@
         saveAgnesApiKey();
 
         const body = {
-            model: AGNES_IMAGE_MODEL,        // ✅ agnes-image-2.5-flash
+            model: AGNES_IMAGE_MODEL,
             prompt: prompt,
-            size: sizeTier,                  // ✅ 档位：1K/2K/3K/4K
-            ratio: ratio,                    // ✅ 宽高比
+            size: sizeTier,
+            ratio: ratio,
             extra_body: {
-                response_format: 'url'       // ✅ 明确要 URL 输出
+                response_format: 'url'
             }
         };
 
-        // ✅ 图生图：image 必须放 extra_body 里，不放顶层
         if (referenceImages && referenceImages.length > 0) {
             body.extra_body.image = referenceImages.slice(0, 5);
             if (!/参考|reference|<Picture/i.test(prompt)) {
@@ -1411,7 +1774,7 @@
     }
 
     // ================================================================
-    // ★ Agnes 视频生成（修复版：严格 video_id + 严格 mode 字段）
+    // Agnes 视频生成
     // ================================================================
     async function createVideoTaskWithRetry(apiKey, body, maxRetries = 4) {
         let lastErr = null;
@@ -1451,28 +1814,24 @@
 
         const hasRefs = referenceImages && referenceImages.length > 0;
 
-        // ✅ 严格按 mode 分配字段
         const body = {
             model: AGNES_VIDEO_MODEL,
             prompt: prompt,
             seconds: String(seconds),
             mode: hasRefs ? 'reference' : 'text',
-            size: '720P',                       // Flash 固定 720P
-            aspect_ratio: aspectRatio,          // 按平台自动选
+            size: '720P',
+            aspect_ratio: aspectRatio,
             n: 1
         };
 
         if (hasRefs) {
-            body.images = referenceImages.slice(0, 5);   // 严格 ≤ 5
+            body.images = referenceImages.slice(0, 5);
             if (!/<Picture\s*\d+/i.test(prompt)) {
                 body.prompt = prompt + '。以 <Picture 1> 中的商品外观、色调和风格为参考，保持主体一致性。';
             }
         }
-        // text 模式不传任何媒体字段
 
         const createData = await createVideoTaskWithRetry(apiKey, body, 4);
-
-        // ✅ 严格只取 video_id
         const videoId = createData.video_id;
         if (!videoId) {
             console.error('创建任务响应:', createData);
@@ -1505,7 +1864,7 @@
             if (typeof onProgress === 'function') onProgress(i + 1, maxAttempts, status, statusText);
 
             if (status === 'completed') {
-                const url = qd.url;              // ✅ 顶层 url
+                const url = qd.url;
                 if (url) return url;
                 throw new Error('视频已完成但未返回 URL');
             }
@@ -1518,7 +1877,7 @@
     }
 
     // ================================================================
-    // 开始生成
+    // ★ 开始生成（含参考视频反解）
     // ================================================================
     async function startGenerate() {
         if (state.isGenerating) { showToast('⏳ 正在生成中...'); return; }
@@ -1536,30 +1895,63 @@
         const style = document.getElementById('designStyle').value;
         const platforms = getSelectedPlatforms();
         const refImages = state.referenceImages.slice();
-        // ✅ 按所选平台自动选择图片/视频比例
         const imageRatio = getImageRatioByPlatforms(platforms);
         const videoRatio = getVideoRatioByPlatforms(platforms);
+
+        // ★ 参考视频快照
+        const hasVideoRef = !!state.referenceVideo;
+        const keyframes = state.keyframes.slice();
 
         state.isGenerating = true;
         showGeneratingOverlay(state.selectedTypes);
 
         try {
+            // ★ 参考视频反解（仅当有视频且有抽帧时）
+            let videoAnalysis = null;
+            let keyframeUrls = [];
+            if (hasVideoRef && keyframes.length > 0) {
+                try {
+                    updateProgress(8, '正在上传参考视频关键帧到临时图床...');
+                    keyframeUrls = await uploadKeyframesToTemp(keyframes);
+                    state.keyframeUrls = keyframeUrls;
+
+                    updateProgress(12, `正在用多模态模型反解画面与运镜（${keyframeUrls.length} 帧）...`);
+                    videoAnalysis = await decomposeVideoReference(keyframeUrls, name);
+                    state.videoAnalysis = videoAnalysis;
+                    renderVideoAnalysis(videoAnalysis);
+
+                    const previewText = [
+                        videoAnalysis.content ? `画面：${videoAnalysis.content}` : '',
+                        videoAnalysis.camera ? `运镜：${videoAnalysis.camera}` : ''
+                    ].filter(Boolean).join(' | ');
+                    showToast(`✅ 参考视频反解完成${previewText ? '：' + previewText.slice(0, 40) : ''}...`);
+                } catch (err) {
+                    console.warn('视频反解失败，降级为纯文本:', err);
+                    showToast('⚠️ 参考视频反解失败，改用纯文本生成');
+                    videoAnalysis = null;
+                    keyframeUrls = [];
+                }
+            }
+
             // ---- 图片生成 ----
             let images = [];
             if (state.selectedTypes.includes('images') || state.selectedTypes.includes('carousel')) {
                 const prompts = state.carouselPrompts.slice(0, 5);
+                // 如果反解成功，把反解内容作为额外提示词合并
+                const analysisSuffix = videoAnalysis?.content ? `，参考风格：${videoAnalysis.content.slice(0, 50)}` : '';
                 updateProgress(15, refImages.length > 0
                     ? `正在调用 Agnes Image 2.5（参考 ${refImages.length} 张，比例 ${imageRatio}）...`
                     : `正在调用 Agnes Image 2.5（比例 ${imageRatio}）...`);
 
                 for (let i = 0; i < prompts.length; i++) {
                     try {
-                        const url = await generateAgnesImage(prompts[i], '1K', imageRatio, refImages);
+                        const finalPrompt = prompts[i] + analysisSuffix;
+                        const url = await generateAgnesImage(finalPrompt, '1K', imageRatio, refImages);
                         images.push({
                             url, style,
                             score: 90 + Math.floor(Math.random() * 10),
                             ctr: (3 + Math.random() * 3).toFixed(1),
-                            prompt: prompts[i]
+                            prompt: finalPrompt
                         });
                     } catch (imgErr) {
                         console.warn('单张图片生成失败:', imgErr);
@@ -1580,12 +1972,18 @@
             // ---- 视频生成 ----
             let videoUrl = '';
             if (state.selectedTypes.includes('video')) {
-                const videoPrompt = state.videoPrompts.map(v => v.prompt).filter(Boolean).join('。') || `${name} 商品展示短视频`;
-                updateProgress(60, refImages.length > 0
-                    ? `正在生成视频（参考 ${refImages.length} 张，比例 ${videoRatio}，排队中，最长 10 分钟）...`
+                let videoPrompt = state.videoPrompts.map(v => v.prompt).filter(Boolean).join('。') || `${name} 商品展示短视频`;
+                // ★ 如果反解成功，用反解出的 prompt 作为主提示词
+                if (videoAnalysis?.prompt) {
+                    videoPrompt = videoAnalysis.prompt;
+                }
+                updateProgress(60, (keyframeUrls.length > 0 || refImages.length > 0)
+                    ? `正在生成同款视频（参考帧 ${keyframeUrls.length} + 图片 ${refImages.length}，比例 ${videoRatio}，排队中，最长 10 分钟）...`
                     : `正在生成视频（比例 ${videoRatio}，排队中，最长 10 分钟）...`);
                 try {
-                    videoUrl = await generateAgnesVideo(videoPrompt, '5', refImages, videoRatio, (attempt, total, status, text) => {
+                    // ★ 合并参考素材：关键帧 URL（优先） + 参考图 dataUrl
+                    const combinedRefs = keyframeUrls.length > 0 ? keyframeUrls : refImages;
+                    videoUrl = await generateAgnesVideo(videoPrompt, '5', combinedRefs, videoRatio, (attempt, total, status, text) => {
                         const pct = 60 + Math.min(35, (attempt / total) * 35);
                         updateProgress(pct, '视频：' + text);
                     });
@@ -1603,7 +2001,11 @@
                 hideGeneratingOverlay();
                 state.isGenerating = false;
 
-                const resultData = { images, copyVersions, detailHTML, videoUrl, platforms, imageRatio, videoRatio };
+                const resultData = {
+                    images, copyVersions, detailHTML, videoUrl,
+                    platforms, imageRatio, videoRatio,
+                    videoAnalysis
+                };
                 state.generatedData = resultData;
                 renderResults(resultData, name);
                 addHistory(name, state.selectedTypes, style, platforms);
@@ -1654,9 +2056,6 @@
         return { copyVersions, detailHTML };
     }
 
-    // ================================================================
-    // 渲染结果
-    // ================================================================
     function renderResults(data, productName) {
         document.getElementById('cnt-images').textContent = (data.images || []).filter(i => i.url).length > 0 ? '1' : '0';
         document.getElementById('cnt-carousel').textContent = (data.images || []).filter(i => i.url).length;
@@ -1741,9 +2140,6 @@
         `).join('');
     }
 
-    // ================================================================
-    // 结果操作
-    // ================================================================
     function downloadImage(url, filename) {
         const a = document.createElement('a');
         a.href = url; a.download = filename; a.target = '_blank'; a.click();
@@ -1774,9 +2170,6 @@
         } else showToast('⚠️ 暂无视频');
     }
 
-    // ================================================================
-    // 同步：商品列表
-    // ================================================================
     async function loadSyncProducts() {
         const box = document.getElementById('syncProductList');
         box.innerHTML = '<div style="text-align:center; padding:20px; color:var(--text-3);"><i class="fas fa-spinner fa-spin"></i> 加载中...</div>';
@@ -1847,9 +2240,6 @@
         renderSubPicker();
     }
 
-    // ================================================================
-    // 同步：副图细粒度
-    // ================================================================
     function toggleSubPicker() {
         const want = document.getElementById('syncSubImages').checked;
         document.getElementById('subPickerWrap').style.display = want ? 'block' : 'none';
@@ -1874,18 +2264,12 @@
         renderSubPicker();
     }
 
-    // ================================================================
-    // 同步：模式选择
-    // ================================================================
     function selectMode(label, mode) {
         document.querySelectorAll('.mode-picker label').forEach(l => l.classList.remove('active'));
         label.classList.add('active');
         syncState.mode = mode;
     }
 
-    // ================================================================
-    // 执行同步
-    // ================================================================
     async function doSyncToProducts() {
         if (syncState.selectedProducts.length === 0) { showToast('⚠️ 请至少选择一个商品'); return; }
         const r = state.generatedData;
@@ -1947,9 +2331,6 @@
         }
     }
 
-    // ================================================================
-    // 进度遮罩
-    // ================================================================
     function showGeneratingOverlay(types) {
         const overlay = document.getElementById('generatingOverlay');
         const steps = document.getElementById('generateSteps');
@@ -1986,9 +2367,6 @@
     }
     function hideGeneratingOverlay() { document.getElementById('generatingOverlay').classList.remove('show'); }
 
-    // ================================================================
-    // 历史
-    // ================================================================
     function addHistory(productName, types, style, platforms) {
         const typeNames = { images: '主图', carousel: '轮播图', copy: '文案', detail: '详情', video: '视频' };
         const entry = {
@@ -2047,9 +2425,6 @@
         document.getElementById('drawerOverlay').classList.remove('show');
     }
 
-    // ================================================================
-    // 初始化
-    // ================================================================
     document.addEventListener('DOMContentLoaded', () => {
         const savedKey = localStorage.getItem('agnes_api_key');
         if (savedKey) document.getElementById('agnesApiKey').value = savedKey;
@@ -2063,9 +2438,7 @@
         toggleSubPicker();
         loadHistory();
         updatePlatformToggleBtn();
-        console.log('🎨 智能素材生成已就绪（Agnes Image 2.5 + Video 2.5 + 13 平台）');
-        console.log('🖼️ 图片模型:', AGNES_IMAGE_MODEL);
-        console.log('🎬 视频模型:', AGNES_VIDEO_MODEL);
+        console.log('🎨 智能素材生成已就绪（Agnes 2.5 + 13 平台 + 参考视频反解）');
     });
 
     // 全局暴露
@@ -2081,6 +2454,8 @@
     window.togglePlatform = togglePlatform;
     window.toggleAllPlatforms = toggleAllPlatforms;
     window.handleFileUpload = handleFileUpload;
+    window.handleVideoUpload = handleVideoUpload;
+    window.clearReferenceVideo = clearReferenceVideo;
     window.updateCarouselPrompt = updateCarouselPrompt;
     window.aiFillCarouselPrompt = aiFillCarouselPrompt;
     window.updateDetailPrompt = updateDetailPrompt;
