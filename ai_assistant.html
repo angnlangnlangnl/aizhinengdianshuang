@@ -147,7 +147,6 @@
         .message .bubble .time { font-size: 11px; color: #94a3b8; margin-top: 6px; display: block; }
         .message.user .bubble .time { color: rgba(255,255,255,0.4); }
 
-        /* 消息操作按钮 */
         .msg-actions {
             display: flex; gap: 4px; margin-top: 6px;
             opacity: 0; transition: 0.15s;
@@ -175,6 +174,54 @@
         .bubble .action-card.executed { opacity: 0.55; }
         .bubble .action-card.executed .btn-group { display: none; }
 
+        /* ✅ 新增：素材预览区（图片/视频） */
+        .bubble .media-preview {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+            gap: 8px;
+            margin: 8px 0 4px 0;
+        }
+        .bubble .media-preview .media-item {
+            aspect-ratio: 1/1;
+            border-radius: 10px;
+            overflow: hidden;
+            background: linear-gradient(135deg, #f0f7fe, #e0f0ff);
+            border: 1px solid #e8edf4;
+            position: relative;
+        }
+        .bubble .media-preview .media-item img { width: 100%; height: 100%; object-fit: cover; }
+        .bubble .media-preview .media-item .badge {
+            position: absolute; top: 4px; left: 4px;
+            font-size: 10px; padding: 1px 6px; border-radius: 8px;
+            background: rgba(10,30,47,0.75); color: white;
+        }
+        .bubble .media-preview .media-item .ph {
+            width: 100%; height: 100%; display: flex; align-items: center; justify-content: center;
+            color: #4dabf7; font-size: 24px;
+        }
+        .bubble .media-preview video {
+            grid-column: 1 / -1;
+            width: 100%;
+            max-height: 320px;
+            border-radius: 10px;
+            background: #0a0e14;
+        }
+
+        /* 生成中的进度条（内联在气泡里） */
+        .bubble .inline-progress {
+            margin-top: 8px;
+            background: #e8edf4;
+            height: 6px;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+        .bubble .inline-progress .fill {
+            height: 100%;
+            background: linear-gradient(90deg, #4dabf7, #0d7c4f);
+            width: 0%;
+            transition: width 0.3s;
+        }
+
         .typing-indicator { display: none; align-items: center; gap: 12px; padding: 8px 0; }
         .typing-indicator.show { display: flex; }
         .typing-indicator .dots span { display: inline-block; width: 8px; height: 8px; background: #94a3b8; border-radius: 50%; margin-right: 4px; animation: dotPulse 1.2s infinite; }
@@ -201,6 +248,8 @@
         .empty-state .examples .ex { padding: 8px 18px; border-radius: 30px; border: 1px solid #dce5ef; font-size: 13px; color: #5f7d95; cursor: pointer; background: white; transition: 0.15s; }
         .empty-state .examples .ex:hover { border-color: #4dabf7; color: #2a7faa; background: #f5f9fe; }
         .empty-state .examples .ex.danger:hover { border-color: #b51a3f; color: #b51a3f; background: #fde8ed; }
+        .empty-state .examples .ex.accent { border-color: #0d7c4f; color: #0d7c4f; background: #f0fff8; }
+        .empty-state .examples .ex.accent:hover { background: #d9f7e6; }
 
         @media (max-width: 1024px) { .sidebar-chat { width: 240px; } }
 
@@ -297,7 +346,6 @@
             }
         }
 
-        /* 通用 toast */
         .global-toast {
             position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%);
             background: #0a1e2f; color: white; padding: 12px 28px;
@@ -348,7 +396,7 @@
         <div class="chat-main-header">
             <div class="info">
                 <h4 id="chatTitle">AI 经营助手</h4>
-                <p id="chatSubtitle">基于 DeepSeek · 33 种指令可用</p>
+                <p id="chatSubtitle">基于 DeepSeek · 33 种指令 + 素材生成</p>
             </div>
             <div class="actions">
                 <span class="btn-sm" onclick="clearMessages()"><i class="fas fa-eraser"></i> 清空</span>
@@ -360,14 +408,13 @@
             <div class="empty-state" id="emptyState">
                 <i class="fas fa-robot"></i>
                 <h3>👋 你好，我是 AI 经营助手</h3>
-                <p>支持 33 种操作：单商品操作、批量操作、数据查询、商品增删、库存预警、CSV导出、图片管理。</p>
+                <p>支持 33 种商品操作 + 素材生成。可单独生成图片/视频，还能把素材同步到指定商品。</p>
                 <div class="examples">
                     <span class="ex" onclick="sendExample('把云山茶叶礼盒的价格改成118元')">💰 改价格</span>
-                    <span class="ex" onclick="sendExample('新增一个商品叫云山红茶，价格88元')">➕ 新增商品</span>
                     <span class="ex" onclick="sendExample('查一下需要补货的商品')">⚠️ 库存预警</span>
+                    <span class="ex accent" onclick="sendExample('给云山茶叶礼盒生成3张主图')">🖼️ 生成主图</span>
+                    <span class="ex accent" onclick="sendExample('给云山茶叶礼盒生成5秒种草短视频')">🎬 生成视频</span>
                     <span class="ex" onclick="sendExample('查看云山茶叶礼盒的图片')">🖼️ 查看图片</span>
-                    <span class="ex" onclick="sendExample('删除云山茶叶礼盒的主图')">🗑️ 删除主图</span>
-                    <span class="ex" onclick="sendExample('清空云山茶叶礼盒的所有副图')">🧹 清空副图</span>
                     <span class="ex" onclick="sendExample('导出所有商品数据到CSV')">📤 导出CSV</span>
                     <span class="ex danger" onclick="sendExample('删除所有文创类商品')">🗑️ 批量删除（高危）</span>
                 </div>
@@ -381,7 +428,7 @@
 
         <div class="input-area">
             <div class="input-wrap">
-                <textarea id="chatInput" rows="1" placeholder="输入你的经营需求，例如：查看云山茶叶礼盒的图片" onkeydown="handleKeyDown(event)" oninput="autoResize(this)"></textarea>
+                <textarea id="chatInput" rows="1" placeholder="试试：给云山茶叶礼盒生成3张主图" onkeydown="handleKeyDown(event)" oninput="autoResize(this)"></textarea>
                 <span class="char-count" id="charCount">0/500</span>
             </div>
             <button class="send-btn" id="sendBtn" onclick="sendMessage()" disabled><i class="fas fa-paper-plane"></i></button>
@@ -393,16 +440,36 @@
 <div class="global-toast" id="toast"></div>
 
 <script>
+    // ================================================================
+    // 配置
+    // ================================================================
     const BACKEND_URL = 'https://ai-ecommerce-backend-production-0776.up.railway.app';
     const STORAGE_KEY = 'ai_chat_history';
     const MAX_HISTORY = 50;
 
+    // Agnes AI（沿用素材生成页）
+    const AGNES_API_BASE = 'https://apihub.agnes-ai.com/v1';
+    const AGNES_IMAGE_MODEL = 'agnes-image-2.0-flash';
+    const AGNES_VIDEO_MODEL = 'agnes-video-2.5-flash';
+    const AGNES_API_KEY_DEFAULT = 'sk-XmLjN9e3Mhh8wf';
+
+    function getAgnesApiKey() {
+        return localStorage.getItem('agnes_api_key') || AGNES_API_KEY_DEFAULT;
+    }
+
+    // ================================================================
+    // 状态
+    // ================================================================
     const state = {
         currentChatId: null,
         isProcessing: false,
-        pendingActions: {},     // ✅ 按 ID 索引
-        currentMessages: [],    // ✅ 当前对话的消息缓存
-        lastUserText: ''        // ✅ 用于"重试上一条"
+        pendingActions: {},
+        currentMessages: [],
+        lastUserText: '',
+        // ✅ 素材生成会话：暂存最近一次生成的素材，供后续"替换到商品"
+        lastGeneratedMedia: null,   // { type: 'images'|'video', urls: [], videoUrl, prompt, productName }
+        // 当前正在流式更新的气泡
+        streamingBubble: null
     };
 
     let historyData = [];
@@ -424,7 +491,7 @@
     }
 
     // ================================================================
-    // 侧边栏开关（移动端）
+    // 侧边栏开关
     // ================================================================
     function toggleSidebar() {
         const sidebar = document.getElementById('sidebarChat');
@@ -435,14 +502,13 @@
             overlay.classList.add('show');
         }
     }
-
     function closeSidebar() {
         document.getElementById('sidebarChat').classList.remove('show');
         document.getElementById('sidebarOverlay').classList.remove('show');
     }
 
     // ================================================================
-    // 历史渲染
+    // 历史
     // ================================================================
     function renderHistory() {
         const container = document.getElementById('chatHistoryList');
@@ -465,9 +531,6 @@
         `).join('');
     }
 
-    // ================================================================
-    // ✅ 修复：单一 loadHistory，无自我覆盖
-    // ================================================================
     function loadHistory(id) {
         const item = historyData.find(h => h.id === id);
         if (!item) return;
@@ -486,9 +549,7 @@
         } else {
             document.getElementById('emptyState').style.display = 'none';
             state.currentMessages.forEach(m => {
-                if (m.card && m.card.actionId) {
-                    state.pendingActions[m.card.actionId] = m.card.rawAction;
-                }
+                if (m.card && m.card.actionId) state.pendingActions[m.card.actionId] = m.card.rawAction;
                 renderMessageNode(m);
             });
         }
@@ -504,7 +565,7 @@
             document.getElementById('messagesList').innerHTML = '';
             document.getElementById('emptyState').style.display = 'flex';
             document.getElementById('chatTitle').textContent = 'AI 经营助手';
-            document.getElementById('chatSubtitle').textContent = '基于 DeepSeek · 33 种指令可用';
+            document.getElementById('chatSubtitle').textContent = '基于 DeepSeek · 33 种指令 + 素材生成';
         }
         saveHistoryToStorage();
         renderHistory();
@@ -525,9 +586,10 @@
         state.currentChatId = null;
         state.currentMessages = [];
         state.pendingActions = {};
+        state.lastGeneratedMedia = null;
         renderHistory();
         document.getElementById('chatTitle').textContent = 'AI 经营助手';
-        document.getElementById('chatSubtitle').textContent = '基于 DeepSeek · 33 种指令可用';
+        document.getElementById('chatSubtitle').textContent = '基于 DeepSeek · 33 种指令 + 素材生成';
         document.getElementById('messagesList').innerHTML = '';
         document.getElementById('emptyState').style.display = 'flex';
         document.getElementById('chatInput').value = '';
@@ -546,18 +608,12 @@
         })[c]);
     }
 
-    // ✅ 轻量 markdown：**加粗**、`代码`、- 列表、1. 列表、```代码块```
     function renderMarkdown(text) {
         if (!text) return '';
         let s = escapeHtml(text);
-
-        // 代码块
         s = s.replace(/```([\s\S]*?)```/g, (_, code) => `<pre>${code.trim()}</pre>`);
-        // 行内代码
         s = s.replace(/`([^`\n]+)`/g, '<code>$1</code>');
-        // 加粗
         s = s.replace(/\*\*([^*\n]+)\*\*/g, '<strong>$1</strong>');
-        // 无序列表
         const lines = s.split('\n');
         const out = [];
         let inUl = false, inOl = false;
@@ -578,17 +634,17 @@
         }
         if (inUl) out.push('</ul>');
         if (inOl) out.push('</ol>');
-
         return out.join('\n').replace(/\n/g, '<br>').replace(/<\/pre><br>/g, '</pre>').replace(/<br><pre>/g, '<pre>');
     }
 
     function appendMessage(msg) {
-        // ✅ 同步缓存
+        if (!msg.id) msg.id = 'm_' + Date.now() + '_' + Math.random().toString(36).slice(2, 6);
         state.currentMessages.push(msg);
         renderMessageNode(msg);
         syncCurrentChatToHistory();
         const container = document.getElementById('messageContainer');
         setTimeout(() => { container.scrollTop = container.scrollHeight; }, 50);
+        return msg.id;
     }
 
     function renderMessageNode(msg) {
@@ -598,12 +654,35 @@
 
         const div = document.createElement('div');
         div.className = `message ${msg.role}`;
-        if (msg.id) div.dataset.msgId = msg.id;
+        div.dataset.msgId = msg.id || '';
         const avatarIcon = msg.role === 'user' ? '<i class="fas fa-user"></i>' : '<i class="fas fa-robot"></i>';
         const avatarClass = msg.role === 'user' ? 'user' : 'ai';
 
         let bubbleContent = `<div class="bubble">`;
-        if (msg.text) bubbleContent += `<p>${renderMarkdown(msg.text)}</p>`;
+        if (msg.text) bubbleContent += `<p class="msg-text">${renderMarkdown(msg.text)}</p>`;
+
+        // ✅ 素材预览
+        if (msg.media) {
+            bubbleContent += `<div class="media-preview">`;
+            if (msg.media.type === 'images' && msg.media.urls && msg.media.urls.length > 0) {
+                msg.media.urls.forEach((url, i) => {
+                    bubbleContent += `<div class="media-item">${url ? `<img src="${url}" alt="图${i+1}">` : `<div class="ph"><i class="fas fa-image"></i></div>`}<span class="badge">#${i+1}</span></div>`;
+                });
+            } else if (msg.media.type === 'video') {
+                if (msg.media.videoUrl) {
+                    bubbleContent += `<video src="${msg.media.videoUrl}" controls preload="metadata"></video>`;
+                } else {
+                    bubbleContent += `<div class="media-item" style="grid-column:1/-1; aspect-ratio:16/9;"><div class="ph"><i class="fas fa-video"></i></div></div>`;
+                }
+            }
+            bubbleContent += `</div>`;
+        }
+
+        // ✅ 内联进度条（生成中）
+        if (msg.progress !== undefined) {
+            bubbleContent += `<div class="inline-progress"><div class="fill" style="width:${msg.progress}%"></div></div>`;
+        }
+
         if (msg.card) {
             const actionId = msg.card.actionId || '';
             const executed = msg.card.executed ? 'executed' : '';
@@ -623,7 +702,6 @@
         bubbleContent += `<span class="time">${msg.time || new Date().toLocaleTimeString('zh-CN', {hour:'2-digit',minute:'2-digit'})}</span>`;
         bubbleContent += `</div>`;
 
-        // ✅ 消息操作按钮
         let actionsHtml = '';
         if (msg.role === 'ai') {
             actionsHtml = `
@@ -645,36 +723,38 @@
         list.appendChild(div);
     }
 
-    // ================================================================
-    // ✅ 修复：把当前对话同步到历史（带完整 messages）
-    // ================================================================
+    // 更新某条消息的气泡内容（用于流式更新）
+    function updateMessageNode(msg) {
+        const list = document.getElementById('messagesList');
+        const oldNode = list.querySelector(`.message[data-msg-id="${msg.id}"]`);
+        if (!oldNode) return;
+        oldNode.remove();
+        renderMessageNode(msg);
+        const container = document.getElementById('messageContainer');
+        setTimeout(() => { container.scrollTop = container.scrollHeight; }, 30);
+    }
+
     function syncCurrentChatToHistory() {
         if (state.currentMessages.length === 0) return;
-
-        if (!state.currentChatId) {
-            state.currentChatId = 'h' + Date.now();
-        }
+        if (!state.currentChatId) state.currentChatId = 'h' + Date.now();
 
         const firstUser = state.currentMessages.find(m => m.role === 'user');
         const firstAI = state.currentMessages.find(m => m.role === 'ai');
         const nowStr = nowTime();
 
-        // 序列化时剥离掉运行时可能残留的 DOM 引用
         const cleanMessages = state.currentMessages.map(m => ({
+            id: m.id,
             role: m.role,
             text: m.text || '',
             time: m.time || nowStr,
+            media: m.media || null,
             card: m.card ? {
                 title: m.card.title,
                 desc: m.card.desc,
                 actionId: m.card.actionId || '',
                 rawAction: m.card.rawAction || null,
                 executed: !!m.card.executed,
-                actions: (m.card.actions || []).map(a => ({
-                    label: a.label,
-                    type: a.type,
-                    onclick: a.onclick
-                }))
+                actions: (m.card.actions || []).map(a => ({ label: a.label, type: a.type, onclick: a.onclick }))
             } : null,
             retryable: !!m.retryable
         }));
@@ -682,7 +762,7 @@
         const entry = {
             id: state.currentChatId,
             title: firstUser ? firstUser.text.slice(0, 20) + (firstUser.text.length > 20 ? '...' : '') : '新对话',
-            preview: firstAI ? (firstAI.text || (firstAI.card ? firstAI.card.title : '') || '').slice(0, 30) : '',
+            preview: firstAI ? (firstAI.text || (firstAI.card ? firstAI.card.title : '') || '') .slice(0, 30) : '',
             time: nowStr,
             tag: '运营',
             messages: cleanMessages
@@ -756,6 +836,320 @@
     }
 
     // ================================================================
+    // ✅ 新增：意图识别 —— 判断是否是"生成图片/视频"指令
+    // ================================================================
+    function parseGenerationIntent(text) {
+        const t = text.trim();
+
+        // 关键词
+        const imgKeywords = ['生成', '做', '画', '出', '来', '弄'];
+        const imgNouns = ['主图', '图片', '图', '商品图', '海报', '轮播图', '详情图'];
+        const videoNouns = ['视频', '短视频', '种草视频', '广告片'];
+
+        const hasImgVerb = imgKeywords.some(k => t.includes(k));
+        const hasImgNoun = imgNouns.some(k => t.includes(k));
+        const hasVideoNoun = videoNouns.some(k => t.includes(k));
+
+        // 提取数量："3张"、"5张"、"1个"、"2条"
+        let count = 1;
+        const countMatch = t.match(/(\d+)\s*[张个条段]/);
+        if (countMatch) count = Math.min(10, parseInt(countMatch[1], 10));
+        else if (hasImgNoun && (t.includes('轮播') || t.includes('全部') || t.includes('一套'))) count = 5;
+
+        // 提取商品名：常见句式 "给XXX生成" / "为XXX生成" / "XXX的图片"
+        let productName = '';
+        const m1 = t.match(/[给为]([^\s，,。]{2,20}?)(?:生成|做|画|出|来|弄)/);
+        if (m1) productName = m1[1];
+        if (!productName) {
+            const m2 = t.match(/([^\s，,。]{2,20}?)(?:的|主图|图片|视频|轮播图|海报|种草)/);
+            if (m2) productName = m2[1];
+        }
+        productName = productName.replace(/^的|生成$|做$|画$|出$|来$|弄$/, '').trim();
+
+        // 提取补充描述（用于提示词）
+        const descMatch = t.match(/[，,](.+)$/);
+        const extraDesc = descMatch ? descMatch[1].trim() : '';
+
+        // 判定
+        if (hasVideoNoun) {
+            // 时长："5秒" "10秒" "15秒"
+            let seconds = '5';
+            const secMatch = t.match(/(\d+)\s*秒/);
+            if (secMatch) {
+                const s = parseInt(secMatch[1], 10);
+                if (s >= 4 && s <= 12) seconds = String(s);
+            }
+            return {
+                kind: 'video',
+                count: 1,
+                productName,
+                seconds,
+                extraDesc
+            };
+        }
+        if (hasImgVerb && hasImgNoun) {
+            return {
+                kind: 'images',
+                count,
+                productName,
+                extraDesc
+            };
+        }
+        return null;
+    }
+
+    // ================================================================
+    // ✅ 新增：Agnes 图片生成
+    // ================================================================
+    async function generateAgnesImage(prompt, size = '1024x1024') {
+        const apiKey = getAgnesApiKey();
+        const body = { model: AGNES_IMAGE_MODEL, prompt, size };
+
+        const res = await fetch(AGNES_API_BASE + '/images/generations', {
+            method: 'POST',
+            headers: { 'Authorization': 'Bearer ' + apiKey, 'Content-Type': 'application/json' },
+            body: JSON.stringify(body)
+        });
+        if (!res.ok) {
+            const errText = await res.text();
+            throw new Error(`图片生成失败 (${res.status}): ${errText.slice(0, 200)}`);
+        }
+        const data = await res.json();
+        if (data.data && data.data[0] && data.data[0].url) return data.data[0].url;
+        if (data.data && data.data[0] && data.data[0].b64_json) return 'data:image/png;base64,' + data.data[0].b64_json;
+        throw new Error('图片生成返回格式异常');
+    }
+
+    // ================================================================
+    // ✅ 新增：Agnes 视频生成（含 503/429 重试）
+    // ================================================================
+    async function createVideoTaskWithRetry(apiKey, body, maxRetries = 4) {
+        let lastErr = null;
+        for (let attempt = 1; attempt <= maxRetries; attempt++) {
+            let res;
+            try {
+                res = await fetch(AGNES_API_BASE + '/videos', {
+                    method: 'POST',
+                    headers: { 'Authorization': 'Bearer ' + apiKey, 'Content-Type': 'application/json' },
+                    body: JSON.stringify(body)
+                });
+            } catch (netErr) {
+                lastErr = netErr;
+                if (attempt === maxRetries) throw netErr;
+                const wait = 10000 * Math.pow(2, attempt - 1);
+                await new Promise(r => setTimeout(r, wait));
+                continue;
+            }
+            if (res.ok) return await res.json();
+            const status = res.status;
+            const errText = await res.text().catch(() => '');
+            lastErr = new Error(`视频任务创建失败 (${status}): ${errText.slice(0, 300)}`);
+            if (status === 429) throw new Error('视频服务速率限制（免费账号）。请等待 1-2 分钟后再试。');
+            const retryable = [502, 503, 504].includes(status);
+            if (!retryable || attempt === maxRetries) throw lastErr;
+            const wait = 10000 * Math.pow(2, attempt - 1);
+            showToast(`⏳ 视频队列繁忙，${Math.round(wait/1000)}s 后重试（${attempt}/${maxRetries}）`);
+            await new Promise(r => setTimeout(r, wait));
+        }
+        throw lastErr || new Error('视频任务创建失败');
+    }
+
+    async function generateAgnesVideo(prompt, seconds = '5', onProgress) {
+        const apiKey = getAgnesApiKey();
+        const body = {
+            model: AGNES_VIDEO_MODEL, prompt, seconds,
+            mode: 'text', size: '720P', aspect_ratio: '9:16', n: 1
+        };
+
+        const createData = await createVideoTaskWithRetry(apiKey, body, 4);
+        const videoId = createData.video_id;
+        if (!videoId) { console.error(createData); throw new Error('创建任务未返回 video_id'); }
+
+        const maxAttempts = 300, intervalMs = 2000;
+        let lastStatus = '';
+        for (let i = 0; i < maxAttempts; i++) {
+            await new Promise(r => setTimeout(r, intervalMs));
+            let queryRes;
+            try {
+                queryRes = await fetch(`https://apihub.agnes-ai.com/agnesapi?video_id=${encodeURIComponent(videoId)}&model_name=${encodeURIComponent(AGNES_VIDEO_MODEL)}`,
+                    { headers: { 'Authorization': 'Bearer ' + apiKey } });
+            } catch { continue; }
+            if (!queryRes.ok) {
+                if (queryRes.status === 401 || queryRes.status === 403) throw new Error('鉴权失败');
+                if (queryRes.status === 404) throw new Error('video_id 无效');
+                continue;
+            }
+            const qd = await queryRes.json();
+            const status = qd.status;
+            lastStatus = status || lastStatus;
+            let statusText = '';
+            if (status === 'pending' || status === 'queued') statusText = `排队中... (第 ${i + 1} 次查询)`;
+            else if (status === 'processing' || status === 'running') {
+                const pct = (typeof qd.progress === 'number') ? qd.progress : Math.min(99, Math.round((i / maxAttempts) * 100));
+                statusText = `生成中... (${pct}%)`;
+            } else statusText = `状态：${status}`;
+            if (typeof onProgress === 'function') onProgress(i + 1, maxAttempts, status, statusText);
+
+            if (status === 'completed') {
+                const url = qd.url || (qd.data && qd.data.url);
+                if (url) return url;
+                throw new Error('视频已完成但未返回 URL');
+            }
+            if (status === 'failed') {
+                const errMsg = (qd.error && (qd.error.message || qd.error.code)) || qd.error || '未知错误';
+                throw new Error('视频生成失败：' + errMsg);
+            }
+        }
+        throw new Error(`视频生成超时（最后状态：${lastStatus}）`);
+    }
+
+    // ================================================================
+    // ✅ 新增：执行"生成图片/视频"流程
+    // ================================================================
+    async function handleGenerationIntent(intent, originalText) {
+        const { kind, count, productName, seconds, extraDesc } = intent;
+
+        // 构造基础提示词
+        let baseProduct = productName;
+        if (!baseProduct) {
+            // 没有商品名时，尝试从最近一条 AI 消息里找（或默认）
+            baseProduct = '商品';
+        }
+
+        if (kind === 'images') {
+            // 先反馈
+            const aiMsg = {
+                role: 'ai',
+                text: `🎨 已开始为「${baseProduct}」生成 ${count} 张主图...`,
+                time: nowTime(),
+                progress: 0
+            };
+            const msgId = appendMessage(aiMsg);
+
+            const urls = [];
+            for (let i = 0; i < count; i++) {
+                try {
+                    const prompt = `${baseProduct}，${['正面主图，突出包装设计，暖色调', '细节特写，展示材质质感', '礼盒展开效果，温馨氛围', '使用场景图，优雅自然', '赠品组合图，超值感'][i % 5]}${extraDesc ? '，' + extraDesc : ''}`;
+                    const url = await generateAgnesImage(prompt, '1024x1024');
+                    urls.push(url);
+                } catch (err) {
+                    console.warn('单张失败:', err);
+                    urls.push('');
+                }
+                // 更新进度
+                const m = state.currentMessages.find(x => x.id === msgId);
+                if (m) {
+                    m.progress = Math.round(((i + 1) / count) * 100);
+                    m.text = `🎨 正在为「${baseProduct}」生成主图（${i + 1}/${count}）...`;
+                    updateMessageNode(m);
+                }
+            }
+
+            // 更新最终消息
+            const m = state.currentMessages.find(x => x.id === msgId);
+            if (m) {
+                const validCount = urls.filter(u => u).length;
+                m.progress = undefined;
+                m.media = { type: 'images', urls };
+                m.text = `✅ 已为「${baseProduct}」生成 ${validCount}/${count} 张主图`;
+                m.card = {
+                    title: '📌 下一步',
+                    desc: `是否将这套主图替换到商品「${baseProduct}」？\n（只会覆盖商品主图，不影响其它素材）`,
+                    actionId: 'sync_' + Date.now(),
+                    rawAction: {
+                        type: 'sync_generated_media',
+                        args: {
+                            product_name: baseProduct,
+                            media_type: 'main_image',
+                            urls,
+                            mode: 'replace'
+                        }
+                    },
+                    actions: [
+                        { label: '✅ 替换到商品', type: 'confirm', onclick: `confirmAction('sync_${Date.now()}')` },
+                        { label: '✖ 不用了', type: 'cancel', onclick: `cancelAction('sync_${Date.now()}')` }
+                    ]
+                };
+                // 修正 actionId 与实际 onclick 一致
+                const syncId = m.card.actionId;
+                m.card.actions = [
+                    { label: '✅ 替换到商品', type: 'confirm', onclick: `confirmAction('${syncId}')` },
+                    { label: '✖ 不用了', type: 'cancel', onclick: `cancelAction('${syncId}')` }
+                ];
+                state.pendingActions[syncId] = m.card.rawAction;
+                updateMessageNode(m);
+            }
+
+            // 暂存
+            state.lastGeneratedMedia = { type: 'images', urls, productName: baseProduct };
+            return;
+        }
+
+        if (kind === 'video') {
+            const aiMsg = {
+                role: 'ai',
+                text: `🎬 已开始为「${baseProduct}」生成 ${seconds} 秒种草视频（排队中，最长 10 分钟）...`,
+                time: nowTime(),
+                progress: 0
+            };
+            const msgId = appendMessage(aiMsg);
+
+            let videoUrl = '';
+            try {
+                const prompt = `${baseProduct} 商品展示短视频${extraDesc ? '，' + extraDesc : ''}`;
+                videoUrl = await generateAgnesVideo(prompt, seconds, (attempt, total, status, text) => {
+                    const m = state.currentMessages.find(x => x.id === msgId);
+                    if (m) {
+                        m.progress = Math.min(95, Math.round((attempt / total) * 100));
+                        m.text = `🎬 正在生成「${baseProduct}」视频：${text}`;
+                        updateMessageNode(m);
+                    }
+                });
+            } catch (err) {
+                const m = state.currentMessages.find(x => x.id === msgId);
+                if (m) {
+                    m.progress = undefined;
+                    m.text = `❌ 视频生成失败：${err.message}`;
+                    m.retryable = true;
+                    updateMessageNode(m);
+                }
+                return;
+            }
+
+            const m = state.currentMessages.find(x => x.id === msgId);
+            if (m) {
+                m.progress = undefined;
+                m.media = { type: 'video', videoUrl };
+                m.text = `✅ 已为「${baseProduct}」生成 ${seconds} 秒种草视频`;
+                const syncId = 'sync_' + Date.now();
+                m.card = {
+                    title: '📌 下一步',
+                    desc: `是否将这段视频替换到商品「${baseProduct}」？\n（会覆盖商品原有视频）`,
+                    actionId: syncId,
+                    rawAction: {
+                        type: 'sync_generated_media',
+                        args: {
+                            product_name: baseProduct,
+                            media_type: 'video',
+                            video_url: videoUrl,
+                            mode: 'replace'
+                        }
+                    },
+                    actions: [
+                        { label: '✅ 替换到商品', type: 'confirm', onclick: `confirmAction('${syncId}')` },
+                        { label: '✖ 不用了', type: 'cancel', onclick: `cancelAction('${syncId}')` }
+                    ]
+                };
+                state.pendingActions[syncId] = m.card.rawAction;
+                updateMessageNode(m);
+            }
+
+            state.lastGeneratedMedia = { type: 'video', videoUrl, productName: baseProduct };
+            return;
+        }
+    }
+
+    // ================================================================
     // 发送消息
     // ================================================================
     async function sendMessage() {
@@ -772,6 +1166,22 @@
 
         state.isProcessing = true;
         document.getElementById('sendBtn').disabled = true;
+
+        // ✅ 先检测是否是"生成图片/视频"意图
+        const genIntent = parseGenerationIntent(text);
+        if (genIntent) {
+            document.getElementById('typingIndicator').classList.remove('show');
+            try {
+                await handleGenerationIntent(genIntent, text);
+            } catch (err) {
+                appendMessage({ role: 'ai', text: friendlyError(err), time: nowTime(), retryable: true });
+            }
+            state.isProcessing = false;
+            updateSendBtn();
+            return;
+        }
+
+        // 否则走原有的意图解析
         document.getElementById('typingIndicator').classList.add('show');
         document.getElementById('messageContainer').scrollTop = document.getElementById('messageContainer').scrollHeight;
 
@@ -789,7 +1199,6 @@
             if (data.type === 'chat' || data.type === 'error') {
                 appendMessage({ role: 'ai', text: data.text || '抱歉，AI 服务暂时不可用。', time: nowTime(), retryable: data.type === 'error' });
             } else {
-                // ✅ 为每个操作生成独立 ID
                 const actionId = 'act_' + Date.now() + '_' + Math.random().toString(36).slice(2, 6);
                 state.pendingActions[actionId] = data;
 
@@ -813,7 +1222,6 @@
                     }
                 });
             }
-
         } catch (err) {
             document.getElementById('typingIndicator').classList.remove('show');
             appendMessage({ role: 'ai', text: friendlyError(err), time: nowTime(), retryable: true });
@@ -824,18 +1232,20 @@
     }
 
     // ================================================================
-    // ✅ 修复：按 actionId 确认
+    // 执行确认
     // ================================================================
     async function confirmAction(actionId) {
         const action = state.pendingActions[actionId];
         if (!action) { showToast('⚠️ 该操作已失效或已执行'); return; }
         delete state.pendingActions[actionId];
-
-        // 标记卡片为已执行
         markCardExecuted(actionId);
 
-        showToast('⏳ 正在执行...');
+        // ✅ 特殊处理：同步生成的素材到商品
+        if (action.type === 'sync_generated_media') {
+            return await syncGeneratedMedia(action.args);
+        }
 
+        showToast('⏳ 正在执行...');
         try {
             const res = await fetch(BACKEND_URL + '/api/ai/execute', {
                 method: 'POST',
@@ -855,12 +1265,46 @@
         }
     }
 
+    // ================================================================
+    // ✅ 新增：把生成的素材同步到商品
+    // ================================================================
+    async function syncGeneratedMedia(args) {
+        const { product_name, media_type, urls, video_url, mode } = args;
+        showToast('⏳ 正在替换到商品...');
+
+        const payload = {
+            product_names: [product_name],
+            mode: mode || 'replace'
+        };
+        if (media_type === 'main_image' && urls && urls.length > 0) {
+            // 主图 = 第一张；副图 = 全部
+            payload.main_image = urls[0];
+            payload.sub_images = urls.slice(0, 5);
+        } else if (media_type === 'video' && video_url) {
+            payload.video = video_url;
+        }
+
+        try {
+            const res = await fetch(BACKEND_URL + '/api/materials/sync', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
+            });
+            const data = await res.json();
+            if (data.success) {
+                appendMessage({ role: 'ai', text: `✅ 已替换到商品「${product_name}」`, time: nowTime() });
+            } else {
+                appendMessage({ role: 'ai', text: '❌ ' + (data.message || '替换失败'), time: nowTime() });
+            }
+        } catch (err) {
+            appendMessage({ role: 'ai', text: '❌ 替换失败：' + friendlyError(err), time: nowTime() });
+        }
+    }
+
     function markCardExecuted(actionId) {
-        // 更新缓存
         state.currentMessages.forEach(m => {
             if (m.card && m.card.actionId === actionId) m.card.executed = true;
         });
-        // 更新 DOM
         const list = document.getElementById('messagesList');
         list.querySelectorAll('.action-card').forEach(card => {
             const btn = card.querySelector('.btn-sm');
@@ -877,12 +1321,11 @@
     }
 
     // ================================================================
-    // 消息操作：复制 / 重试 / 重发
+    // 消息操作
     // ================================================================
     function copyMessageText(btn) {
         const msgDiv = btn.closest('.message');
         const bubble = msgDiv.querySelector('.bubble');
-        // 只取 p 的文本，跳过按钮
         const text = Array.from(bubble.querySelectorAll('p')).map(p => p.innerText).join('\n');
         if (!text) { showToast('⚠️ 无可复制内容'); return; }
         navigator.clipboard.writeText(text).then(() => showToast('📋 已复制'))
@@ -904,18 +1347,18 @@
         document.getElementById('chatInput').value = text;
         autoResize(document.getElementById('chatInput'));
         document.getElementById('chatInput').focus();
-        showToast('✏️ 已填入输入框，可修改后发送');
+        showToast('✏️ 已填入输入框');
     }
 
     // ================================================================
-    // 工具函数
+    // 工具
     // ================================================================
     function friendlyError(err) {
         const msg = (err && err.message) || '';
         if (msg.includes('Failed to fetch') || msg.includes('NetworkError')) return '🌐 网络连接失败，请确认后端服务已启动';
         if (msg.includes('500')) return '🔧 后端服务异常（500），请稍后重试';
         if (msg.includes('429')) return '⏳ 请求过于频繁（429），请稍等几秒再试';
-        if (msg.includes('401') || msg.includes('403')) return '🔒 鉴权失败，请检查后端配置';
+        if (msg.includes('401') || msg.includes('403')) return '🔒 鉴权失败，请检查配置';
         if (msg.includes('timeout')) return '⌛ 请求超时，请检查网络';
         return '⚠️ ' + msg;
     }
@@ -939,7 +1382,7 @@
         document.getElementById('messagesList').innerHTML = '';
         document.getElementById('emptyState').style.display = 'flex';
         document.getElementById('chatTitle').textContent = 'AI 经营助手';
-        document.getElementById('chatSubtitle').textContent = '基于 DeepSeek · 33 种指令可用';
+        document.getElementById('chatSubtitle').textContent = '基于 DeepSeek · 33 种指令 + 素材生成';
         state.currentChatId = null;
         state.currentMessages = [];
         state.pendingActions = {};
@@ -947,7 +1390,6 @@
         showToast('🗑️ 已清空对话');
     }
 
-    // ✅ 修复：导出只取正文
     function exportChat() {
         const msgs = document.querySelectorAll('#messagesList .message');
         if (msgs.length === 0) { showToast('⚠️ 暂无对话可导出'); return; }
@@ -968,7 +1410,7 @@
             if (card) {
                 const cardTitle = card.querySelector('.title')?.innerText.trim() || '';
                 const cardDesc = card.querySelector('.desc')?.innerText.trim() || '';
-                cardText = `【操作卡片】${cardTitle}${cardDesc ? ' - ' + cardDesc.replace(/\n/g, ' ') : ''}`;
+                cardText = `【卡片】${cardTitle}${cardDesc ? ' - ' + cardDesc.replace(/\n/g, ' ') : ''}`;
             }
 
             text += `[${role}] ${content}\n`;
@@ -1008,7 +1450,6 @@
         count.style.color = len > 450 ? '#b51a3f' : '#94a3b8';
     }
 
-    // ✅ 空输入禁用发送
     function updateSendBtn() {
         const input = document.getElementById('chatInput');
         const btn = document.getElementById('sendBtn');
@@ -1045,8 +1486,9 @@
         if (window.innerWidth > 768) closeSidebar();
     });
 
-    console.log('🤖 智控电商 · AI助手已加载（修复版 · 历史持久化 + 多操作队列 + markdown）');
+    console.log('🤖 智控电商 · AI助手已加载（历史持久化 + 多操作队列 + markdown + 素材生成 + 同步到商品）');
     console.log('💡 后端:', BACKEND_URL);
+    console.log('🎨 Agnes 图片:', AGNES_IMAGE_MODEL, '| 视频:', AGNES_VIDEO_MODEL);
 </script>
 </body>
 </html>
