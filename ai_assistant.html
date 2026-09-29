@@ -187,23 +187,47 @@
             background: linear-gradient(135deg, #f0f7fe, #e0f0ff);
             border: 1px solid #e8edf4;
             position: relative;
+            cursor: zoom-in;   /* ★ 点击放大 */
+            transition: 0.15s;
+        }
+        .bubble .media-preview .media-item:hover {
+            transform: scale(1.02);
+            box-shadow: 0 4px 12px rgba(77,171,247,0.2);
         }
         .bubble .media-preview .media-item img { width: 100%; height: 100%; object-fit: cover; }
         .bubble .media-preview .media-item .badge {
             position: absolute; top: 4px; left: 4px;
             font-size: 10px; padding: 1px 6px; border-radius: 8px;
             background: rgba(10,30,47,0.75); color: white;
+            z-index: 2;
+        }
+        .bubble .media-preview .media-item .badge.kf {
+            background: rgba(77,171,247,0.9);
         }
         .bubble .media-preview .media-item .ph {
             width: 100%; height: 100%; display: flex; align-items: center; justify-content: center;
             color: #4dabf7; font-size: 24px;
         }
+        .bubble .media-preview .media-item .zoom-hint {
+            position: absolute;
+            bottom: 4px; right: 4px;
+            font-size: 10px;
+            padding: 2px 6px;
+            border-radius: 8px;
+            background: rgba(10,30,47,0.75);
+            color: white;
+            opacity: 0;
+            transition: 0.15s;
+            z-index: 2;
+        }
+        .bubble .media-preview .media-item:hover .zoom-hint { opacity: 1; }
         .bubble .media-preview video {
             grid-column: 1 / -1;
             width: 100%;
             max-height: 320px;
             border-radius: 10px;
             background: #0a0e14;
+            cursor: zoom-in;   /* ★ 点击放大 */
         }
         .bubble .media-preview.ref-preview {
             grid-template-columns: repeat(auto-fill, minmax(72px, 1fr));
@@ -212,12 +236,10 @@
         }
         .bubble .media-preview.ref-preview .media-item {
             border-color: rgba(255,255,255,0.4);
+            cursor: zoom-in;
         }
         .bubble .media-preview.ref-preview .badge {
             background: rgba(13,124,79,0.85);
-        }
-        .bubble .media-preview.ref-preview .badge.kf {
-            background: rgba(77,171,247,0.85);
         }
 
         .bubble .analysis-card {
@@ -435,7 +457,7 @@
             padding: 6px;
             display: none;
             z-index: 100;
-            min-width: 220px;
+            min-width: 240px;
         }
         .attach-menu.show { display: block; animation: fadeUpSmall 0.2s ease; }
         @keyframes fadeUpSmall { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
@@ -470,6 +492,92 @@
         .empty-state .examples .ex.danger:hover { border-color: #b51a3f; color: #b51a3f; background: #fde8ed; }
         .empty-state .examples .ex.accent { border-color: #0d7c4f; color: #0d7c4f; background: #f0fff8; }
         .empty-state .examples .ex.accent:hover { background: #d9f7e6; }
+
+        /* ★ 图片放大灯箱 */
+        .lightbox {
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0,0,0,0.92);
+            z-index: 10000;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            padding: 40px 20px;
+            cursor: zoom-out;
+        }
+        .lightbox.show { display: flex; animation: fadeInLightbox 0.2s ease; }
+        @keyframes fadeInLightbox { from { opacity: 0; } to { opacity: 1; } }
+        .lightbox-content {
+            max-width: 100%;
+            max-height: 100%;
+            position: relative;
+            cursor: default;
+        }
+        .lightbox-content img,
+        .lightbox-content video {
+            max-width: 100%;
+            max-height: calc(100vh - 80px);
+            max-height: calc(100dvh - 80px);
+            border-radius: 12px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+            display: block;
+            background: #000;
+        }
+        .lightbox-close {
+            position: absolute;
+            top: -16px;
+            right: -16px;
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background: white;
+            color: #0a1e2f;
+            border: none;
+            font-size: 18px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+            z-index: 2;
+        }
+        .lightbox-close:hover { background: #f0f4f9; }
+        .lightbox-actions {
+            position: absolute;
+            bottom: -50px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 8px;
+        }
+        .lightbox-actions button,
+        .lightbox-actions a {
+            padding: 8px 16px;
+            border-radius: 20px;
+            background: rgba(255,255,255,0.15);
+            backdrop-filter: blur(10px);
+            color: white;
+            border: 1px solid rgba(255,255,255,0.2);
+            font-size: 13px;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            transition: 0.15s;
+        }
+        .lightbox-actions button:hover,
+        .lightbox-actions a:hover { background: rgba(255,255,255,0.25); }
+        .lightbox-caption {
+            position: absolute;
+            top: -40px;
+            left: 0;
+            right: 0;
+            color: white;
+            font-size: 14px;
+            text-align: center;
+            opacity: 0.85;
+        }
 
         @media (max-width: 1024px) { .sidebar-chat { width: 240px; } }
 
@@ -536,6 +644,10 @@
             .empty-state p { font-size: 13px; }
             .empty-state .examples { gap: 8px; margin-top: 12px; }
             .empty-state .examples .ex { padding: 7px 14px; font-size: 12px; }
+
+            .lightbox { padding: 20px 10px; }
+            .lightbox-close { top: 10px; right: 10px; width: 40px; height: 40px; }
+            .lightbox-actions { bottom: 10px; }
         }
 
         @media (max-width: 480px) {
@@ -616,7 +728,7 @@
         <div class="chat-main-header">
             <div class="info">
                 <h4 id="chatTitle">AI 经营助手</h4>
-                <p id="chatSubtitle">基于 DeepSeek · 33 种指令 + 素材生成 + 视频反解</p>
+                <p id="chatSubtitle">基于 DeepSeek · 33 种指令 + 图片/视频/海报生成 + 视频反解</p>
             </div>
             <div class="actions">
                 <span class="btn-sm" onclick="clearMessages()"><i class="fas fa-eraser"></i> 清空</span>
@@ -628,12 +740,12 @@
             <div class="empty-state" id="emptyState">
                 <i class="fas fa-robot"></i>
                 <h3>👋 你好，我是 AI 经营助手</h3>
-                <p>支持 33 种商品操作 + 素材生成 + 视频反解。上传参考视频，AI 会自动拆解画面和运镜，生成同款商品。</p>
+                <p>支持 33 种商品操作 + 图片/视频/海报生成 + 视频反解。上传参考视频，AI 会自动拆解画面和运镜，生成同款商品。</p>
                 <div class="examples">
                     <span class="ex" onclick="sendExample('把云山茶叶礼盒的价格改成118元')">💰 改价格</span>
-                    <span class="ex" onclick="sendExample('查一下需要补货的商品')">⚠️ 库存预警</span>
                     <span class="ex accent" onclick="sendExample('给云山茶叶礼盒生成3张主图')">🖼️ 生成主图</span>
                     <span class="ex accent" onclick="sendExample('给云山茶叶礼盒生成5秒种草短视频')">🎬 生成视频</span>
+                    <span class="ex accent" onclick="sendExample('给云山茶叶礼盒生成一张促销海报')">🎨 生成海报</span>
                     <span class="ex accent" onclick="hintUploadVideo()">🎥 上传参考视频生成同款</span>
                     <span class="ex" onclick="sendExample('查看云山茶叶礼盒的图片')">🖼️ 查看图片</span>
                     <span class="ex" onclick="sendExample('导出所有商品数据到CSV')">📤 导出CSV</span>
@@ -653,12 +765,12 @@
             <div class="input-area">
                 <button class="attach-btn" id="attachBtn" onclick="toggleAttachMenu(event)" title="添加参考素材">+</button>
                 <div class="input-wrap">
-                    <textarea id="chatInput" rows="1" placeholder="试试：上传参考视频后，说「给云山茶叶礼盒生成同款视频」" onkeydown="handleKeyDown(event)" oninput="autoResize(this)"></textarea>
+                    <textarea id="chatInput" rows="1" placeholder="试试：给云山茶叶礼盒生成3张主图 / 生成促销海报 / 上传参考视频" onkeydown="handleKeyDown(event)" oninput="autoResize(this)"></textarea>
                     <span class="char-count" id="charCount">0/500</span>
                 </div>
                 <button class="send-btn" id="sendBtn" onclick="sendMessage()" disabled><i class="fas fa-paper-plane"></i></button>
             </div>
-            <div class="input-hint">回车发送 · Shift+回车换行 · 可拖拽/粘贴图片 · 上传视频自动抽帧反解</div>
+            <div class="input-hint">回车发送 · Shift+回车换行 · 可拖拽/粘贴图片 · 上传视频自动抽帧反解 · 点击图片可放大</div>
 
             <div class="attach-menu" id="attachMenu">
                 <button class="menu-item" onclick="triggerUpload('image')">
@@ -679,6 +791,16 @@
             </div>
         </div>
     </main>
+</div>
+
+<!-- ★ 图片/视频放大灯箱 -->
+<div class="lightbox" id="lightbox" onclick="closeLightbox(event)">
+    <div class="lightbox-content" onclick="event.stopPropagation()">
+        <div class="lightbox-caption" id="lightboxCaption"></div>
+        <button class="lightbox-close" onclick="closeLightbox(event)" title="关闭">×</button>
+        <div id="lightboxMedia"></div>
+        <div class="lightbox-actions" id="lightboxActions"></div>
+    </div>
 </div>
 
 <input type="file" id="imageInput" accept="image/*" multiple style="display:none;">
@@ -705,15 +827,83 @@
     const REF_VIDEO_MAX_SIZE = 20 * 1024 * 1024;
     const KEYFRAME_COUNT = 3;
 
-    // ★ 安全 storage 封装：沙箱环境下不会崩
+    // ★ 5 张图的固定提示词模板（按需求优化）
+    const IMAGE_PROMPT_TEMPLATES = [
+        // 第 1 张：突出样品设计
+        (name, features, extra) => `${name}，突出样品设计，正面主图，突出包装设计和品牌感，暖色调自然光，高清晰产品摄影，白色或浅色背景，专业电商主图${extra ? '，' + extra : ''}`,
+        // 第 2 张：商品细节特写
+        (name, features, extra) => `${name}，商品细节特写，微距拍摄展示材质质感，突出${features[0] || '工艺细节'}，柔和光线，浅景深，高清产品摄影${extra ? '，' + extra : ''}`,
+        // 第 3 张：展示内部商品
+        (name, features, extra) => `${name}，礼盒/包装展开效果，展示内部商品，突出${features[1] || '内容物'}，温馨氛围，柔和打光，产品开箱摄影${extra ? '，' + extra : ''}`,
+        // 第 4 张：商品使用场景图
+        (name, features, extra) => `${name}，商品使用场景图，${features[2] || '日常使用'}场景布置，优雅自然的生活氛围，暖色调，环境光与产品结合${extra ? '，' + extra : ''}`,
+        // 第 5 张：展示超值感，促销风格
+        (name, features, extra) => `${name}，商品+赠品组合图，展示超值感，促销风格，突出${features.join(' · ') || '卖点'}，明快亮丽配色，促销海报风格${extra ? '，' + extra : ''}`
+    ];
+
+    // ★ 产品类型 → 视频分镜模板
+    const VIDEO_STORYBOARD_BY_CATEGORY = {
+        '茶叶': [
+            { time: '0-3s', type: '开场', prompt: '特写茶叶落入白瓷杯中泛起涟漪的慢动作，配合轻快音乐，悬念文案"你知道明前龙井为什么珍贵吗？"' },
+            { time: '3-8s', type: '产品', prompt: '360度旋转展示茶叶礼盒外观，缓缓打开礼盒，特写嫩绿茶叶，暖色调光线' },
+            { time: '8-12s', type: '卖点', prompt: '文字叠加"明前采摘 · 特级龙井"，配冲泡画面与茶汤金黄特写' },
+            { time: '12-15s', type: '收尾', prompt: '品牌logo + 购买引导"点击下方链接购买"，礼盒整体展示' }
+        ],
+        '手工艺': [
+            { time: '0-3s', type: '开场', prompt: '特写手工匠人双手编织的慢动作，配合自然音效，文案"每一件，都是独一无二"' },
+            { time: '3-8s', type: '产品', prompt: '360度展示手工艺品外观，特写材质纹理和工艺细节，自然光' },
+            { time: '8-12s', type: '卖点', prompt: '文字叠加"纯手工 · 匠心工艺"，配使用场景画面' },
+            { time: '12-15s', type: '收尾', prompt: '品牌logo + 购买引导"点击下方链接购买"' }
+        ],
+        '食品': [
+            { time: '0-3s', type: '开场', prompt: '特写美食特写慢动作，配合诱人音效，文案"一口就爱上"' },
+            { time: '3-8s', type: '产品', prompt: '展示食品包装和内容物，特写质感与色泽，暖色调' },
+            { time: '8-12s', type: '卖点', prompt: '文字叠加核心卖点，配食用场景画面' },
+            { time: '12-15s', type: '收尾', prompt: '品牌logo + 购买引导"点击下方链接购买"' }
+        ],
+        '文创': [
+            { time: '0-3s', type: '开场', prompt: '特写文创产品细节，配合文艺氛围音乐，文案"把美好带回家"' },
+            { time: '3-8s', type: '产品', prompt: '展示文创产品外观和使用场景，暖色调，简约构图' },
+            { time: '8-12s', type: '卖点', prompt: '文字叠加设计理念与卖点，配使用画面' },
+            { time: '12-15s', type: '收尾', prompt: '品牌logo + 购买引导"点击下方链接购买"' }
+        ],
+        '服饰': [
+            { time: '0-3s', type: '开场', prompt: '模特身着服饰的走位慢动作，配合时尚音乐，文案"这个夏天，就要这样穿"' },
+            { time: '3-8s', type: '产品', prompt: '360度展示服饰版型，特写面料质感和细节' },
+            { time: '8-12s', type: '卖点', prompt: '文字叠加面料卖点，配不同穿搭场景' },
+            { time: '12-15s', type: '收尾', prompt: '品牌logo + 购买引导"点击下方链接购买"' }
+        ],
+        '家居': [
+            { time: '0-3s', type: '开场', prompt: '温馨家居场景慢镜头，配合轻音乐，文案"让家更有温度"' },
+            { time: '3-8s', type: '产品', prompt: '展示家居产品外观和使用场景，自然光，温馨氛围' },
+            { time: '8-12s', type: '卖点', prompt: '文字叠加材质与工艺卖点，配使用细节画面' },
+            { time: '12-15s', type: '收尾', prompt: '品牌logo + 购买引导"点击下方链接购买"' }
+        ],
+        'default': [
+            { time: '0-3s', type: '开场', prompt: '商品使用瞬间的特写慢动作，配合轻快音乐开场' },
+            { time: '3-8s', type: '产品', prompt: '展示商品外观与内部细节，特写核心材质' },
+            { time: '8-12s', type: '卖点', prompt: '文字叠加核心卖点，配使用场景画面' },
+            { time: '12-15s', type: '收尾', prompt: '品牌logo + 购买引导"点击下方链接购买"' }
+        ]
+    };
+
+    // ★ 海报生成模板
+    const POSTER_TEMPLATES = {
+        '促销海报': (name, features) => `为「${name}」设计一张电商促销海报：突出折扣/限时优惠氛围，主视觉为商品高清大图，背景为明亮渐变红/橙/金色，醒目大标题"限时特惠"，下方展示核心卖点"${features.slice(0, 3).join(' · ')}"，带有"立即抢购"按钮样式，商业设计感，高信息密度，电商海报风格`,
+        '新品海报': (name, features) => `为「${name}」设计一张新品发布海报：高级感设计，主视觉为商品特写，背景为深色或高级灰渐变，大标题"新品首发"，配以品牌logo，下方展示核心卖点"${features.slice(0, 3).join(' · ')}"，整体简约高级，商业摄影风格`,
+        '国潮海报': (name, features) => `为「${name}」设计一张国潮风格海报：融合传统中式元素（云纹、山水、印章）与现代设计，主视觉为商品，配色为中国红/墨黑/金色，大标题采用书法字体，展示卖点"${features.slice(0, 3).join(' · ')}"，新中式商业海报风格`,
+        '简约海报': (name, features) => `为「${name}」设计一张简约风格海报：大量留白，主视觉居中为商品，背景为纯白或浅米色，标题用极简字体，下方用细线分隔展示卖点"${features.slice(0, 3).join(' · ')}"，高级极简商业设计`
+    };
+
+    // ★ 安全 storage
     const safeStorage = {
         get(key, def = null) {
             try { return localStorage.getItem(key) ?? def; }
-            catch (e) { console.warn(`[storage] 读取 ${key} 失败:`, e.message); return def; }
+            catch (e) { return def; }
         },
         set(key, val) {
             try { localStorage.setItem(key, val); return true; }
-            catch (e) { console.warn(`[storage] 写入 ${key} 失败:`, e.message); return false; }
+            catch (e) { return false; }
         },
         remove(key) {
             try { localStorage.removeItem(key); return true; }
@@ -721,15 +911,11 @@
         }
     };
 
-    // ✅ 修复：沙箱安全
     function getAgnesApiKey() {
         const fromInput = document.getElementById('agnesApiKey')?.value.trim();
         if (fromInput) return fromInput;
-        const fromStorage = safeStorage.get('agnes_api_key');
-        return fromStorage || AGNES_API_KEY_DEFAULT;
+        return safeStorage.get('agnes_api_key') || AGNES_API_KEY_DEFAULT;
     }
-
-    // ✅ 修复：沙箱安全
     function saveAgnesApiKey() {
         const key = document.getElementById('agnesApiKey')?.value.trim();
         if (key) safeStorage.set('agnes_api_key', key);
@@ -759,7 +945,7 @@
     let historyData = [];
 
     // ================================================================
-    // 持久化（用 safeStorage）
+    // 持久化
     // ================================================================
     function loadHistoryFromStorage() {
         try {
@@ -873,7 +1059,7 @@
             document.getElementById('messagesList').innerHTML = '';
             document.getElementById('emptyState').style.display = 'flex';
             document.getElementById('chatTitle').textContent = 'AI 经营助手';
-            document.getElementById('chatSubtitle').textContent = '基于 DeepSeek · 33 种指令 + 素材生成 + 视频反解';
+            document.getElementById('chatSubtitle').textContent = '基于 DeepSeek · 33 种指令 + 图片/视频/海报生成';
         }
         saveHistoryToStorage();
         renderHistory();
@@ -897,7 +1083,7 @@
         state.lastGeneratedMedia = null;
         renderHistory();
         document.getElementById('chatTitle').textContent = 'AI 经营助手';
-        document.getElementById('chatSubtitle').textContent = '基于 DeepSeek · 33 种指令 + 素材生成 + 视频反解';
+        document.getElementById('chatSubtitle').textContent = '基于 DeepSeek · 33 种指令 + 图片/视频/海报生成';
         document.getElementById('messagesList').innerHTML = '';
         document.getElementById('emptyState').style.display = 'flex';
         document.getElementById('chatInput').value = '';
@@ -968,16 +1154,25 @@
 
         let bubbleContent = `<div class="bubble">`;
 
+        // 参考素材
         if (msg.media && msg.media.type === 'references') {
             bubbleContent += `<div class="media-preview ref-preview">`;
             (msg.media.images || []).forEach((url, i) => {
-                bubbleContent += `<div class="media-item"><img src="${url}" alt="参考${i+1}"><span class="badge">参考${i+1}</span></div>`;
+                bubbleContent += `<div class="media-item" onclick="openLightbox('${url}', 'image', '参考图 ${i+1}')">
+                    <img src="${url}" alt="参考${i+1}">
+                    <span class="badge">参考${i+1}</span>
+                    <span class="zoom-hint">点击放大</span>
+                </div>`;
             });
             (msg.media.videos || []).forEach(url => {
-                bubbleContent += `<video src="${url}" muted preload="metadata"></video>`;
+                bubbleContent += `<video src="${url}" muted preload="metadata" onclick="openLightbox('${url}', 'video', '参考视频')"></video>`;
             });
             (msg.media.keyframes || []).forEach((url, i) => {
-                bubbleContent += `<div class="media-item"><img src="${url}" alt="关键帧${i+1}"><span class="badge kf">帧${i+1}</span></div>`;
+                bubbleContent += `<div class="media-item" onclick="openLightbox('${url}', 'image', '关键帧 ${i+1}')">
+                    <img src="${url}" alt="关键帧${i+1}">
+                    <span class="badge kf">帧${i+1}</span>
+                    <span class="zoom-hint">点击放大</span>
+                </div>`;
             });
             if (msg.media.count && msg.media.count > (msg.media.images || []).length) {
                 bubbleContent += `<div class="media-item" style="display:flex;align-items:center;justify-content:center;color:#94a3b8;font-size:12px;">+${msg.media.count - (msg.media.images || []).length}</div>`;
@@ -987,6 +1182,7 @@
 
         if (msg.text) bubbleContent += `<p class="msg-text">${renderMarkdown(msg.text)}</p>`;
 
+        // 视频反解结果
         if (msg.analysis) {
             const a = msg.analysis;
             bubbleContent += `<div class="analysis-card">
@@ -999,20 +1195,44 @@
             </div>`;
         }
 
+        // 生成的图片
         if (msg.media && msg.media.type === 'images' && msg.media.urls) {
             bubbleContent += `<div class="media-preview">`;
             msg.media.urls.forEach((url, i) => {
-                bubbleContent += `<div class="media-item">${url ? `<img src="${url}" alt="图${i+1}">` : `<div class="ph"><i class="fas fa-image"></i></div>`}<span class="badge">#${i+1}</span></div>`;
+                if (url) {
+                    // ★ 每张图带类型标签
+                    const label = msg.media.labels && msg.media.labels[i] ? msg.media.labels[i] : `#${i+1}`;
+                    bubbleContent += `<div class="media-item" onclick="openLightbox('${url}', 'image', '${escapeHtml(label)}')">
+                        <img src="${url}" alt="图${i+1}">
+                        <span class="badge">${escapeHtml(label)}</span>
+                        <span class="zoom-hint">点击放大</span>
+                    </div>`;
+                } else {
+                    bubbleContent += `<div class="media-item"><div class="ph"><i class="fas fa-image"></i></div></div>`;
+                }
             });
             bubbleContent += `</div>`;
         }
+
+        // 生成的视频
         if (msg.media && msg.media.type === 'video') {
             bubbleContent += `<div class="media-preview">`;
             if (msg.media.videoUrl) {
-                bubbleContent += `<video src="${msg.media.videoUrl}" controls preload="metadata"></video>`;
+                bubbleContent += `<video src="${msg.media.videoUrl}" controls preload="metadata" onclick="openLightbox('${msg.media.videoUrl}', 'video', '生成的视频')"></video>`;
             } else {
                 bubbleContent += `<div class="media-item" style="grid-column:1/-1; aspect-ratio:16/9;"><div class="ph"><i class="fas fa-video"></i></div></div>`;
             }
+            bubbleContent += `</div>`;
+        }
+
+        // 生成的海报
+        if (msg.media && msg.media.type === 'poster' && msg.media.posterUrl) {
+            bubbleContent += `<div class="media-preview" style="grid-template-columns: 1fr;">`;
+            bubbleContent += `<div class="media-item" style="aspect-ratio: 3/4; max-width: 320px;" onclick="openLightbox('${msg.media.posterUrl}', 'image', '促销海报')">
+                <img src="${msg.media.posterUrl}" alt="海报">
+                <span class="badge">海报</span>
+                <span class="zoom-hint">点击放大</span>
+            </div>`;
             bubbleContent += `</div>`;
         }
 
@@ -1115,7 +1335,53 @@
     }
 
     // ================================================================
-    // 参考素材：上传 + 视频抽帧
+    // ★ 图片/视频放大灯箱
+    // ================================================================
+    function openLightbox(url, type, caption) {
+        const lb = document.getElementById('lightbox');
+        const mediaBox = document.getElementById('lightboxMedia');
+        const captionEl = document.getElementById('lightboxCaption');
+        const actionsEl = document.getElementById('lightboxActions');
+
+        if (type === 'image') {
+            mediaBox.innerHTML = `<img src="${url}" alt="${escapeHtml(caption)}">`;
+        } else if (type === 'video') {
+            mediaBox.innerHTML = `<video src="${url}" controls autoplay preload="metadata"></video>`;
+        }
+        captionEl.textContent = caption || '';
+
+        // 下载按钮
+        const ext = type === 'video' ? 'mp4' : 'png';
+        actionsEl.innerHTML = `
+            <a href="${url}" download="素材_${Date.now()}.${ext}" target="_blank" onclick="event.stopPropagation()">
+                <i class="fas fa-download"></i> 下载
+            </a>
+        `;
+
+        lb.classList.add('show');
+        document.body.style.overflow = 'hidden';
+    }
+
+    function closeLightbox(e) {
+        if (e && e.target !== e.currentTarget && e.currentTarget.id !== 'lightbox') {
+            // 点击的是内容或按钮
+        }
+        const lb = document.getElementById('lightbox');
+        lb.classList.remove('show');
+        document.getElementById('lightboxMedia').innerHTML = '';
+        document.body.style.overflow = '';
+    }
+
+    // ESC 关闭灯箱
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape') {
+            const lb = document.getElementById('lightbox');
+            if (lb.classList.contains('show')) closeLightbox();
+        }
+    });
+
+    // ================================================================
+    // 参考素材上传
     // ================================================================
     function toggleAttachMenu(e) {
         e.stopPropagation();
@@ -1167,16 +1433,13 @@
         return new Blob([array], { type: mime });
     }
 
-    // ✅ 修复：去掉 crossOrigin，加超时，加错误分类
     async function extractVideoKeyframes(file, count = KEYFRAME_COUNT) {
         const url = URL.createObjectURL(file);
         const video = document.createElement('video');
         video.src = url;
         video.muted = true;
         video.preload = 'auto';
-        // ✅ 不加 crossOrigin，blob URL 是同源的
 
-        // 1) 加载 metadata（含超时 + 错误分类）
         await new Promise((resolve, reject) => {
             const timeout = setTimeout(() => {
                 reject(new Error('视频加载超时（可能编码不支持）'));
@@ -1214,7 +1477,6 @@
         const ctx = canvas.getContext('2d');
         const frames = [];
 
-        // 2) 抽帧位置（避开 0 和末尾）
         const positions = [];
         if (count === 1) {
             positions.push(duration / 2);
@@ -1225,7 +1487,6 @@
             }
         }
 
-        // 3) 逐帧抽取（每次 seek 加超时）
         for (const t of positions) {
             await new Promise((resolve, reject) => {
                 const timeout = setTimeout(() => {
@@ -1596,18 +1857,20 @@
     }
 
     // ================================================================
-    // 意图识别
+    // 意图识别（新增：海报）
     // ================================================================
     function parseGenerationIntent(text) {
         const t = text.trim();
 
-        const imgKeywords = ['生成', '做', '画', '出', '来', '弄'];
-        const imgNouns = ['主图', '图片', '图', '商品图', '海报', '轮播图', '详情图'];
+        const imgKeywords = ['生成', '做', '画', '出', '来', '弄', '制作'];
+        const imgNouns = ['主图', '图片', '图', '商品图', '轮播图', '详情图'];
         const videoNouns = ['视频', '短视频', '种草视频', '广告片', '同款'];
+        const posterNouns = ['海报', '宣传图', 'banner', '主视觉', 'KV'];
 
         const hasImgVerb = imgKeywords.some(k => t.includes(k));
         const hasImgNoun = imgNouns.some(k => t.includes(k));
         const hasVideoNoun = videoNouns.some(k => t.includes(k));
+        const hasPosterNoun = posterNouns.some(k => t.includes(k));
 
         let count = 1;
         const countMatch = t.match(/(\d+)\s*[张个条段]/);
@@ -1615,16 +1878,27 @@
         else if (hasImgNoun && (t.includes('轮播') || t.includes('全部') || t.includes('一套'))) count = 5;
 
         let productName = '';
-        const m1 = t.match(/[给为]([^\s，,。]{2,20}?)(?:生成|做|画|出|来|弄)/);
+        const m1 = t.match(/[给为]([^\s，,。]{2,20}?)(?:生成|做|画|出|来|弄|制作)/);
         if (m1) productName = m1[1];
         if (!productName) {
             const m2 = t.match(/([^\s，,。]{2,20}?)(?:的|主图|图片|视频|轮播图|海报|种草|同款)/);
             if (m2) productName = m2[1];
         }
-        productName = productName.replace(/^的|生成$|做$|画$|出$|来$|弄$/, '').trim();
+        productName = productName.replace(/^的|生成$|做$|画$|出$|来$|弄$|制作$/, '').trim();
 
         const descMatch = t.match(/[，,](.+)$/);
         const extraDesc = descMatch ? descMatch[1].trim() : '';
+
+        // 海报优先
+        if (hasPosterNoun && hasImgVerb) {
+            // 识别海报类型
+            let posterType = '促销海报';
+            if (t.includes('新品') || t.includes('首发')) posterType = '新品海报';
+            else if (t.includes('国潮') || t.includes('新中式')) posterType = '国潮海报';
+            else if (t.includes('简约') || t.includes('极简')) posterType = '简约海报';
+            else if (t.includes('促销') || t.includes('特惠') || t.includes('优惠')) posterType = '促销海报';
+            return { kind: 'poster', posterType, productName, extraDesc };
+        }
 
         if (hasVideoNoun) {
             let seconds = '5';
@@ -1651,9 +1925,7 @@
             prompt: prompt,
             size: sizeTier,
             ratio: ratio,
-            extra_body: {
-                response_format: 'url'
-            }
+            extra_body: { response_format: 'url' }
         };
 
         if (referenceImages && referenceImages.length > 0) {
@@ -1778,7 +2050,7 @@
     }
 
     // ================================================================
-    // 生成意图处理
+    // ★ 生成意图处理
     // ================================================================
     async function handleGenerationIntent(intent, originalText, refSnapshot) {
         let { kind, count, productName, seconds, extraDesc } = intent;
@@ -1804,6 +2076,8 @@
                 return;
             }
             productName = check.product.name;
+            // 顺便把商品类别取出来（用于视频分镜推荐）
+            intent.category = check.product.category || '';
         } else {
             const listPreview = await getProductListPreview(5);
             appendMessage({
@@ -1814,6 +2088,71 @@
             return;
         }
 
+        // ============ 海报生成 ============
+        if (kind === 'poster') {
+            const posterType = intent.posterType || '促销海报';
+            const aiMsg = {
+                role: 'ai',
+                text: `🎨 已开始为「${productName}」生成${posterType}...`,
+                time: nowTime(),
+                progress: 0
+            };
+            const msgId = appendMessage(aiMsg);
+
+            let posterUrl = '';
+            try {
+                const features = (document.getElementById('productFeatures')?.value || '').split(',').map(s => s.trim()).filter(Boolean);
+                // 若没读取到卖点，用一个空数组
+                const feats = features.length > 0 ? features : ['优质好物'];
+                const promptFn = POSTER_TEMPLATES[posterType] || POSTER_TEMPLATES['促销海报'];
+                const prompt = promptFn(productName, feats) + (extraDesc ? '，' + extraDesc : '');
+
+                // 海报用 3:4 竖版高清
+                posterUrl = await generateAgnesImage(prompt, '2K', '3:4', refImages);
+            } catch (err) {
+                const m = state.currentMessages.find(x => x.id === msgId);
+                if (m) {
+                    m.progress = undefined;
+                    m.text = `❌ 海报生成失败：${err.message}`;
+                    m.retryable = true;
+                    updateMessageNode(m);
+                }
+                return;
+            }
+
+            const m = state.currentMessages.find(x => x.id === msgId);
+            if (m) {
+                m.progress = undefined;
+                m.media = { type: 'poster', posterUrl };
+                m.text = `✅ 已为「${productName}」生成${posterType}`;
+                const syncId = 'sync_' + Date.now();
+                m.card = {
+                    title: '📌 下一步',
+                    desc: `是否将这张海报应用到商品「${productName}」？\n（会添加到副图最后一张）`,
+                    actionId: syncId,
+                    rawAction: {
+                        type: 'sync_generated_media',
+                        args: {
+                            product_name: productName,
+                            media_type: 'main_image',
+                            urls: [posterUrl],
+                            mode: 'merge'
+                        }
+                    },
+                    actions: [
+                        { label: '✅ 应用到商品', type: 'confirm', onclick: `confirmAction('${syncId}')` },
+                        { label: '✖ 不用了', type: 'cancel', onclick: `cancelAction('${syncId}')` }
+                    ]
+                };
+                state.pendingActions[syncId] = m.card.rawAction;
+                updateMessageNode(m);
+            }
+
+            state.lastGeneratedMedia = { type: 'poster', posterUrl, productName };
+            return;
+        }
+
+        // ============ 图片生成（5 张固定类型） ============
         if (kind === 'images') {
             const aiMsg = {
                 role: 'ai',
@@ -1826,19 +2165,30 @@
             const msgId = appendMessage(aiMsg);
 
             const urls = [];
-            for (let i = 0; i < count; i++) {
+            const labels = [];
+            const features = (document.getElementById('productFeatures')?.value || '').split(',').map(s => s.trim()).filter(Boolean);
+
+            // ★ 用固定的 5 种类型模板
+            const typeNames = ['样品设计', '细节特写', '内部展示', '使用场景', '促销风格'];
+            const actualCount = Math.min(count, 5);
+
+            for (let i = 0; i < actualCount; i++) {
                 try {
-                    const basePrompt = `${productName}，${['正面主图，突出包装设计，暖色调', '细节特写，展示材质质感', '礼盒展开效果，温馨氛围', '使用场景图，优雅自然', '赠品组合图，超值感'][i % 5]}${extraDesc ? '，' + extraDesc : ''}`;
+                    // 用固定模板
+                    const tmplFn = IMAGE_PROMPT_TEMPLATES[i];
+                    const basePrompt = tmplFn(productName, features, extraDesc);
                     const url = await generateAgnesImage(basePrompt, '1K', '1:1', refImages);
                     urls.push(url);
+                    labels.push(`图${i+1}·${typeNames[i]}`);
                 } catch (err) {
-                    console.warn('单张失败:', err);
+                    console.warn(`第 ${i+1} 张失败:`, err);
                     urls.push('');
+                    labels.push(`图${i+1}·${typeNames[i]}`);
                 }
                 const m = state.currentMessages.find(x => x.id === msgId);
                 if (m) {
-                    m.progress = Math.round(((i + 1) / count) * 100);
-                    m.text = `🎨 正在为「${productName}」生成主图（${i + 1}/${count}）...`;
+                    m.progress = Math.round(((i + 1) / actualCount) * 100);
+                    m.text = `🎨 正在为「${productName}」生成主图（${i + 1}/${actualCount}）：${typeNames[i]}...`;
                     updateMessageNode(m);
                 }
             }
@@ -1847,8 +2197,8 @@
             if (m) {
                 const validCount = urls.filter(u => u).length;
                 m.progress = undefined;
-                m.media = { type: 'images', urls };
-                m.text = `✅ 已为「${productName}」生成 ${validCount}/${count} 张主图${hasRef ? `（参考 ${refImages.length} 张素材）` : ''}`;
+                m.media = { type: 'images', urls, labels };
+                m.text = `✅ 已为「${productName}」生成 ${validCount}/${actualCount} 张主图\n（${typeNames.slice(0, actualCount).join(' / ')}）${hasRef ? `\n参考 ${refImages.length} 张素材` : ''}`;
                 const syncId = 'sync_' + Date.now();
                 m.card = {
                     title: '📌 下一步',
@@ -1876,11 +2226,13 @@
             return;
         }
 
+        // ============ 视频生成 ============
         if (kind === 'video') {
             let finalPrompt = `${productName} 商品展示短视频${extraDesc ? '，' + extraDesc : ''}`;
             let refUrls = [];
             let analysis = null;
 
+            // ★ 视频方式：优先用参考视频反解，其次用类别自动建议的分镜
             if (hasVideoRef) {
                 const analyzeMsg = {
                     role: 'ai',
@@ -1923,15 +2275,33 @@
                         updateMessageNode(m3);
                     }
                 } catch (err) {
-                    console.warn('反解失败，降级为纯文本:', err);
+                    console.warn('反解失败，降级为类别建议:', err);
                     const m = state.currentMessages.find(x => x.id === analyzeId);
                     if (m) {
                         m.progress = undefined;
-                        m.text = `⚠️ 参考视频分析失败（${err.message}），改用纯文本模式生成...`;
+                        m.text = `⚠️ 参考视频分析失败（${err.message}），改用类别自动建议分镜...`;
                         updateMessageNode(m);
                     }
                     refUrls = [];
+                    analysis = null;
                 }
+            }
+
+            // ★ 若无参考视频或反解失败，用类别自动建议分镜
+            if (!analysis && !hasVideoRef) {
+                const category = intent.category || 'default';
+                const storyboard = VIDEO_STORYBOARD_BY_CATEGORY[category] || VIDEO_STORYBOARD_BY_CATEGORY['default'];
+                const storyboardPrompt = storyboard.map(s => s.prompt).join('，');
+                finalPrompt = `${productName} 商品展示短视频。分镜脚本：${storyboardPrompt}`;
+
+                // 提示用户 AI 已自动生成分镜
+                appendMessage({
+                    role: 'ai',
+                    text: `💡 **AI 已根据「${category || '商品'}」类别自动生成 ${storyboard.length} 个分镜建议**：\n\n` +
+                          storyboard.map((s, i) => `${i+1}. [${s.time} · ${s.type}] ${s.prompt}`).join('\n') +
+                          `\n\n正在基于此生成视频...`,
+                    time: nowTime()
+                });
             }
 
             const aiMsg = {
@@ -2233,6 +2603,9 @@
         appendMessage({ role: 'ai', text: '好的，已取消该操作。', time: nowTime() });
     }
 
+    // ================================================================
+    // 消息操作
+    // ================================================================
     function copyMessageText(btn) {
         const msgDiv = btn.closest('.message');
         const bubble = msgDiv.querySelector('.bubble');
@@ -2289,7 +2662,7 @@
         document.getElementById('messagesList').innerHTML = '';
         document.getElementById('emptyState').style.display = 'flex';
         document.getElementById('chatTitle').textContent = 'AI 经营助手';
-        document.getElementById('chatSubtitle').textContent = '基于 DeepSeek · 33 种指令 + 素材生成 + 视频反解';
+        document.getElementById('chatSubtitle').textContent = '基于 DeepSeek · 33 种指令 + 图片/视频/海报生成';
         state.currentChatId = null;
         state.currentMessages = [];
         state.pendingActions = {};
@@ -2397,7 +2770,7 @@
         if (window.innerWidth > 768) closeSidebar();
     });
 
-    console.log('🤖 智控电商 · AI助手已加载（修复沙箱 + 抽帧加固）');
+    console.log('🤖 智控电商 · AI助手已加载（图片/视频/海报生成 + 点击放大 + 视频分镜建议）');
     console.log('💡 后端:', BACKEND_URL);
 </script>
 </body>
