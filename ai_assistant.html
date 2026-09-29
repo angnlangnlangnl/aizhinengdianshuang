@@ -205,6 +205,66 @@
             border-radius: 10px;
             background: #0a0e14;
         }
+        .bubble .media-preview.ref-preview {
+            grid-template-columns: repeat(auto-fill, minmax(72px, 1fr));
+            margin-top: 0;
+            margin-bottom: 8px;
+        }
+        .bubble .media-preview.ref-preview .media-item {
+            border-color: rgba(255,255,255,0.4);
+        }
+        .bubble .media-preview.ref-preview .badge {
+            background: rgba(13,124,79,0.85);
+        }
+        .bubble .media-preview.ref-preview .badge.kf {
+            background: rgba(77,171,247,0.85);
+        }
+
+        .bubble .analysis-card {
+            background: linear-gradient(135deg, #f0f7fe, #e6f3ff);
+            border: 1px solid #b8d8f7;
+            border-radius: 10px;
+            padding: 12px 14px;
+            margin: 8px 0 4px 0;
+            font-size: 13px;
+        }
+        .bubble .analysis-card .an-title {
+            font-weight: 600;
+            color: #0a1e2f;
+            margin-bottom: 6px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .bubble .analysis-card .an-row {
+            display: flex;
+            gap: 6px;
+            margin-bottom: 4px;
+            line-height: 1.6;
+        }
+        .bubble .analysis-card .an-row .an-label {
+            color: #2a7faa;
+            font-weight: 500;
+            flex-shrink: 0;
+        }
+        .bubble .analysis-card .an-row .an-val {
+            color: #0a1e2f;
+            word-break: break-word;
+        }
+        .bubble .analysis-card .an-tags {
+            display: flex;
+            gap: 4px;
+            flex-wrap: wrap;
+            margin-top: 6px;
+        }
+        .bubble .analysis-card .an-tags .an-tag {
+            font-size: 10px;
+            padding: 2px 8px;
+            border-radius: 10px;
+            background: white;
+            color: #2a7faa;
+            border: 1px solid #b8d8f7;
+        }
 
         .bubble .inline-progress {
             margin-top: 8px;
@@ -227,7 +287,133 @@
         .typing-indicator .dots span:nth-child(3) { animation-delay: 0.4s; }
         @keyframes dotPulse { 0%, 60%, 100% { transform: translateY(0); opacity: 0.4; } 30% { transform: translateY(-6px); opacity: 1; } }
 
-        .input-area { padding: 16px 28px 20px; background: white; border-top: 1px solid #e8edf4; display: flex; gap: 12px; align-items: flex-end; flex-shrink: 0; padding-bottom: calc(20px + env(safe-area-inset-bottom, 0px)); }
+        .input-area-wrap { background: white; border-top: 1px solid #e8edf4; flex-shrink: 0; padding-bottom: calc(20px + env(safe-area-inset-bottom, 0px)); position: relative; transition: background 0.15s; }
+        .input-area-wrap.drag-over { background: #f0f7fe; }
+        .input-area-wrap.drag-over::after {
+            content: '拖拽图片或视频到此处上传';
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(77,171,247,0.08);
+            border: 2px dashed #4dabf7;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            font-weight: 500;
+            color: #2a7faa;
+            pointer-events: none;
+            z-index: 2;
+        }
+
+        .ref-chips {
+            display: flex;
+            gap: 8px;
+            padding: 10px 28px 0;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+        .ref-chip {
+            position: relative;
+            width: 56px;
+            height: 56px;
+            border-radius: 10px;
+            overflow: visible;
+            flex-shrink: 0;
+        }
+        .ref-chip .chip-inner {
+            width: 100%;
+            height: 100%;
+            border-radius: 10px;
+            overflow: hidden;
+            border: 2px solid #e8edf4;
+            background: #f0f7fe;
+            position: relative;
+        }
+        .ref-chip img { width: 100%; height: 100%; object-fit: cover; display: block; }
+        .ref-chip video { width: 100%; height: 100%; object-fit: cover; display: block; }
+        .ref-chip .chip-play {
+            position: absolute;
+            top: 50%; left: 50%;
+            transform: translate(-50%, -50%);
+            color: white;
+            font-size: 16px;
+            text-shadow: 0 1px 4px rgba(0,0,0,0.6);
+            pointer-events: none;
+        }
+        .ref-chip .chip-remove {
+            position: absolute;
+            top: -6px;
+            right: -6px;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: #b51a3f;
+            color: white;
+            border: 2px solid white;
+            font-size: 11px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0;
+            line-height: 1;
+            z-index: 3;
+            font-family: inherit;
+        }
+        .ref-chip .chip-remove:hover { background: #8a1533; }
+        .ref-chip .chip-badge {
+            position: absolute;
+            bottom: -4px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 9px;
+            padding: 1px 6px;
+            border-radius: 8px;
+            background: rgba(10,30,47,0.85);
+            color: white;
+            white-space: nowrap;
+            pointer-events: none;
+            z-index: 2;
+        }
+        .ref-chip.video .chip-badge { background: rgba(77,171,247,0.9); }
+        .ref-chip .chip-kf-badge {
+            position: absolute;
+            top: -6px;
+            left: -6px;
+            font-size: 9px;
+            padding: 1px 5px;
+            border-radius: 6px;
+            background: #0d7c4f;
+            color: white;
+            font-weight: 600;
+        }
+        .ref-hint {
+            font-size: 11px;
+            color: #94a3b8;
+            padding-left: 4px;
+            align-self: center;
+        }
+
+        .input-area { padding: 10px 28px 0; background: transparent; display: flex; gap: 10px; align-items: flex-end; }
+        .input-area .attach-btn {
+            width: 40px; height: 40px;
+            border-radius: 50%;
+            border: 1px solid #e8edf4;
+            background: white;
+            color: #5f7d95;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            font-weight: 400;
+            flex-shrink: 0;
+            transition: 0.15s;
+            font-family: inherit;
+        }
+        .input-area .attach-btn:hover { border-color: #4dabf7; color: #2a7faa; background: #f5f9fe; }
+        .input-area .attach-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+
         .input-area .input-wrap { flex: 1; display: flex; align-items: flex-end; background: #f8fafc; border: 1px solid #e8edf4; border-radius: 12px; padding: 6px 16px; transition: 0.15s; }
         .input-area .input-wrap:focus-within { border-color: #4dabf7; box-shadow: 0 0 0 3px rgba(77,171,247,0.06); }
         .input-area .input-wrap textarea { flex: 1; border: none; background: transparent; padding: 8px 0; font-size: 14px; font-family: inherit; resize: none; outline: none; max-height: 120px; color: #0a1e2f; }
@@ -236,7 +422,43 @@
         .input-area .send-btn { width: 44px; height: 44px; border-radius: 50%; border: none; background: #0a1e2f; color: white; font-size: 18px; cursor: pointer; transition: 0.15s; flex-shrink: 0; display: flex; align-items: center; justify-content: center; min-width: 44px; }
         .input-area .send-btn:hover:not(:disabled) { background: #1a3a5a; transform: scale(1.02); }
         .input-area .send-btn:disabled { opacity: 0.4; cursor: not-allowed; transform: none; }
-        .input-hint { text-align: center; font-size: 11px; color: #94a3b8; margin-top: 6px; }
+        .input-hint { text-align: center; font-size: 11px; color: #94a3b8; margin-top: 6px; padding: 0 28px; }
+
+        .attach-menu {
+            position: absolute;
+            bottom: 90px;
+            left: 28px;
+            background: white;
+            border: 1px solid #e8edf4;
+            border-radius: 12px;
+            box-shadow: 0 8px 24px rgba(10,30,47,0.12);
+            padding: 6px;
+            display: none;
+            z-index: 100;
+            min-width: 220px;
+        }
+        .attach-menu.show { display: block; animation: fadeUpSmall 0.2s ease; }
+        @keyframes fadeUpSmall { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+        .attach-menu .menu-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px 14px;
+            border-radius: 8px;
+            font-size: 13px;
+            color: #0a1e2f;
+            cursor: pointer;
+            transition: 0.12s;
+            font-family: inherit;
+            background: none;
+            border: none;
+            width: 100%;
+            text-align: left;
+        }
+        .attach-menu .menu-item:hover { background: #f0f7fe; color: #2a7faa; }
+        .attach-menu .menu-item i { width: 18px; color: #4dabf7; font-size: 14px; }
+        .attach-menu .menu-item .meta { margin-left: auto; font-size: 11px; color: #94a3b8; }
+        .attach-menu .menu-divider { height: 1px; background: #e8edf4; margin: 4px 8px; }
 
         .empty-state { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; color: #94a3b8; padding: 40px; text-align: center; }
         .empty-state i { font-size: 56px; color: #dce5ef; margin-bottom: 16px; }
@@ -296,18 +518,17 @@
             .bubble .action-card .btn-group { gap: 6px; }
             .bubble .action-card .btn-group .btn-sm { padding: 7px 14px; font-size: 12px; }
 
-            .input-area {
-                padding: 10px 12px;
-                padding-bottom: calc(10px + env(safe-area-inset-bottom, 0px));
-                padding-left: calc(12px + env(safe-area-inset-left, 0px));
-                padding-right: calc(12px + env(safe-area-inset-right, 0px));
-                gap: 8px;
-            }
+            .input-area-wrap { padding-bottom: calc(10px + env(safe-area-inset-bottom, 0px)); }
+            .ref-chips { padding: 8px 12px 0; }
+            .input-area { padding: 8px 12px 0; gap: 8px; }
+            .input-area .attach-btn { width: 38px; height: 38px; font-size: 18px; }
             .input-area .input-wrap { padding: 4px 12px; border-radius: 10px; }
             .input-area .input-wrap textarea { font-size: 16px; padding: 8px 0; max-height: 100px; }
             .input-area .input-wrap .char-count { font-size: 10px; padding-left: 4px; }
             .input-area .send-btn { width: 42px; height: 42px; min-width: 42px; font-size: 16px; }
-            .input-hint { font-size: 10px; }
+            .input-hint { font-size: 10px; padding: 0 12px; }
+
+            .attach-menu { left: 12px; bottom: 80px; }
 
             .empty-state { padding: 24px 16px; }
             .empty-state i { font-size: 42px; margin-bottom: 12px; }
@@ -332,15 +553,16 @@
             .app-header { padding: 8px 14px; }
             .app-header .logo { font-size: 15px; }
             .messages { padding: 10px 16px 6px; }
-            .input-area { padding: 8px 16px; padding-bottom: calc(8px + env(safe-area-inset-bottom, 0px)); }
+            .input-area { padding: 8px 16px 0; }
+            .ref-chips { padding: 6px 16px 0; }
         }
 
         @supports (padding: max(0px)) {
             .app-header { padding-top: max(14px, env(safe-area-inset-top, 0px)); }
-            .input-area { padding-bottom: max(20px, env(safe-area-inset-bottom, 0px)); }
+            .input-area-wrap { padding-bottom: max(20px, env(safe-area-inset-bottom, 0px)); }
             @media (max-width: 768px) {
                 .app-header { padding-top: max(10px, env(safe-area-inset-top, 0px)); }
-                .input-area { padding-bottom: max(10px, env(safe-area-inset-bottom, 0px)); }
+                .input-area-wrap { padding-bottom: max(10px, env(safe-area-inset-bottom, 0px)); }
             }
         }
 
@@ -394,7 +616,7 @@
         <div class="chat-main-header">
             <div class="info">
                 <h4 id="chatTitle">AI 经营助手</h4>
-                <p id="chatSubtitle">基于 DeepSeek · 33 种指令 + 素材生成</p>
+                <p id="chatSubtitle">基于 DeepSeek · 33 种指令 + 素材生成 + 视频反解</p>
             </div>
             <div class="actions">
                 <span class="btn-sm" onclick="clearMessages()"><i class="fas fa-eraser"></i> 清空</span>
@@ -406,12 +628,13 @@
             <div class="empty-state" id="emptyState">
                 <i class="fas fa-robot"></i>
                 <h3>👋 你好，我是 AI 经营助手</h3>
-                <p>支持 33 种商品操作 + 素材生成。可单独生成图片/视频，还能把素材同步到指定商品。</p>
+                <p>支持 33 种商品操作 + 素材生成 + 视频反解。上传参考视频，AI 会自动拆解画面和运镜，生成同款商品。</p>
                 <div class="examples">
                     <span class="ex" onclick="sendExample('把云山茶叶礼盒的价格改成118元')">💰 改价格</span>
                     <span class="ex" onclick="sendExample('查一下需要补货的商品')">⚠️ 库存预警</span>
                     <span class="ex accent" onclick="sendExample('给云山茶叶礼盒生成3张主图')">🖼️ 生成主图</span>
                     <span class="ex accent" onclick="sendExample('给云山茶叶礼盒生成5秒种草短视频')">🎬 生成视频</span>
+                    <span class="ex accent" onclick="hintUploadVideo()">🎥 上传参考视频生成同款</span>
                     <span class="ex" onclick="sendExample('查看云山茶叶礼盒的图片')">🖼️ 查看图片</span>
                     <span class="ex" onclick="sendExample('导出所有商品数据到CSV')">📤 导出CSV</span>
                     <span class="ex danger" onclick="sendExample('删除所有文创类商品')">🗑️ 批量删除（高危）</span>
@@ -424,16 +647,42 @@
             </div>
         </div>
 
-        <div class="input-area">
-            <div class="input-wrap">
-                <textarea id="chatInput" rows="1" placeholder="试试：给云山茶叶礼盒生成3张主图" onkeydown="handleKeyDown(event)" oninput="autoResize(this)"></textarea>
-                <span class="char-count" id="charCount">0/500</span>
+        <div class="input-area-wrap" id="inputAreaWrap">
+            <div class="ref-chips" id="refChips" style="display:none;"></div>
+
+            <div class="input-area">
+                <button class="attach-btn" id="attachBtn" onclick="toggleAttachMenu(event)" title="添加参考素材">+</button>
+                <div class="input-wrap">
+                    <textarea id="chatInput" rows="1" placeholder="试试：上传参考视频后，说「给云山茶叶礼盒生成同款视频」" onkeydown="handleKeyDown(event)" oninput="autoResize(this)"></textarea>
+                    <span class="char-count" id="charCount">0/500</span>
+                </div>
+                <button class="send-btn" id="sendBtn" onclick="sendMessage()" disabled><i class="fas fa-paper-plane"></i></button>
             </div>
-            <button class="send-btn" id="sendBtn" onclick="sendMessage()" disabled><i class="fas fa-paper-plane"></i></button>
+            <div class="input-hint">回车发送 · Shift+回车换行 · 可拖拽/粘贴图片 · 上传视频自动抽帧反解</div>
+
+            <div class="attach-menu" id="attachMenu">
+                <button class="menu-item" onclick="triggerUpload('image')">
+                    <i class="fas fa-image"></i>
+                    <span>上传参考图</span>
+                    <span class="meta" id="refImgCount">0/5</span>
+                </button>
+                <button class="menu-item" onclick="triggerUpload('video')">
+                    <i class="fas fa-video"></i>
+                    <span>上传参考视频</span>
+                    <span class="meta" id="refVidCount">0/1</span>
+                </button>
+                <div class="menu-divider"></div>
+                <button class="menu-item" onclick="clearReferenceMedia(true)">
+                    <i class="fas fa-eraser"></i>
+                    <span>清空参考素材</span>
+                </button>
+            </div>
         </div>
-        <div class="input-hint">回车发送 · Shift+回车换行</div>
     </main>
 </div>
+
+<input type="file" id="imageInput" accept="image/*" multiple style="display:none;">
+<input type="file" id="videoInput" accept="video/mp4,video/webm,video/quicktime" style="display:none;">
 
 <div class="global-toast" id="toast"></div>
 
@@ -446,9 +695,15 @@
     const MAX_HISTORY = 50;
 
     const AGNES_API_BASE = 'https://apihub.agnes-ai.com/v1';
-    const AGNES_IMAGE_MODEL = 'agnes-image-2.0-flash';
+    const AGNES_IMAGE_MODEL = 'agnes-image-2.5-flash';    // ✅ 升级到 2.5
     const AGNES_VIDEO_MODEL = 'agnes-video-2.5-flash';
     const AGNES_API_KEY_DEFAULT = 'sk-XmLjN9e3Mhh8wf';
+
+    const REF_IMAGE_MAX = 5;
+    const REF_IMAGE_MAX_SIZE = 4 * 1024 * 1024;
+    const REF_VIDEO_MAX = 1;
+    const REF_VIDEO_MAX_SIZE = 20 * 1024 * 1024;
+    const KEYFRAME_COUNT = 3;
 
     function getAgnesApiKey() {
         return localStorage.getItem('agnes_api_key') || AGNES_API_KEY_DEFAULT;
@@ -464,9 +719,15 @@
         currentMessages: [],
         lastUserText: '',
         lastGeneratedMedia: null,
-        // ✅ 商品列表缓存（用于存在性校验和快速匹配）
         productsCache: null,
-        productsCacheTime: 0
+        productsCacheTime: 0,
+        referenceMedia: {
+            images: [],
+            videos: [],
+            keyframes: [],
+            keyframeUrls: [],
+            videoAnalysis: null
+        }
     };
 
     let historyData = [];
@@ -483,8 +744,32 @@
 
     function saveHistoryToStorage() {
         try {
-            localStorage.setItem(STORAGE_KEY, JSON.stringify(historyData.slice(0, MAX_HISTORY)));
-        } catch (e) {}
+            const slim = historyData.slice(0, MAX_HISTORY).map(h => ({
+                ...h,
+                messages: (h.messages || []).map(m => ({
+                    ...m,
+                    media: slimMedia(m.media)
+                }))
+            }));
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(slim));
+        } catch (e) {
+            console.warn('saveHistory 失败（可能空间不足）:', e);
+        }
+    }
+
+    function slimMedia(media) {
+        if (!media) return null;
+        if (media.type === 'references') {
+            const imgs = media.images || [];
+            return {
+                type: 'references',
+                count: imgs.length + (media.videos || []).length,
+                images: imgs.slice(0, 2),
+                videos: [],
+                keyframes: (media.keyframes || []).slice(0, 1)
+            };
+        }
+        return media;
     }
 
     // ================================================================
@@ -562,7 +847,7 @@
             document.getElementById('messagesList').innerHTML = '';
             document.getElementById('emptyState').style.display = 'flex';
             document.getElementById('chatTitle').textContent = 'AI 经营助手';
-            document.getElementById('chatSubtitle').textContent = '基于 DeepSeek · 33 种指令 + 素材生成';
+            document.getElementById('chatSubtitle').textContent = '基于 DeepSeek · 33 种指令 + 素材生成 + 视频反解';
         }
         saveHistoryToStorage();
         renderHistory();
@@ -586,7 +871,7 @@
         state.lastGeneratedMedia = null;
         renderHistory();
         document.getElementById('chatTitle').textContent = 'AI 经营助手';
-        document.getElementById('chatSubtitle').textContent = '基于 DeepSeek · 33 种指令 + 素材生成';
+        document.getElementById('chatSubtitle').textContent = '基于 DeepSeek · 33 种指令 + 素材生成 + 视频反解';
         document.getElementById('messagesList').innerHTML = '';
         document.getElementById('emptyState').style.display = 'flex';
         document.getElementById('chatInput').value = '';
@@ -656,20 +941,53 @@
         const avatarClass = msg.role === 'user' ? 'user' : 'ai';
 
         let bubbleContent = `<div class="bubble">`;
+
+        // 参考素材预览
+        if (msg.media && msg.media.type === 'references') {
+            bubbleContent += `<div class="media-preview ref-preview">`;
+            (msg.media.images || []).forEach((url, i) => {
+                bubbleContent += `<div class="media-item"><img src="${url}" alt="参考${i+1}"><span class="badge">参考${i+1}</span></div>`;
+            });
+            (msg.media.videos || []).forEach(url => {
+                bubbleContent += `<video src="${url}" muted preload="metadata"></video>`;
+            });
+            (msg.media.keyframes || []).forEach((url, i) => {
+                bubbleContent += `<div class="media-item"><img src="${url}" alt="关键帧${i+1}"><span class="badge kf">帧${i+1}</span></div>`;
+            });
+            if (msg.media.count && msg.media.count > (msg.media.images || []).length) {
+                bubbleContent += `<div class="media-item" style="display:flex;align-items:center;justify-content:center;color:#94a3b8;font-size:12px;">+${msg.media.count - (msg.media.images || []).length}</div>`;
+            }
+            bubbleContent += `</div>`;
+        }
+
         if (msg.text) bubbleContent += `<p class="msg-text">${renderMarkdown(msg.text)}</p>`;
 
-        if (msg.media) {
+        // 视频反解结果
+        if (msg.analysis) {
+            const a = msg.analysis;
+            bubbleContent += `<div class="analysis-card">
+                <div class="an-title"><i class="fas fa-magnifying-glass-chart"></i> 参考视频反解结果</div>
+                ${a.content ? `<div class="an-row"><span class="an-label">画面：</span><span class="an-val">${escapeHtml(a.content)}</span></div>` : ''}
+                ${a.camera ? `<div class="an-row"><span class="an-label">运镜：</span><span class="an-val">${escapeHtml(a.camera)}</span></div>` : ''}
+                ${a.rhythm ? `<div class="an-row"><span class="an-label">节奏：</span><span class="an-val">${escapeHtml(a.rhythm)}</span></div>` : ''}
+                ${a.prompt ? `<div class="an-row"><span class="an-label">生成 Prompt：</span><span class="an-val">${escapeHtml(a.prompt)}</span></div>` : ''}
+                ${a.style_tags && a.style_tags.length ? `<div class="an-tags">${a.style_tags.map(t => `<span class="an-tag">${escapeHtml(t)}</span>`).join('')}</div>` : ''}
+            </div>`;
+        }
+
+        if (msg.media && msg.media.type === 'images' && msg.media.urls) {
             bubbleContent += `<div class="media-preview">`;
-            if (msg.media.type === 'images' && msg.media.urls && msg.media.urls.length > 0) {
-                msg.media.urls.forEach((url, i) => {
-                    bubbleContent += `<div class="media-item">${url ? `<img src="${url}" alt="图${i+1}">` : `<div class="ph"><i class="fas fa-image"></i></div>`}<span class="badge">#${i+1}</span></div>`;
-                });
-            } else if (msg.media.type === 'video') {
-                if (msg.media.videoUrl) {
-                    bubbleContent += `<video src="${msg.media.videoUrl}" controls preload="metadata"></video>`;
-                } else {
-                    bubbleContent += `<div class="media-item" style="grid-column:1/-1; aspect-ratio:16/9;"><div class="ph"><i class="fas fa-video"></i></div></div>`;
-                }
+            msg.media.urls.forEach((url, i) => {
+                bubbleContent += `<div class="media-item">${url ? `<img src="${url}" alt="图${i+1}">` : `<div class="ph"><i class="fas fa-image"></i></div>`}<span class="badge">#${i+1}</span></div>`;
+            });
+            bubbleContent += `</div>`;
+        }
+        if (msg.media && msg.media.type === 'video') {
+            bubbleContent += `<div class="media-preview">`;
+            if (msg.media.videoUrl) {
+                bubbleContent += `<video src="${msg.media.videoUrl}" controls preload="metadata"></video>`;
+            } else {
+                bubbleContent += `<div class="media-item" style="grid-column:1/-1; aspect-ratio:16/9;"><div class="ph"><i class="fas fa-video"></i></div></div>`;
             }
             bubbleContent += `</div>`;
         }
@@ -742,6 +1060,7 @@
             text: m.text || '',
             time: m.time || nowStr,
             media: m.media || null,
+            analysis: m.analysis || null,
             card: m.card ? {
                 title: m.card.title,
                 desc: m.card.desc,
@@ -772,7 +1091,322 @@
     }
 
     // ================================================================
-    // ✅ 商品列表缓存 + 存在性校验
+    // 参考素材：上传 + 视频抽帧
+    // ================================================================
+    function toggleAttachMenu(e) {
+        e.stopPropagation();
+        const menu = document.getElementById('attachMenu');
+        menu.classList.toggle('show');
+        document.getElementById('refImgCount').textContent = `${state.referenceMedia.images.length}/${REF_IMAGE_MAX}`;
+        document.getElementById('refVidCount').textContent = `${state.referenceMedia.videos.length}/${REF_VIDEO_MAX}`;
+    }
+
+    document.addEventListener('click', (e) => {
+        const menu = document.getElementById('attachMenu');
+        const btn = document.getElementById('attachBtn');
+        if (menu && menu.classList.contains('show') && !menu.contains(e.target) && !btn.contains(e.target)) {
+            menu.classList.remove('show');
+        }
+    });
+
+    function triggerUpload(kind) {
+        document.getElementById('attachMenu').classList.remove('show');
+        if (kind === 'image') document.getElementById('imageInput').click();
+        else if (kind === 'video') document.getElementById('videoInput').click();
+    }
+
+    function hintUploadVideo() {
+        showToast('📌 点下方「+」→ 上传参考视频');
+        document.getElementById('attachBtn').focus();
+        setTimeout(() => {
+            const menu = document.getElementById('attachMenu');
+            menu.classList.add('show');
+            document.getElementById('refImgCount').textContent = `${state.referenceMedia.images.length}/${REF_IMAGE_MAX}`;
+            document.getElementById('refVidCount').textContent = `${state.referenceMedia.videos.length}/${REF_VIDEO_MAX}`;
+        }, 150);
+    }
+
+    function fileToDataUrl(file) {
+        return new Promise((resolve, reject) => {
+            const reader = new FileReader();
+            reader.onload = e => resolve(e.target.result);
+            reader.onerror = reject;
+            reader.readAsDataURL(file);
+        });
+    }
+    function dataUrlToBlob(dataUrl) {
+        const [header, base64] = dataUrl.split(',');
+        const mime = header.match(/:(.*?);/)[1];
+        const binary = atob(base64);
+        const array = new Uint8Array(binary.length);
+        for (let i = 0; i < binary.length; i++) array[i] = binary.charCodeAt(i);
+        return new Blob([array], { type: mime });
+    }
+
+    async function extractVideoKeyframes(file, count = KEYFRAME_COUNT) {
+        const url = URL.createObjectURL(file);
+        const video = document.createElement('video');
+        video.src = url;
+        video.muted = true;
+        video.crossOrigin = 'anonymous';
+        video.preload = 'metadata';
+
+        await new Promise((resolve, reject) => {
+            video.onloadedmetadata = resolve;
+            video.onerror = () => reject(new Error('视频加载失败'));
+        });
+
+        const duration = video.duration || 5;
+        const canvas = document.createElement('canvas');
+        const ctx = canvas.getContext('2d');
+        const frames = [];
+
+        const positions = [];
+        if (count === 1) positions.push(duration / 2);
+        else {
+            for (let i = 0; i < count; i++) {
+                positions.push((duration * i) / (count - 1));
+            }
+        }
+
+        for (const t of positions) {
+            await new Promise((resolve) => {
+                const onSeeked = () => {
+                    video.removeEventListener('seeked', onSeeked);
+                    resolve();
+                };
+                video.addEventListener('seeked', onSeeked);
+                video.currentTime = Math.min(t, Math.max(0, duration - 0.05));
+            });
+
+            canvas.width = video.videoWidth || 720;
+            canvas.height = video.videoHeight || 1280;
+            ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+            const dataUrl = canvas.toDataURL('image/jpeg', 0.85);
+            frames.push(dataUrl);
+        }
+
+        URL.revokeObjectURL(url);
+        return frames;
+    }
+
+    async function handleReferenceImageUpload(files) {
+        const fileArr = Array.from(files);
+        if (fileArr.length === 0) return;
+        let added = 0, skipped = 0;
+
+        for (const file of fileArr) {
+            if (state.referenceMedia.images.length >= REF_IMAGE_MAX) { skipped++; continue; }
+            if (!file.type.startsWith('image/')) { skipped++; continue; }
+            if (file.size > REF_IMAGE_MAX_SIZE) {
+                showToast(`⚠️ ${file.name} 超过 4MB，已跳过`);
+                skipped++;
+                continue;
+            }
+            try {
+                const dataUrl = await fileToDataUrl(file);
+                state.referenceMedia.images.push({
+                    id: 'ref_img_' + Date.now() + '_' + Math.random().toString(36).slice(2, 6),
+                    dataUrl, file, name: file.name
+                });
+                added++;
+            } catch (e) { skipped++; }
+        }
+        if (added > 0) showToast(`📤 已添加 ${added} 张参考图`);
+        if (skipped > 0 && added === 0) showToast(`⚠️ 有 ${skipped} 个文件被跳过`);
+        renderReferenceChips();
+    }
+
+    async function handleReferenceVideoUpload(files) {
+        const fileArr = Array.from(files);
+        if (fileArr.length === 0) return;
+
+        for (const file of fileArr) {
+            if (state.referenceMedia.videos.length >= REF_VIDEO_MAX) {
+                showToast('⚠️ 参考视频最多 1 个');
+                continue;
+            }
+            if (!file.type.startsWith('video/')) {
+                showToast(`⚠️ ${file.name} 不是视频文件`);
+                continue;
+            }
+            if (file.size > REF_VIDEO_MAX_SIZE) {
+                showToast(`⚠️ ${file.name} 超过 20MB，已跳过`);
+                continue;
+            }
+
+            const previewUrl = URL.createObjectURL(file);
+            state.referenceMedia.videos.push({
+                id: 'ref_vid_' + Date.now() + '_' + Math.random().toString(36).slice(2, 6),
+                file, name: file.name, previewUrl
+            });
+
+            showToast('🎬 正在从视频抽帧...');
+            try {
+                const keyframes = await extractVideoKeyframes(file, KEYFRAME_COUNT);
+                state.referenceMedia.keyframes = keyframes;
+                state.referenceMedia.keyframeUrls = [];
+                state.referenceMedia.videoAnalysis = null;
+                showToast(`✅ 已抽取 ${keyframes.length} 张关键帧`);
+            } catch (err) {
+                console.warn('抽帧失败:', err);
+                state.referenceMedia.keyframes = [];
+                showToast('⚠️ 抽帧失败，将使用纯文本模式');
+            }
+        }
+        renderReferenceChips();
+    }
+
+    function renderReferenceChips() {
+        const container = document.getElementById('refChips');
+        const { images, videos, keyframes } = state.referenceMedia;
+        const kfCount = keyframes ? keyframes.length : 0;
+        if (images.length === 0 && videos.length === 0) {
+            container.style.display = 'none';
+            container.innerHTML = '';
+            return;
+        }
+        container.style.display = 'flex';
+        container.innerHTML = `
+            ${images.map(m => `
+                <div class="ref-chip" title="${escapeHtml(m.name)}">
+                    <div class="chip-inner"><img src="${m.dataUrl}" alt="${escapeHtml(m.name)}"></div>
+                    <button class="chip-remove" onclick="removeReference('${m.id}')" title="移除">×</button>
+                    <span class="chip-badge">图</span>
+                </div>
+            `).join('')}
+            ${videos.map(m => `
+                <div class="ref-chip video" title="${escapeHtml(m.name)}">
+                    <div class="chip-inner">
+                        <video src="${m.previewUrl}" muted preload="metadata"></video>
+                        <i class="fas fa-play chip-play"></i>
+                    </div>
+                    <button class="chip-remove" onclick="removeReference('${m.id}')" title="移除">×</button>
+                    <span class="chip-badge">视频 · ${kfCount}帧</span>
+                    ${kfCount > 0 ? `<span class="chip-kf-badge">已抽帧</span>` : ''}
+                </div>
+            `).join('')}
+            <span class="ref-hint">${images.length} 图 · ${videos.length} 视频${kfCount ? ` · ${kfCount} 关键帧` : ''}</span>
+        `;
+    }
+
+    function removeReference(id) {
+        state.referenceMedia.images = state.referenceMedia.images.filter(x => x.id !== id);
+        const removedVideo = state.referenceMedia.videos.find(x => x.id === id);
+        if (removedVideo) {
+            try { URL.revokeObjectURL(removedVideo.previewUrl); } catch (e) {}
+            state.referenceMedia.videos = state.referenceMedia.videos.filter(x => x.id !== id);
+            state.referenceMedia.keyframes = [];
+            state.referenceMedia.keyframeUrls = [];
+            state.referenceMedia.videoAnalysis = null;
+        }
+        renderReferenceChips();
+    }
+
+    function clearReferenceMedia(silent = false) {
+        if (silent === true || confirm('确定清空所有参考素材？')) {
+            state.referenceMedia.videos.forEach(v => {
+                try { URL.revokeObjectURL(v.previewUrl); } catch (e) {}
+            });
+            state.referenceMedia.images = [];
+            state.referenceMedia.videos = [];
+            state.referenceMedia.keyframes = [];
+            state.referenceMedia.keyframeUrls = [];
+            state.referenceMedia.videoAnalysis = null;
+            renderReferenceChips();
+            document.getElementById('attachMenu').classList.remove('show');
+            if (silent !== true) showToast('🧹 已清空参考素材');
+        }
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+        const imgInput = document.getElementById('imageInput');
+        const vidInput = document.getElementById('videoInput');
+        imgInput.addEventListener('change', async (e) => {
+            await handleReferenceImageUpload(e.target.files);
+            e.target.value = '';
+        });
+        vidInput.addEventListener('change', async (e) => {
+            await handleReferenceVideoUpload(e.target.files);
+            e.target.value = '';
+        });
+
+        const wrap = document.getElementById('inputAreaWrap');
+        let dragDepth = 0;
+        wrap.addEventListener('dragenter', (e) => { e.preventDefault(); dragDepth++; wrap.classList.add('drag-over'); });
+        wrap.addEventListener('dragover', (e) => { e.preventDefault(); e.dataTransfer.dropEffect = 'copy'; });
+        wrap.addEventListener('dragleave', (e) => {
+            e.preventDefault(); dragDepth--;
+            if (dragDepth <= 0) { dragDepth = 0; wrap.classList.remove('drag-over'); }
+        });
+        wrap.addEventListener('drop', async (e) => {
+            e.preventDefault();
+            dragDepth = 0;
+            wrap.classList.remove('drag-over');
+            const files = Array.from(e.dataTransfer.files);
+            const imgs = files.filter(f => f.type.startsWith('image/'));
+            const vids = files.filter(f => f.type.startsWith('video/'));
+            if (imgs.length > 0) await handleReferenceImageUpload(imgs);
+            if (vids.length > 0) await handleReferenceVideoUpload(vids);
+        });
+
+        const chatInput = document.getElementById('chatInput');
+        chatInput.addEventListener('paste', async (e) => {
+            const items = e.clipboardData.items;
+            const imageFiles = [];
+            for (const item of items) {
+                if (item.type.indexOf('image') !== -1) {
+                    const file = item.getAsFile();
+                    if (file) imageFiles.push(file);
+                }
+            }
+            if (imageFiles.length > 0) {
+                e.preventDefault();
+                await handleReferenceImageUpload(imageFiles);
+            }
+        });
+
+        renderReferenceChips();
+    });
+
+    // ================================================================
+    // 临时图床 + 反解
+    // ================================================================
+    async function uploadKeyframesToTemp(keyframes) {
+        if (!keyframes || keyframes.length === 0) return [];
+        const formData = new FormData();
+        keyframes.forEach((dataUrl, i) => {
+            const blob = dataUrlToBlob(dataUrl);
+            const file = new File([blob], `keyframe_${i+1}.jpg`, { type: 'image/jpeg' });
+            formData.append('files', file);
+        });
+        formData.append('purpose', 'keyframe');
+
+        const res = await fetch(BACKEND_URL + '/api/upload/temp/batch', {
+            method: 'POST',
+            body: formData
+        });
+        const data = await res.json();
+        if (!data.success) throw new Error(data.message || '上传关键帧失败');
+        return (data.results || []).filter(r => r.success).map(r => r.url);
+    }
+
+    async function decomposeVideoReference(keyframeUrls, productName) {
+        const res = await fetch(BACKEND_URL + '/api/video/decompose', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                keyframe_urls: keyframeUrls,
+                product_name: productName || ''
+            })
+        });
+        const data = await res.json();
+        if (!data.success) throw new Error(data.message || '反解失败');
+        return data.analysis;
+    }
+
+    // ================================================================
+    // 商品校验
     // ================================================================
     async function fetchProducts(force = false) {
         const now = Date.now();
@@ -797,18 +1431,15 @@
         if (!products) return { ok: false, reason: 'fetch_failed' };
 
         const clean = name.replace(/\s/g, '').toLowerCase();
-        // 1. 精确匹配
         let found = products.find(p => p.name.replace(/\s/g, '').toLowerCase() === clean);
         if (found) return { ok: true, product: found, matchedBy: 'exact' };
 
-        // 2. 包含匹配
         found = products.find(p => {
             const pn = p.name.replace(/\s/g, '').toLowerCase();
             return pn.includes(clean) || clean.includes(pn);
         });
         if (found) return { ok: true, product: found, matchedBy: 'contains' };
 
-        // 3. 别名匹配
         const aliases = {
             '茶叶': '茶叶', '礼盒': '礼盒', '竹编': '竹编', '核桃': '核桃',
             '皂': '皂', '陶瓷': '陶瓷', '杯': '陶瓷', '折扇': '扇',
@@ -820,7 +1451,6 @@
                 if (found) return { ok: true, product: found, matchedBy: 'alias' };
             }
         }
-
         return { ok: false, reason: 'not_found' };
     }
 
@@ -897,7 +1527,7 @@
 
         const imgKeywords = ['生成', '做', '画', '出', '来', '弄'];
         const imgNouns = ['主图', '图片', '图', '商品图', '海报', '轮播图', '详情图'];
-        const videoNouns = ['视频', '短视频', '种草视频', '广告片'];
+        const videoNouns = ['视频', '短视频', '种草视频', '广告片', '同款'];
 
         const hasImgVerb = imgKeywords.some(k => t.includes(k));
         const hasImgNoun = imgNouns.some(k => t.includes(k));
@@ -912,7 +1542,7 @@
         const m1 = t.match(/[给为]([^\s，,。]{2,20}?)(?:生成|做|画|出|来|弄)/);
         if (m1) productName = m1[1];
         if (!productName) {
-            const m2 = t.match(/([^\s，,。]{2,20}?)(?:的|主图|图片|视频|轮播图|海报|种草)/);
+            const m2 = t.match(/([^\s，,。]{2,20}?)(?:的|主图|图片|视频|轮播图|海报|种草|同款)/);
             if (m2) productName = m2[1];
         }
         productName = productName.replace(/^的|生成$|做$|画$|出$|来$|弄$/, '').trim();
@@ -936,11 +1566,26 @@
     }
 
     // ================================================================
-    // Agnes 图片
+    // Agnes 图片（修复版）
     // ================================================================
-    async function generateAgnesImage(prompt, size = '1024x1024') {
+    async function generateAgnesImage(prompt, sizeTier = '1K', ratio = '1:1', referenceImages = []) {
         const apiKey = getAgnesApiKey();
-        const body = { model: AGNES_IMAGE_MODEL, prompt, size };
+        const body = {
+            model: AGNES_IMAGE_MODEL,
+            prompt: prompt,
+            size: sizeTier,
+            ratio: ratio,
+            extra_body: {
+                response_format: 'url'
+            }
+        };
+
+        if (referenceImages && referenceImages.length > 0) {
+            body.extra_body.image = referenceImages.slice(0, 5);
+            if (!/参考|reference|<Picture/i.test(prompt)) {
+                body.prompt = prompt + '（参考上传的图片风格与主体）';
+            }
+        }
 
         const res = await fetch(AGNES_API_BASE + '/images/generations', {
             method: 'POST',
@@ -958,7 +1603,7 @@
     }
 
     // ================================================================
-    // Agnes 视频
+    // Agnes 视频（修复版）
     // ================================================================
     async function createVideoTaskWithRetry(apiKey, body, maxRetries = 4) {
         let lastErr = null;
@@ -991,16 +1636,32 @@
         throw lastErr || new Error('视频任务创建失败');
     }
 
-    async function generateAgnesVideo(prompt, seconds = '5', onProgress) {
+    async function generateAgnesVideo(prompt, seconds = '5', referenceImages = [], aspectRatio = '9:16', onProgress) {
         const apiKey = getAgnesApiKey();
+        const hasRefs = referenceImages && referenceImages.length > 0;
+
         const body = {
-            model: AGNES_VIDEO_MODEL, prompt, seconds,
-            mode: 'text', size: '720P', aspect_ratio: '9:16', n: 1
+            model: AGNES_VIDEO_MODEL,
+            prompt: prompt,
+            seconds: String(seconds),
+            mode: hasRefs ? 'reference' : 'text',
+            size: '720P',
+            aspect_ratio: aspectRatio,
+            n: 1
         };
+        if (hasRefs) {
+            body.images = referenceImages.slice(0, 5);
+            if (!/<Picture\s*\d+/i.test(prompt)) {
+                body.prompt = prompt + '。以 <Picture 1> 中的商品外观、色调和风格为参考，保持主体一致性。';
+            }
+        }
 
         const createData = await createVideoTaskWithRetry(apiKey, body, 4);
         const videoId = createData.video_id;
-        if (!videoId) { console.error(createData); throw new Error('创建任务未返回 video_id'); }
+        if (!videoId) {
+            console.error('创建任务响应:', createData);
+            throw new Error('创建任务未返回 video_id');
+        }
 
         const maxAttempts = 300, intervalMs = 2000;
         let lastStatus = '';
@@ -1028,7 +1689,7 @@
             if (typeof onProgress === 'function') onProgress(i + 1, maxAttempts, status, statusText);
 
             if (status === 'completed') {
-                const url = qd.url || (qd.data && qd.data.url);
+                const url = qd.url;
                 if (url) return url;
                 throw new Error('视频已完成但未返回 URL');
             }
@@ -1041,37 +1702,33 @@
     }
 
     // ================================================================
-    // ✅ 生成意图处理（含商品存在性校验）
+    // 生成意图处理
     // ================================================================
-    async function handleGenerationIntent(intent, originalText) {
+    async function handleGenerationIntent(intent, originalText, refSnapshot) {
         let { kind, count, productName, seconds, extraDesc } = intent;
 
-        // ---------- 商品存在性校验 ----------
+        const refImages = (refSnapshot && refSnapshot.images) || [];
+        const keyframes = (refSnapshot && refSnapshot.keyframes) || [];
+        const hasRef = refImages.length > 0;
+        const hasVideoRef = keyframes.length > 0;
+
         if (productName) {
             const check = await checkProductExists(productName);
             if (!check.ok) {
                 if (check.reason === 'fetch_failed') {
-                    appendMessage({
-                        role: 'ai',
-                        text: '❌ 无法获取商品列表，请稍后重试。',
-                        time: nowTime(),
-                        retryable: true
-                    });
+                    appendMessage({ role: 'ai', text: '❌ 无法获取商品列表，请稍后重试。', time: nowTime(), retryable: true });
                     return;
                 }
-                // 商品不存在
                 const listPreview = await getProductListPreview(5);
                 appendMessage({
                     role: 'ai',
-                    text: `❌ 未找到商品「${productName}」。\n\n**当前可选商品**：\n${listPreview}\n\n请用准确的商品名重试，例如：\`给云山茶叶礼盒生成3张主图\``,
+                    text: `❌ 未找到商品「${productName}」。\n\n**当前可选商品**：\n${listPreview}\n\n请用准确的商品名重试。`,
                     time: nowTime()
                 });
                 return;
             }
-            // ✅ 用规范化后的商品名（避免空格/别名导致后端匹配失败）
             productName = check.product.name;
         } else {
-            // 没识别出商品名，也不直接生成
             const listPreview = await getProductListPreview(5);
             appendMessage({
                 role: 'ai',
@@ -1081,11 +1738,13 @@
             return;
         }
 
-        // ---------- 图片生成 ----------
+        // ============ 图片生成 ============
         if (kind === 'images') {
             const aiMsg = {
                 role: 'ai',
-                text: `🎨 已开始为「${productName}」生成 ${count} 张主图...`,
+                text: hasRef
+                    ? `🎨 已开始为「${productName}」生成 ${count} 张主图（参考 ${refImages.length} 张素材）...`
+                    : `🎨 已开始为「${productName}」生成 ${count} 张主图...`,
                 time: nowTime(),
                 progress: 0
             };
@@ -1094,8 +1753,8 @@
             const urls = [];
             for (let i = 0; i < count; i++) {
                 try {
-                    const prompt = `${productName}，${['正面主图，突出包装设计，暖色调', '细节特写，展示材质质感', '礼盒展开效果，温馨氛围', '使用场景图，优雅自然', '赠品组合图，超值感'][i % 5]}${extraDesc ? '，' + extraDesc : ''}`;
-                    const url = await generateAgnesImage(prompt, '1024x1024');
+                    const basePrompt = `${productName}，${['正面主图，突出包装设计，暖色调', '细节特写，展示材质质感', '礼盒展开效果，温馨氛围', '使用场景图，优雅自然', '赠品组合图，超值感'][i % 5]}${extraDesc ? '，' + extraDesc : ''}`;
+                    const url = await generateAgnesImage(basePrompt, '1K', '1:1', refImages);
                     urls.push(url);
                 } catch (err) {
                     console.warn('单张失败:', err);
@@ -1114,7 +1773,7 @@
                 const validCount = urls.filter(u => u).length;
                 m.progress = undefined;
                 m.media = { type: 'images', urls };
-                m.text = `✅ 已为「${productName}」生成 ${validCount}/${count} 张主图`;
+                m.text = `✅ 已为「${productName}」生成 ${validCount}/${count} 张主图${hasRef ? `（参考 ${refImages.length} 张素材）` : ''}`;
                 const syncId = 'sync_' + Date.now();
                 m.card = {
                     title: '📌 下一步',
@@ -1142,11 +1801,70 @@
             return;
         }
 
-        // ---------- 视频生成 ----------
+        // ============ 视频生成（含反解） ============
         if (kind === 'video') {
+            let finalPrompt = `${productName} 商品展示短视频${extraDesc ? '，' + extraDesc : ''}`;
+            let refUrls = [];
+            let analysis = null;
+
+            if (hasVideoRef) {
+                const analyzeMsg = {
+                    role: 'ai',
+                    text: '🔍 正在分析参考视频（抽帧 → 上传 → 反解）...',
+                    time: nowTime(),
+                    progress: 5
+                };
+                const analyzeId = appendMessage(analyzeMsg);
+
+                try {
+                    let kfUrls = state.referenceMedia.keyframeUrls;
+                    if (!kfUrls || kfUrls.length === 0) {
+                        const m = state.currentMessages.find(x => x.id === analyzeId);
+                        if (m) {
+                            m.text = '🔍 正在上传关键帧到临时图床...';
+                            m.progress = 20;
+                            updateMessageNode(m);
+                        }
+                        kfUrls = await uploadKeyframesToTemp(keyframes);
+                        state.referenceMedia.keyframeUrls = kfUrls;
+                    }
+
+                    const m2 = state.currentMessages.find(x => x.id === analyzeId);
+                    if (m2) {
+                        m2.text = '🧠 正在用多模态模型反解画面与运镜...';
+                        m2.progress = 50;
+                        updateMessageNode(m2);
+                    }
+                    analysis = await decomposeVideoReference(kfUrls, productName);
+                    state.referenceMedia.videoAnalysis = analysis;
+
+                    if (analysis.prompt) finalPrompt = analysis.prompt;
+                    refUrls = kfUrls;
+
+                    const m3 = state.currentMessages.find(x => x.id === analyzeId);
+                    if (m3) {
+                        m3.progress = undefined;
+                        m3.analysis = analysis;
+                        m3.text = `✅ 参考视频分析完成，将生成「${productName}」同款视频...`;
+                        updateMessageNode(m3);
+                    }
+                } catch (err) {
+                    console.warn('反解失败，降级为纯文本:', err);
+                    const m = state.currentMessages.find(x => x.id === analyzeId);
+                    if (m) {
+                        m.progress = undefined;
+                        m.text = `⚠️ 参考视频分析失败（${err.message}），改用纯文本模式生成...`;
+                        updateMessageNode(m);
+                    }
+                    refUrls = [];
+                }
+            }
+
             const aiMsg = {
                 role: 'ai',
-                text: `🎬 已开始为「${productName}」生成 ${seconds} 秒种草视频（排队中，最长 10 分钟）...`,
+                text: refUrls.length > 0
+                    ? `🎬 已开始为「${productName}」生成 ${seconds} 秒同款视频（参考 ${refUrls.length} 帧，排队中，最长 10 分钟）...`
+                    : `🎬 已开始为「${productName}」生成 ${seconds} 秒种草视频（排队中，最长 10 分钟）...`,
                 time: nowTime(),
                 progress: 0
             };
@@ -1154,8 +1872,7 @@
 
             let videoUrl = '';
             try {
-                const prompt = `${productName} 商品展示短视频${extraDesc ? '，' + extraDesc : ''}`;
-                videoUrl = await generateAgnesVideo(prompt, seconds, (attempt, total, status, text) => {
+                videoUrl = await generateAgnesVideo(finalPrompt, seconds, refUrls, '9:16', (attempt, total, status, text) => {
                     const m = state.currentMessages.find(x => x.id === msgId);
                     if (m) {
                         m.progress = Math.min(95, Math.round((attempt / total) * 100));
@@ -1178,7 +1895,7 @@
             if (m) {
                 m.progress = undefined;
                 m.media = { type: 'video', videoUrl };
-                m.text = `✅ 已为「${productName}」生成 ${seconds} 秒种草视频`;
+                m.text = `✅ 已为「${productName}」生成 ${seconds} 秒${refUrls.length > 0 ? '同款' : '种草'}视频`;
                 const syncId = 'sync_' + Date.now();
                 m.card = {
                     title: '📌 下一步',
@@ -1213,11 +1930,34 @@
     async function sendMessage() {
         const input = document.getElementById('chatInput');
         const text = input.value.trim();
-        if (!text || state.isProcessing) return;
+        const hasRef = state.referenceMedia.images.length > 0
+            || state.referenceMedia.videos.length > 0
+            || state.referenceMedia.keyframes.length > 0;
+
+        if (!text && !hasRef) return;
+        if (!text) { showToast('⚠️ 请输入指令内容'); return; }
         if (text.length > 500) { showToast('⚠️ 输入内容不能超过500字'); return; }
+        if (state.isProcessing) return;
 
         state.lastUserText = text;
-        appendMessage({ role: 'user', text: text, time: nowTime() });
+
+        const refSnapshot = {
+            images: state.referenceMedia.images.map(x => x.dataUrl),
+            keyframes: state.referenceMedia.keyframes.slice(),
+            videoFile: state.referenceMedia.videos[0] ? state.referenceMedia.videos[0].file : null
+        };
+
+        const userMsg = { role: 'user', text: text, time: nowTime() };
+        if (hasRef) {
+            userMsg.media = {
+                type: 'references',
+                images: refSnapshot.images,
+                videos: state.referenceMedia.videos.map(v => v.previewUrl),
+                keyframes: refSnapshot.keyframes
+            };
+        }
+        appendMessage(userMsg);
+
         input.value = '';
         updateCharCount();
         updateSendBtn();
@@ -1229,7 +1969,7 @@
         if (genIntent) {
             document.getElementById('typingIndicator').classList.remove('show');
             try {
-                await handleGenerationIntent(genIntent, text);
+                await handleGenerationIntent(genIntent, text, refSnapshot);
             } catch (err) {
                 appendMessage({ role: 'ai', text: friendlyError(err), time: nowTime(), retryable: true });
             }
@@ -1238,6 +1978,7 @@
             return;
         }
 
+        // 普通意图
         document.getElementById('typingIndicator').classList.add('show');
         document.getElementById('messageContainer').scrollTop = document.getElementById('messageContainer').scrollHeight;
 
@@ -1321,12 +2062,11 @@
     }
 
     // ================================================================
-    // ✅ 修复：把生成的素材同步到商品（检查每条结果）
+    // 同步生成的素材到商品（检查每条结果）
     // ================================================================
     async function syncGeneratedMedia(args) {
         const { product_name, media_type, urls, video_url, mode } = args;
 
-        // ✅ 同步前再校验一次（双保险）
         const check = await checkProductExists(product_name);
         if (!check.ok) {
             appendMessage({
@@ -1359,12 +2099,10 @@
             });
             const data = await res.json();
 
-            // ✅ 检查 results 明细，避免"假成功"
             const results = data.results || [];
             const failList = results.filter(r => !r.ok);
             const okList = results.filter(r => r.ok);
 
-            // 优先用 all_ok（如果后端支持）
             if (typeof data.all_ok === 'boolean') {
                 if (data.all_ok) {
                     appendMessage({ role: 'ai', text: `✅ 已替换到商品「${realName}」`, time: nowTime() });
@@ -1372,14 +2110,11 @@
                     const reasons = failList.map(r => `${r.name}：${r.msg}`).join('\n');
                     appendMessage({ role: 'ai', text: `❌ 替换失败：\n${reasons}`, time: nowTime() });
                 }
-                // 让商品缓存失效，下次重新拉取
                 state.productsCache = null;
                 return;
             }
 
-            // 无 all_ok，按 results 判断
             if (results.length === 0) {
-                // 后端没返回 results（可能旧版本），保守提示
                 appendMessage({
                     role: 'ai',
                     text: `⚠️ 无法确认替换结果（接口未返回明细）。接口消息：${data.message || '无'}`,
@@ -1403,10 +2138,7 @@
                     time: nowTime()
                 });
             }
-
-            // 让商品缓存失效
             state.productsCache = null;
-
         } catch (err) {
             appendMessage({ role: 'ai', text: '❌ 替换失败：' + friendlyError(err), time: nowTime() });
         }
@@ -1493,7 +2225,7 @@
         document.getElementById('messagesList').innerHTML = '';
         document.getElementById('emptyState').style.display = 'flex';
         document.getElementById('chatTitle').textContent = 'AI 经营助手';
-        document.getElementById('chatSubtitle').textContent = '基于 DeepSeek · 33 种指令 + 素材生成';
+        document.getElementById('chatSubtitle').textContent = '基于 DeepSeek · 33 种指令 + 素材生成 + 视频反解';
         state.currentChatId = null;
         state.currentMessages = [];
         state.pendingActions = {};
@@ -1524,8 +2256,15 @@
                 cardText = `【卡片】${cardTitle}${cardDesc ? ' - ' + cardDesc.replace(/\n/g, ' ') : ''}`;
             }
 
+            const analysis = bubble.querySelector('.analysis-card');
+            let analysisText = '';
+            if (analysis) {
+                analysisText = `【反解结果】${analysis.innerText.replace(/\n+/g, ' | ')}`;
+            }
+
             text += `[${role}] ${content}\n`;
             if (cardText) text += `        ${cardText}\n`;
+            if (analysisText) text += `        ${analysisText}\n`;
         });
         text += '='.repeat(50) + '\n导出时间: ' + new Date().toLocaleString();
 
@@ -1575,9 +2314,6 @@
         }
     }
 
-    // ================================================================
-    // 初始化
-    // ================================================================
     document.addEventListener('DOMContentLoaded', function() {
         loadHistoryFromStorage();
         renderHistory();
@@ -1597,9 +2333,8 @@
         if (window.innerWidth > 768) closeSidebar();
     });
 
-    console.log('🤖 智控电商 · AI助手已加载（历史持久化 + 素材生成 + 商品校验 + 真实同步结果）');
+    console.log('🤖 智控电商 · AI助手已加载（Agnes 2.5 + 视频反解 + 商品校验 + 真实同步）');
     console.log('💡 后端:', BACKEND_URL);
-    console.log('🎨 Agnes 图片:', AGNES_IMAGE_MODEL, '| 视频:', AGNES_VIDEO_MODEL);
 </script>
 </body>
 </html>
