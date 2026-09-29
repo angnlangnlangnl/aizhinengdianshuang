@@ -46,7 +46,6 @@
         .app-header .status .btn:hover { background: rgba(255,255,255,0.08); }
         .app-header .status .btn i { color: #5a7f99; }
 
-        /* 手机端侧边栏开关按钮 */
         .mobile-menu-btn {
             display: none;
             width: 40px; height: 40px;
@@ -62,7 +61,6 @@
 
         .app-body { flex: 1; display: flex; overflow: hidden; position: relative; }
 
-        /* 侧边栏 */
         .sidebar-chat {
             width: 280px;
             background: white;
@@ -74,22 +72,40 @@
         }
         .sidebar-chat .sidebar-header { padding: 16px 20px; border-bottom: 1px solid #e8edf4; display: flex; justify-content: space-between; align-items: center; }
         .sidebar-chat .sidebar-header h3 { font-size: 14px; font-weight: 600; color: #0a1e2f; }
-        .sidebar-chat .sidebar-header .new-btn { width: 32px; height: 32px; border-radius: 50%; border: none; background: #0a1e2f; color: white; cursor: pointer; font-size: 16px; transition: 0.15s; flex-shrink: 0; }
+        .sidebar-chat .sidebar-header .header-actions { display: flex; gap: 4px; }
+        .sidebar-chat .sidebar-header .new-btn,
+        .sidebar-chat .sidebar-header .clear-btn,
+        .sidebar-chat .sidebar-header .close-sidebar {
+            width: 32px; height: 32px; border-radius: 50%; border: none; cursor: pointer; font-size: 14px; transition: 0.15s; flex-shrink: 0;
+            display: flex; align-items: center; justify-content: center;
+        }
+        .sidebar-chat .sidebar-header .new-btn { background: #0a1e2f; color: white; font-size: 16px; }
         .sidebar-chat .sidebar-header .new-btn:hover { background: #1a3a5a; }
-        .sidebar-chat .sidebar-header .close-sidebar { display: none; width: 32px; height: 32px; border-radius: 50%; border: none; background: #f0f4f9; color: #5f7d95; cursor: pointer; font-size: 14px; margin-left: 8px; }
+        .sidebar-chat .sidebar-header .clear-btn { background: #f0f4f9; color: #5f7d95; }
+        .sidebar-chat .sidebar-header .clear-btn:hover { background: #fde8ed; color: #b51a3f; }
+        .sidebar-chat .sidebar-header .close-sidebar { display: none; background: #f0f4f9; color: #5f7d95; margin-left: 4px; }
+
         .sidebar-chat .chat-list { flex: 1; overflow-y: auto; padding: 8px 12px; -webkit-overflow-scrolling: touch; }
         .sidebar-chat .chat-list::-webkit-scrollbar { width: 4px; }
         .sidebar-chat .chat-list::-webkit-scrollbar-track { background: #f0f4f9; }
         .sidebar-chat .chat-list::-webkit-scrollbar-thumb { background: #dce5ef; border-radius: 10px; }
-        .chat-history-item { padding: 12px 14px; border-radius: 10px; margin-bottom: 4px; cursor: pointer; transition: 0.15s; border: 1px solid transparent; }
+        .chat-history-item { padding: 12px 14px; border-radius: 10px; margin-bottom: 4px; cursor: pointer; transition: 0.15s; border: 1px solid transparent; position: relative; }
         .chat-history-item:hover { background: #f5f8fc; border-color: #e8edf4; }
         .chat-history-item.active { background: #f0f7fe; border-color: rgba(77,171,247,0.2); }
-        .chat-history-item .title { font-size: 14px; font-weight: 500; color: #0a1e2f; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .chat-history-item .title { font-size: 14px; font-weight: 500; color: #0a1e2f; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; padding-right: 20px; }
         .chat-history-item .meta { font-size: 12px; color: #94a3b8; margin-top: 2px; display: flex; justify-content: space-between; gap: 6px; }
         .chat-history-item .meta span:first-child { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
         .chat-history-item .meta .tag { font-size: 10px; padding: 1px 10px; border-radius: 30px; background: #f0f7fe; color: #2a7faa; flex-shrink: 0; }
+        .chat-history-item .del-btn {
+            position: absolute; top: 8px; right: 8px;
+            width: 24px; height: 24px; border-radius: 50%; border: none;
+            background: transparent; color: #cbd5e1; cursor: pointer;
+            display: flex; align-items: center; justify-content: center;
+            opacity: 0; transition: 0.15s;
+        }
+        .chat-history-item:hover .del-btn { opacity: 1; }
+        .chat-history-item .del-btn:hover { background: #fde8ed; color: #b51a3f; }
 
-        /* 移动端遮罩 */
         .sidebar-overlay {
             display: none;
             position: fixed;
@@ -111,19 +127,41 @@
         .messages::-webkit-scrollbar { width: 5px; }
         .messages::-webkit-scrollbar-track { background: transparent; }
         .messages::-webkit-scrollbar-thumb { background: #dce5ef; border-radius: 10px; }
-        .message { display: flex; gap: 12px; max-width: 85%; animation: msgIn 0.3s ease; }
+        .message { display: flex; gap: 12px; max-width: 85%; animation: msgIn 0.3s ease; position: relative; }
         @keyframes msgIn { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
         .message.user { align-self: flex-end; flex-direction: row-reverse; }
         .message .avatar { width: 36px; height: 36px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 16px; color: white; flex-shrink: 0; }
         .message .avatar.ai { background: linear-gradient(135deg, #4dabf7, #2a7faa); }
         .message .avatar.user { background: #b55a1a; }
-        .message .bubble { padding: 12px 18px; border-radius: 16px; font-size: 14px; line-height: 1.7; word-break: break-word; box-shadow: 0 1px 4px rgba(0,0,0,0.02); }
+        .message .bubble { padding: 12px 18px; border-radius: 16px; font-size: 14px; line-height: 1.7; word-break: break-word; box-shadow: 0 1px 4px rgba(0,0,0,0.02); position: relative; }
         .message .bubble p { margin-bottom: 6px; }
         .message .bubble p:last-child { margin-bottom: 0; }
+        .message .bubble strong { font-weight: 600; }
+        .message .bubble code { background: rgba(10,30,47,0.06); padding: 1px 6px; border-radius: 4px; font-size: 13px; font-family: ui-monospace, monospace; }
+        .message .bubble ul, .message .bubble ol { margin: 4px 0 6px 20px; padding: 0; }
+        .message .bubble li { margin-bottom: 2px; }
+        .message .bubble pre { background: #0a1e2f; color: #e2e8f0; padding: 10px 14px; border-radius: 8px; overflow-x: auto; font-size: 12px; margin: 6px 0; font-family: ui-monospace, monospace; }
         .message.user .bubble { background: #0a1e2f; color: white; border-radius: 16px 4px 16px 16px; }
+        .message.user .bubble code { background: rgba(255,255,255,0.12); }
         .message.ai .bubble { background: white; color: #0a1e2f; border: 1px solid #e8edf4; border-radius: 4px 16px 16px 16px; }
         .message .bubble .time { font-size: 11px; color: #94a3b8; margin-top: 6px; display: block; }
         .message.user .bubble .time { color: rgba(255,255,255,0.4); }
+
+        /* 消息操作按钮 */
+        .msg-actions {
+            display: flex; gap: 4px; margin-top: 6px;
+            opacity: 0; transition: 0.15s;
+        }
+        .message:hover .msg-actions { opacity: 1; }
+        .msg-actions .act-btn {
+            padding: 3px 10px; border-radius: 10px;
+            border: 1px solid #e8edf4; background: white;
+            font-size: 11px; color: #5f7d95; cursor: pointer;
+            display: inline-flex; align-items: center; gap: 3px;
+            font-family: inherit; transition: 0.15s;
+        }
+        .msg-actions .act-btn:hover { border-color: #4dabf7; color: #2a7faa; background: #f5f9fe; }
+
         .bubble .action-card { background: #f8fafc; border-radius: 10px; padding: 12px 16px; margin: 8px 0 4px 0; border: 1px solid #e8edf4; }
         .bubble .action-card .title { font-weight: 600; color: #0a1e2f; font-size: 14px; }
         .bubble .action-card .desc { font-size: 13px; color: #5f7d95; margin-top: 2px; word-break: break-word; }
@@ -134,6 +172,8 @@
         .bubble .action-card .btn-group .btn-sm.danger { background: #b51a3f; color: white; }
         .bubble .action-card .btn-group .btn-sm.outline { background: transparent; border: 1px solid #dce5ef; color: #1e3a5f; }
         .bubble .action-card .btn-group .btn-sm:hover { transform: scale(0.97); }
+        .bubble .action-card.executed { opacity: 0.55; }
+        .bubble .action-card.executed .btn-group { display: none; }
 
         .typing-indicator { display: none; align-items: center; gap: 12px; padding: 8px 0; }
         .typing-indicator.show { display: flex; }
@@ -149,8 +189,9 @@
         .input-area .input-wrap textarea::placeholder { color: #94a3b8; }
         .input-area .input-wrap .char-count { font-size: 11px; color: #94a3b8; padding-left: 8px; flex-shrink: 0; }
         .input-area .send-btn { width: 44px; height: 44px; border-radius: 50%; border: none; background: #0a1e2f; color: white; font-size: 18px; cursor: pointer; transition: 0.15s; flex-shrink: 0; display: flex; align-items: center; justify-content: center; min-width: 44px; }
-        .input-area .send-btn:hover { background: #1a3a5a; transform: scale(1.02); }
+        .input-area .send-btn:hover:not(:disabled) { background: #1a3a5a; transform: scale(1.02); }
         .input-area .send-btn:disabled { opacity: 0.4; cursor: not-allowed; transform: none; }
+        .input-hint { text-align: center; font-size: 11px; color: #94a3b8; margin-top: 6px; }
 
         .empty-state { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; color: #94a3b8; padding: 40px; text-align: center; }
         .empty-state i { font-size: 56px; color: #dce5ef; margin-bottom: 16px; }
@@ -161,12 +202,8 @@
         .empty-state .examples .ex:hover { border-color: #4dabf7; color: #2a7faa; background: #f5f9fe; }
         .empty-state .examples .ex.danger:hover { border-color: #b51a3f; color: #b51a3f; background: #fde8ed; }
 
-        /* ============== 平板适配 ============== */
-        @media (max-width: 1024px) {
-            .sidebar-chat { width: 240px; }
-        }
+        @media (max-width: 1024px) { .sidebar-chat { width: 240px; } }
 
-        /* ============== 手机适配 ============== */
         @media (max-width: 768px) {
             .app-header {
                 padding: 10px 14px;
@@ -178,11 +215,10 @@
             .app-header .logo i { font-size: 18px; padding: 5px; border-radius: 8px; }
             .mobile-menu-btn { display: flex; align-items: center; justify-content: center; width: 36px; height: 36px; }
             .app-header .status { gap: 6px; font-size: 12px; }
-            .app-header .status > span:first-child { display: none; } /* 隐藏在线文字 */
+            .app-header .status > span:first-child { display: none; }
             .app-header .status .btn { padding: 6px 10px; font-size: 12px; }
-            .app-header .status .btn span { display: none; } /* 只留图标 */
+            .app-header .status .btn span { display: none; }
 
-            /* 侧边栏：抽屉式 */
             .sidebar-chat {
                 position: fixed;
                 top: 0; left: 0; bottom: 0;
@@ -196,7 +232,6 @@
             .sidebar-chat.show { transform: translateX(0); }
             .sidebar-chat .sidebar-header .close-sidebar { display: flex; align-items: center; justify-content: center; }
 
-            /* 主聊天区 */
             .chat-main-header { padding: 12px 14px; flex-wrap: wrap; gap: 8px; }
             .chat-main-header .info h4 { font-size: 15px; }
             .chat-main-header .info p { font-size: 11px; }
@@ -222,10 +257,10 @@
                 gap: 8px;
             }
             .input-area .input-wrap { padding: 4px 12px; border-radius: 10px; }
-            /* iOS 防止自动放大：font-size >= 16px */
             .input-area .input-wrap textarea { font-size: 16px; padding: 8px 0; max-height: 100px; }
             .input-area .input-wrap .char-count { font-size: 10px; padding-left: 4px; }
             .input-area .send-btn { width: 42px; height: 42px; min-width: 42px; font-size: 16px; }
+            .input-hint { font-size: 10px; }
 
             .empty-state { padding: 24px 16px; }
             .empty-state i { font-size: 42px; margin-bottom: 12px; }
@@ -235,21 +270,17 @@
             .empty-state .examples .ex { padding: 7px 14px; font-size: 12px; }
         }
 
-        /* ============== 小屏手机适配 ============== */
         @media (max-width: 480px) {
             .app-header .logo { font-size: 14px; }
             .app-header .logo i { font-size: 16px; padding: 4px; }
             .mobile-menu-btn { width: 34px; height: 34px; font-size: 16px; }
-
             .messages { padding: 10px 8px 6px; }
             .message { max-width: 95%; }
             .message .bubble { padding: 9px 12px; font-size: 13.5px; }
             .message .avatar { width: 28px; height: 28px; font-size: 12px; }
-
             .input-area .input-wrap textarea { font-size: 16px; }
         }
 
-        /* ============== 横屏手机 ============== */
         @media (max-width: 900px) and (orientation: landscape) {
             .app-header { padding: 8px 14px; }
             .app-header .logo { font-size: 15px; }
@@ -257,19 +288,26 @@
             .input-area { padding: 8px 16px; padding-bottom: calc(8px + env(safe-area-inset-bottom, 0px)); }
         }
 
-        /* ============== 安全区域适配 ============== */
         @supports (padding: max(0px)) {
-            .app-header {
-                padding-top: max(14px, env(safe-area-inset-top, 0px));
-            }
-            .input-area {
-                padding-bottom: max(20px, env(safe-area-inset-bottom, 0px));
-            }
+            .app-header { padding-top: max(14px, env(safe-area-inset-top, 0px)); }
+            .input-area { padding-bottom: max(20px, env(safe-area-inset-bottom, 0px)); }
             @media (max-width: 768px) {
                 .app-header { padding-top: max(10px, env(safe-area-inset-top, 0px)); }
                 .input-area { padding-bottom: max(10px, env(safe-area-inset-bottom, 0px)); }
             }
         }
+
+        /* 通用 toast */
+        .global-toast {
+            position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%);
+            background: #0a1e2f; color: white; padding: 12px 28px;
+            border-radius: 40px; font-size: 14px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+            z-index: 999; white-space: nowrap; display: none;
+            max-width: 90vw; overflow: hidden; text-overflow: ellipsis;
+        }
+        .global-toast.show { display: block; animation: fadeUp 0.3s ease; }
+        @keyframes fadeUp { from { opacity: 0; transform: translateX(-50%) translateY(20px); } to { opacity: 1; transform: translateX(-50%) translateY(0); } }
     </style>
 </head>
 <body>
@@ -297,8 +335,9 @@
     <aside class="sidebar-chat" id="sidebarChat">
         <div class="sidebar-header">
             <h3><i class="fas fa-history" style="color:#4dabf7; margin-right:6px;"></i> 对话历史</h3>
-            <div style="display:flex; gap:4px;">
+            <div class="header-actions">
                 <button class="new-btn" onclick="newChat()" title="新建对话"><i class="fas fa-plus"></i></button>
+                <button class="clear-btn" onclick="clearAllHistory()" title="清空历史"><i class="fas fa-trash-alt"></i></button>
                 <button class="close-sidebar" onclick="closeSidebar()" title="关闭"><i class="fas fa-times"></i></button>
             </div>
         </div>
@@ -345,33 +384,53 @@
                 <textarea id="chatInput" rows="1" placeholder="输入你的经营需求，例如：查看云山茶叶礼盒的图片" onkeydown="handleKeyDown(event)" oninput="autoResize(this)"></textarea>
                 <span class="char-count" id="charCount">0/500</span>
             </div>
-            <button class="send-btn" id="sendBtn" onclick="sendMessage()"><i class="fas fa-paper-plane"></i></button>
+            <button class="send-btn" id="sendBtn" onclick="sendMessage()" disabled><i class="fas fa-paper-plane"></i></button>
         </div>
+        <div class="input-hint">回车发送 · Shift+回车换行</div>
     </main>
 </div>
 
+<div class="global-toast" id="toast"></div>
+
 <script>
     const BACKEND_URL = 'https://ai-ecommerce-backend-production-0776.up.railway.app';
+    const STORAGE_KEY = 'ai_chat_history';
+    const MAX_HISTORY = 50;
 
     const state = {
         currentChatId: null,
         isProcessing: false,
-        pendingAction: null,
+        pendingActions: {},     // ✅ 按 ID 索引
+        currentMessages: [],    // ✅ 当前对话的消息缓存
+        lastUserText: ''        // ✅ 用于"重试上一条"
     };
 
     let historyData = [];
 
     // ================================================================
-    // 移动端侧边栏开关
+    // 持久化
+    // ================================================================
+    function loadHistoryFromStorage() {
+        try {
+            const raw = localStorage.getItem(STORAGE_KEY);
+            if (raw) historyData = JSON.parse(raw) || [];
+        } catch (e) { historyData = []; }
+    }
+
+    function saveHistoryToStorage() {
+        try {
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(historyData.slice(0, MAX_HISTORY)));
+        } catch (e) {}
+    }
+
+    // ================================================================
+    // 侧边栏开关（移动端）
     // ================================================================
     function toggleSidebar() {
         const sidebar = document.getElementById('sidebarChat');
         const overlay = document.getElementById('sidebarOverlay');
-        const isOpen = sidebar.classList.contains('show');
-        if (isOpen) {
-            sidebar.classList.remove('show');
-            overlay.classList.remove('show');
-        } else {
+        if (sidebar.classList.contains('show')) closeSidebar();
+        else {
             sidebar.classList.add('show');
             overlay.classList.add('show');
         }
@@ -382,13 +441,9 @@
         document.getElementById('sidebarOverlay').classList.remove('show');
     }
 
-    // 选择历史对话后自动关闭移动端侧边栏
-    const _origLoadHistory = loadHistory;
-    loadHistory = function(id) {
-        _origLoadHistory(id);
-        if (window.innerWidth <= 768) closeSidebar();
-    };
-
+    // ================================================================
+    // 历史渲染
+    // ================================================================
     function renderHistory() {
         const container = document.getElementById('chatHistoryList');
         if (historyData.length === 0) {
@@ -397,32 +452,79 @@
         }
         container.innerHTML = historyData.map(item => `
             <div class="chat-history-item ${item.id === state.currentChatId ? 'active' : ''}" onclick="loadHistory('${item.id}')">
-                <div class="title">${item.title}</div>
+                <div class="title">${escapeHtml(item.title || '未命名')}</div>
                 <div class="meta">
-                    <span>${item.preview}</span>
-                    <span class="tag">${item.tag}</span>
+                    <span>${escapeHtml(item.preview || '')}</span>
+                    <span class="tag">${item.tag || '对话'}</span>
                 </div>
-                <div class="meta" style="margin-top:2px;"><span>${item.time}</span></div>
+                <div class="meta" style="margin-top:2px;"><span>${item.time || ''}</span></div>
+                <button class="del-btn" onclick="event.stopPropagation(); deleteHistoryItem('${item.id}')" title="删除">
+                    <i class="fas fa-times"></i>
+                </button>
             </div>
         `).join('');
     }
 
+    // ================================================================
+    // ✅ 修复：单一 loadHistory，无自我覆盖
+    // ================================================================
     function loadHistory(id) {
         const item = historyData.find(h => h.id === id);
         if (!item) return;
         state.currentChatId = id;
+        state.currentMessages = (item.messages || []).slice();
+        state.pendingActions = {};
+
         renderHistory();
-        document.getElementById('chatTitle').textContent = item.title;
-        document.getElementById('chatSubtitle').textContent = '加载历史对话 · ' + item.time;
+        document.getElementById('chatTitle').textContent = item.title || 'AI 经营助手';
+        document.getElementById('chatSubtitle').textContent = '加载历史对话 · ' + (item.time || '');
         const list = document.getElementById('messagesList');
         list.innerHTML = '';
-        document.getElementById('emptyState').style.display = 'none';
-        appendMessage({ role: 'user', text: item.title, time: item.time });
-        appendMessage({ role: 'ai', text: item.preview, time: item.time });
+
+        if (state.currentMessages.length === 0) {
+            document.getElementById('emptyState').style.display = 'flex';
+        } else {
+            document.getElementById('emptyState').style.display = 'none';
+            state.currentMessages.forEach(m => {
+                if (m.card && m.card.actionId) {
+                    state.pendingActions[m.card.actionId] = m.card.rawAction;
+                }
+                renderMessageNode(m);
+            });
+        }
+        if (window.innerWidth <= 768) closeSidebar();
+    }
+
+    function deleteHistoryItem(id) {
+        if (!confirm('确定删除这条对话记录？')) return;
+        historyData = historyData.filter(h => h.id !== id);
+        if (state.currentChatId === id) {
+            state.currentChatId = null;
+            state.currentMessages = [];
+            document.getElementById('messagesList').innerHTML = '';
+            document.getElementById('emptyState').style.display = 'flex';
+            document.getElementById('chatTitle').textContent = 'AI 经营助手';
+            document.getElementById('chatSubtitle').textContent = '基于 DeepSeek · 33 种指令可用';
+        }
+        saveHistoryToStorage();
+        renderHistory();
+        showToast('🗑️ 已删除');
+    }
+
+    function clearAllHistory() {
+        if (historyData.length === 0) { showToast('📭 暂无历史记录'); return; }
+        if (!confirm('确定清空所有对话历史？不可恢复。')) return;
+        historyData = [];
+        saveHistoryToStorage();
+        newChat();
+        renderHistory();
+        showToast('🗑️ 已清空全部历史');
     }
 
     function newChat() {
         state.currentChatId = null;
+        state.currentMessages = [];
+        state.pendingActions = {};
         renderHistory();
         document.getElementById('chatTitle').textContent = 'AI 经营助手';
         document.getElementById('chatSubtitle').textContent = '基于 DeepSeek · 33 种指令可用';
@@ -430,27 +532,85 @@
         document.getElementById('emptyState').style.display = 'flex';
         document.getElementById('chatInput').value = '';
         updateCharCount();
+        updateSendBtn();
         document.getElementById('chatInput').focus();
         if (window.innerWidth <= 768) closeSidebar();
     }
 
+    // ================================================================
+    // 消息渲染
+    // ================================================================
+    function escapeHtml(s) {
+        return String(s || '').replace(/[&<>"']/g, c => ({
+            '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
+        })[c]);
+    }
+
+    // ✅ 轻量 markdown：**加粗**、`代码`、- 列表、1. 列表、```代码块```
+    function renderMarkdown(text) {
+        if (!text) return '';
+        let s = escapeHtml(text);
+
+        // 代码块
+        s = s.replace(/```([\s\S]*?)```/g, (_, code) => `<pre>${code.trim()}</pre>`);
+        // 行内代码
+        s = s.replace(/`([^`\n]+)`/g, '<code>$1</code>');
+        // 加粗
+        s = s.replace(/\*\*([^*\n]+)\*\*/g, '<strong>$1</strong>');
+        // 无序列表
+        const lines = s.split('\n');
+        const out = [];
+        let inUl = false, inOl = false;
+        for (let line of lines) {
+            if (/^\s*[-*]\s+/.test(line)) {
+                if (inOl) { out.push('</ol>'); inOl = false; }
+                if (!inUl) { out.push('<ul>'); inUl = true; }
+                out.push('<li>' + line.replace(/^\s*[-*]\s+/, '') + '</li>');
+            } else if (/^\s*\d+\.\s+/.test(line)) {
+                if (inUl) { out.push('</ul>'); inUl = false; }
+                if (!inOl) { out.push('<ol>'); inOl = true; }
+                out.push('<li>' + line.replace(/^\s*\d+\.\s+/, '') + '</li>');
+            } else {
+                if (inUl) { out.push('</ul>'); inUl = false; }
+                if (inOl) { out.push('</ol>'); inOl = false; }
+                out.push(line);
+            }
+        }
+        if (inUl) out.push('</ul>');
+        if (inOl) out.push('</ol>');
+
+        return out.join('\n').replace(/\n/g, '<br>').replace(/<\/pre><br>/g, '</pre>').replace(/<br><pre>/g, '<pre>');
+    }
+
     function appendMessage(msg) {
+        // ✅ 同步缓存
+        state.currentMessages.push(msg);
+        renderMessageNode(msg);
+        syncCurrentChatToHistory();
+        const container = document.getElementById('messageContainer');
+        setTimeout(() => { container.scrollTop = container.scrollHeight; }, 50);
+    }
+
+    function renderMessageNode(msg) {
         const list = document.getElementById('messagesList');
         const empty = document.getElementById('emptyState');
         if (empty) empty.style.display = 'none';
 
         const div = document.createElement('div');
         div.className = `message ${msg.role}`;
+        if (msg.id) div.dataset.msgId = msg.id;
         const avatarIcon = msg.role === 'user' ? '<i class="fas fa-user"></i>' : '<i class="fas fa-robot"></i>';
         const avatarClass = msg.role === 'user' ? 'user' : 'ai';
 
         let bubbleContent = `<div class="bubble">`;
-        if (msg.text) bubbleContent += `<p>${msg.text.replace(/\n/g, '<br>')}</p>`;
+        if (msg.text) bubbleContent += `<p>${renderMarkdown(msg.text)}</p>`;
         if (msg.card) {
+            const actionId = msg.card.actionId || '';
+            const executed = msg.card.executed ? 'executed' : '';
             bubbleContent += `
-                <div class="action-card">
-                    <div class="title">${msg.card.title}</div>
-                    <div class="desc">${msg.card.desc.replace(/\n/g, '<br>')}</div>
+                <div class="action-card ${executed}">
+                    <div class="title">${escapeHtml(msg.card.title)}</div>
+                    <div class="desc">${renderMarkdown(msg.card.desc).replace(/<br>/g, '\n')}</div>
                     <div class="btn-group">
                         ${msg.card.actions.map(a => {
                             const cls = a.type === 'confirm' ? 'success' : a.type === 'cancel' ? 'outline' : a.type === 'danger' ? 'danger' : 'primary';
@@ -463,81 +623,153 @@
         bubbleContent += `<span class="time">${msg.time || new Date().toLocaleTimeString('zh-CN', {hour:'2-digit',minute:'2-digit'})}</span>`;
         bubbleContent += `</div>`;
 
-        div.innerHTML = `<div class="avatar ${avatarClass}">${avatarIcon}</div>${bubbleContent}`;
+        // ✅ 消息操作按钮
+        let actionsHtml = '';
+        if (msg.role === 'ai') {
+            actionsHtml = `
+                <div class="msg-actions">
+                    <button class="act-btn" onclick="copyMessageText(this)"><i class="fas fa-copy"></i> 复制</button>
+                    ${msg.retryable ? `<button class="act-btn" onclick="retryLastMessage()"><i class="fas fa-redo"></i> 重试</button>` : ''}
+                </div>
+            `;
+        } else {
+            actionsHtml = `
+                <div class="msg-actions">
+                    <button class="act-btn" onclick="copyMessageText(this)"><i class="fas fa-copy"></i> 复制</button>
+                    <button class="act-btn" onclick="editAndResend(this)"><i class="fas fa-pen"></i> 重发</button>
+                </div>
+            `;
+        }
+
+        div.innerHTML = `<div class="avatar ${avatarClass}">${avatarIcon}</div><div>${bubbleContent}${actionsHtml}</div>`;
         list.appendChild(div);
-        const container = document.getElementById('messageContainer');
-        setTimeout(() => { container.scrollTop = container.scrollHeight; }, 50);
     }
 
     // ================================================================
-    // 构建预览卡片
+    // ✅ 修复：把当前对话同步到历史（带完整 messages）
+    // ================================================================
+    function syncCurrentChatToHistory() {
+        if (state.currentMessages.length === 0) return;
+
+        if (!state.currentChatId) {
+            state.currentChatId = 'h' + Date.now();
+        }
+
+        const firstUser = state.currentMessages.find(m => m.role === 'user');
+        const firstAI = state.currentMessages.find(m => m.role === 'ai');
+        const nowStr = nowTime();
+
+        // 序列化时剥离掉运行时可能残留的 DOM 引用
+        const cleanMessages = state.currentMessages.map(m => ({
+            role: m.role,
+            text: m.text || '',
+            time: m.time || nowStr,
+            card: m.card ? {
+                title: m.card.title,
+                desc: m.card.desc,
+                actionId: m.card.actionId || '',
+                rawAction: m.card.rawAction || null,
+                executed: !!m.card.executed,
+                actions: (m.card.actions || []).map(a => ({
+                    label: a.label,
+                    type: a.type,
+                    onclick: a.onclick
+                }))
+            } : null,
+            retryable: !!m.retryable
+        }));
+
+        const entry = {
+            id: state.currentChatId,
+            title: firstUser ? firstUser.text.slice(0, 20) + (firstUser.text.length > 20 ? '...' : '') : '新对话',
+            preview: firstAI ? (firstAI.text || (firstAI.card ? firstAI.card.title : '') || '').slice(0, 30) : '',
+            time: nowStr,
+            tag: '运营',
+            messages: cleanMessages
+        };
+
+        const idx = historyData.findIndex(h => h.id === state.currentChatId);
+        if (idx >= 0) historyData[idx] = entry;
+        else historyData.unshift(entry);
+
+        if (historyData.length > MAX_HISTORY) historyData = historyData.slice(0, MAX_HISTORY);
+        saveHistoryToStorage();
+        renderHistory();
+    }
+
+    // ================================================================
+    // 卡片构造
     // ================================================================
     function buildCard(data) {
         const t = data.type;
         const a = data.args;
 
-        if (t === 'query_images') return { title: '🖼️ 查看图片', desc: `商品：${a.product_name}` };
-        if (t === 'delete_main_image') return { title: '🗑️ 删除主图预览', desc: `商品：${a.product_name}\n⚠️ 删除后需重新上传`, isDanger: true };
-        if (t === 'remove_sub_image') return { title: '🗑️ 删除副图预览', desc: `商品：${a.product_name}\n删除第 ${a.index} 张副图`, isDanger: true };
-        if (t === 'clear_sub_images') return { title: '🧹 清空副图预览', desc: `商品：${a.product_name}\n⚠️ 将删除所有副图`, isDanger: true };
-        if (t === 'clear_all_images') return { title: '🧹 清空所有图片预览', desc: `商品：${a.product_name}\n⚠️ 将删除主图 + 所有副图`, isDanger: true };
+        const map = {
+            query_images: () => ({ title: '🖼️ 查看图片', desc: `商品：${a.product_name}` }),
+            delete_main_image: () => ({ title: '🗑️ 删除主图预览', desc: `商品：${a.product_name}\n⚠️ 删除后需重新上传`, isDanger: true }),
+            remove_sub_image: () => ({ title: '🗑️ 删除副图预览', desc: `商品：${a.product_name}\n删除第 ${a.index} 张副图`, isDanger: true }),
+            clear_sub_images: () => ({ title: '🧹 清空副图预览', desc: `商品：${a.product_name}\n⚠️ 将删除所有副图`, isDanger: true }),
+            clear_all_images: () => ({ title: '🧹 清空所有图片预览', desc: `商品：${a.product_name}\n⚠️ 将删除主图 + 所有副图`, isDanger: true }),
+            update_price: () => ({ title: '💰 价格修改预览', desc: `商品：${a.product_name}\n新价格：¥${a.new_price}` }),
+            update_stock: () => {
+                const actionText = a.action === 'increase' ? '增加' : a.action === 'decrease' ? '减少' : '设置为';
+                return { title: '📦 库存修改预览', desc: `商品：${a.product_name}\n操作：${actionText} ${a.amount} 件` };
+            },
+            query_low_stock: () => ({ title: '📋 库存查询', desc: `条件：库存 < ${a.threshold} 件` }),
+            publish_to_platforms: () => ({ title: '🚀 多平台上架预览', desc: `商品：${a.product_name}\n目标平台：${(a.platforms || []).join('、')}` }),
+            update_title: () => ({ title: '✏️ 标题修改预览', desc: `商品：${a.product_name}\n新标题：${a.new_title}` }),
+            take_off_shelf: () => ({ title: '⬇️ 下架预览', desc: `商品：${a.product_name}` }),
+            put_on_shelf: () => ({ title: '⬆️ 上架预览', desc: `商品：${a.product_name}` }),
+            query_sales: () => ({ title: '📊 销量查询', desc: `商品：${a.product_name}` }),
+            create_coupon: () => ({ title: '🎟️ 优惠券预览', desc: `满 ${a.threshold} 减 ${a.discount}\n有效天数：${a.days || 7} 天` }),
+            batch_take_off: () => ({ title: '⬇️ 批量下架预览', desc: `分类：${a.category}\n将下架该分类所有商品` }),
+            batch_update_price: () => {
+                const adjText = a.adjust_type === 'percent' ? `${a.adjust_value > 0 ? '+' : ''}${a.adjust_value}%` : `${a.adjust_value > 0 ? '+' : ''}${a.adjust_value}元`;
+                return { title: '📈 批量调价预览', desc: `分类：${a.category}\n调整幅度：${adjText}` };
+            },
+            query_by_price_range: () => ({ title: '🔍 价格区间查询', desc: `价格区间：¥${a.min_price} - ¥${a.max_price}` }),
+            batch_take_off_zero_stock: () => ({ title: '🧹 清空零库存预览', desc: `将下架所有库存为 0 的商品` }),
+            batch_markup_all: () => ({ title: '💵 全店加价预览', desc: `所有商品统一加价 ${a.percent}%` }),
+            query_sort_by_sales: () => {
+                const orderText = a.order === 'asc' ? '从低到高' : '从高到低';
+                return { title: '📊 销量排行查询', desc: `按销量${orderText}排序，显示前 ${a.limit || 10} 个` };
+            },
+            batch_update_stock: () => {
+                const actionText = a.action === 'increase' ? '增加' : a.action === 'decrease' ? '减少' : '设置为';
+                return { title: '📦 批量改库存预览', desc: `分类：${a.category}\n操作：${actionText} ${a.amount} 件` };
+            },
+            batch_put_on_shelf: () => ({ title: '⬆️ 批量上架预览', desc: `分类：${a.category}\n将上架该分类所有商品` }),
+            batch_delete_by_category: () => ({ title: '🗑️ 批量删除预览', desc: `分类：${a.category}\n⚠️ 将删除该分类所有商品，不可恢复`, isDanger: true }),
+            add_product: () => ({ title: '➕ 新增商品预览', desc: `名称：${a.name}\n价格：¥${a.price}\n库存：${a.stock || 0} 件\n分类：${a.category || '文创'}\n平台：${a.platform || '淘宝'}` }),
+            delete_product: () => ({ title: '🗑️ 删除商品预览', desc: `商品：${a.product_name}\n⚠️ 删除后不可恢复`, isDanger: true }),
+            duplicate_product: () => ({ title: '📋 复制商品预览', desc: `原商品：${a.product_name}\n新名称：${a.new_name}` }),
+            query_by_platform: () => ({ title: '🔍 按平台查询', desc: `平台：${a.platform}` }),
+            query_by_status: () => ({ title: '📋 按状态查询', desc: `状态：${a.status}` }),
+            query_by_category: () => ({ title: '🔍 按分类查询', desc: `分类：${a.category}` }),
+            export_products: () => ({ title: '📤 导出商品数据', desc: `将导出所有商品数据` }),
+            search_product: () => ({ title: '🔎 关键词搜索', desc: `关键词：${a.keyword}` }),
+            query_restock_alert: () => ({ title: '⚠️ 库存预警查询', desc: `查询库存低于 ${a.threshold || 50} 件的商品` }),
+            export_to_excel: () => ({ title: '📤 导出CSV', desc: `将导出所有商品数据为 CSV 文件` })
+        };
 
-        if (t === 'update_price') return { title: '💰 价格修改预览', desc: `商品：${a.product_name}\n新价格：¥${a.new_price}` };
-        if (t === 'update_stock') {
-            const actionText = a.action === 'increase' ? '增加' : a.action === 'decrease' ? '减少' : '设置为';
-            return { title: '📦 库存修改预览', desc: `商品：${a.product_name}\n操作：${actionText} ${a.amount} 件` };
-        }
-        if (t === 'query_low_stock') return { title: '📋 库存查询', desc: `条件：库存 < ${a.threshold} 件` };
-        if (t === 'publish_to_platforms') return { title: '🚀 多平台上架预览', desc: `商品：${a.product_name}\n目标平台：${a.platforms.join('、')}` };
-        if (t === 'update_title') return { title: '✏️ 标题修改预览', desc: `商品：${a.product_name}\n新标题：${a.new_title}` };
-        if (t === 'take_off_shelf') return { title: '⬇️ 下架预览', desc: `商品：${a.product_name}` };
-        if (t === 'put_on_shelf') return { title: '⬆️ 上架预览', desc: `商品：${a.product_name}` };
-        if (t === 'query_sales') return { title: '📊 销量查询', desc: `商品：${a.product_name}` };
-        if (t === 'create_coupon') return { title: '🎟️ 优惠券预览', desc: `满 ${a.threshold} 减 ${a.discount}\n有效天数：${a.days || 7} 天` };
-
-        if (t === 'batch_take_off') return { title: '⬇️ 批量下架预览', desc: `分类：${a.category}\n将下架该分类所有商品` };
-        if (t === 'batch_update_price') {
-            const adjText = a.adjust_type === 'percent' ? `${a.adjust_value > 0 ? '+' : ''}${a.adjust_value}%` : `${a.adjust_value > 0 ? '+' : ''}${a.adjust_value}元`;
-            return { title: '📈 批量调价预览', desc: `分类：${a.category}\n调整幅度：${adjText}` };
-        }
-        if (t === 'query_by_price_range') return { title: '🔍 价格区间查询', desc: `价格区间：¥${a.min_price} - ¥${a.max_price}` };
-        if (t === 'batch_take_off_zero_stock') return { title: '🧹 清空零库存预览', desc: `将下架所有库存为 0 的商品` };
-        if (t === 'batch_markup_all') return { title: '💵 全店加价预览', desc: `所有商品统一加价 ${a.percent}%` };
-        if (t === 'query_sort_by_sales') {
-            const orderText = a.order === 'asc' ? '从低到高' : '从高到低';
-            return { title: '📊 销量排行查询', desc: `按销量${orderText}排序，显示前 ${a.limit || 10} 个` };
-        }
-        if (t === 'batch_update_stock') {
-            const actionText = a.action === 'increase' ? '增加' : a.action === 'decrease' ? '减少' : '设置为';
-            return { title: '📦 批量改库存预览', desc: `分类：${a.category}\n操作：${actionText} ${a.amount} 件` };
-        }
-        if (t === 'batch_put_on_shelf') return { title: '⬆️ 批量上架预览', desc: `分类：${a.category}\n将上架该分类所有商品` };
-        if (t === 'batch_delete_by_category') return { title: '🗑️ 批量删除预览', desc: `分类：${a.category}\n⚠️ 将删除该分类所有商品，不可恢复`, isDanger: true };
-
-        if (t === 'add_product') return { title: '➕ 新增商品预览', desc: `名称：${a.name}\n价格：¥${a.price}\n库存：${a.stock || 0} 件\n分类：${a.category || '文创'}\n平台：${a.platform || '淘宝'}` };
-        if (t === 'delete_product') return { title: '🗑️ 删除商品预览', desc: `商品：${a.product_name}\n⚠️ 删除后不可恢复`, isDanger: true };
-        if (t === 'duplicate_product') return { title: '📋 复制商品预览', desc: `原商品：${a.product_name}\n新名称：${a.new_name}` };
-
-        if (t === 'query_by_platform') return { title: '🔍 按平台查询', desc: `平台：${a.platform}` };
-        if (t === 'query_by_status') return { title: '📋 按状态查询', desc: `状态：${a.status}` };
-        if (t === 'query_by_category') return { title: '🔍 按分类查询', desc: `分类：${a.category}` };
-        if (t === 'export_products') return { title: '📤 导出商品数据', desc: `将导出所有商品数据` };
-        if (t === 'search_product') return { title: '🔎 关键词搜索', desc: `关键词：${a.keyword}` };
-        if (t === 'query_restock_alert') return { title: '⚠️ 库存预警查询', desc: `查询库存低于 ${a.threshold || 50} 件的商品` };
-        if (t === 'export_to_excel') return { title: '📤 导出CSV', desc: `将导出所有商品数据为 CSV 文件` };
-
-        return { title: '操作预览', desc: JSON.stringify(a) };
+        return map[t] ? map[t]() : { title: '操作预览', desc: JSON.stringify(a) };
     }
 
+    // ================================================================
+    // 发送消息
+    // ================================================================
     async function sendMessage() {
         const input = document.getElementById('chatInput');
         const text = input.value.trim();
         if (!text || state.isProcessing) return;
         if (text.length > 500) { showToast('⚠️ 输入内容不能超过500字'); return; }
 
+        state.lastUserText = text;
         appendMessage({ role: 'user', text: text, time: nowTime() });
         input.value = '';
         updateCharCount();
+        updateSendBtn();
+
         state.isProcessing = true;
         document.getElementById('sendBtn').disabled = true;
         document.getElementById('typingIndicator').classList.add('show');
@@ -549,17 +781,22 @@
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ text: text })
             });
+            if (!res.ok) throw new Error('HTTP ' + res.status);
             const data = await res.json();
 
             document.getElementById('typingIndicator').classList.remove('show');
 
             if (data.type === 'chat' || data.type === 'error') {
-                appendMessage({ role: 'ai', text: data.text || '抱歉，AI 服务暂时不可用。', time: nowTime() });
+                appendMessage({ role: 'ai', text: data.text || '抱歉，AI 服务暂时不可用。', time: nowTime(), retryable: data.type === 'error' });
             } else {
-                state.pendingAction = data;
+                // ✅ 为每个操作生成独立 ID
+                const actionId = 'act_' + Date.now() + '_' + Math.random().toString(36).slice(2, 6);
+                state.pendingActions[actionId] = data;
+
                 const card = buildCard(data);
                 const confirmLabel = card.isDanger ? '🗑️ 确认删除' : '✅ 确认执行';
                 const confirmType = card.isDanger ? 'danger' : 'confirm';
+
                 appendMessage({
                     role: 'ai',
                     text: card.isDanger ? '⚠️ 这是高危操作，请仔细确认：' : '我理解你的指令，请确认：',
@@ -567,40 +804,35 @@
                     card: {
                         title: card.title,
                         desc: card.desc,
+                        actionId: actionId,
+                        rawAction: data,
                         actions: [
-                            { label: confirmLabel, type: confirmType, onclick: 'confirmAction()' },
-                            { label: '✖ 取消', type: 'cancel', onclick: 'cancelAction()' }
+                            { label: confirmLabel, type: confirmType, onclick: `confirmAction('${actionId}')` },
+                            { label: '✖ 取消', type: 'cancel', onclick: `cancelAction('${actionId}')` }
                         ]
                     }
                 });
             }
 
-            historyData.unshift({
-                id: 'h' + Date.now(),
-                title: text.length > 20 ? text.slice(0, 20) + '...' : text,
-                preview: (data.text || '操作预览').slice(0, 30) + '...',
-                time: nowTime(),
-                tag: '运营'
-            });
-            if (historyData.length > 20) historyData.pop();
-            renderHistory();
-
         } catch (err) {
             document.getElementById('typingIndicator').classList.remove('show');
-            appendMessage({ role: 'ai', text: '⚠️ 无法连接后端服务。\n错误：' + err.message, time: nowTime() });
+            appendMessage({ role: 'ai', text: friendlyError(err), time: nowTime(), retryable: true });
         }
 
         state.isProcessing = false;
-        document.getElementById('sendBtn').disabled = false;
+        updateSendBtn();
     }
 
-    async function confirmAction() {
-        if (!state.pendingAction) {
-            showToast('⚠️ 没有待执行的操作');
-            return;
-        }
-        const action = state.pendingAction;
-        state.pendingAction = null;
+    // ================================================================
+    // ✅ 修复：按 actionId 确认
+    // ================================================================
+    async function confirmAction(actionId) {
+        const action = state.pendingActions[actionId];
+        if (!action) { showToast('⚠️ 该操作已失效或已执行'); return; }
+        delete state.pendingActions[actionId];
+
+        // 标记卡片为已执行
+        markCardExecuted(actionId);
 
         showToast('⏳ 正在执行...');
 
@@ -614,20 +846,78 @@
 
             if (data.success) {
                 appendMessage({ role: 'ai', text: '✅ ' + data.message, time: nowTime() });
-                if (data.csv) {
-                    window.open(BACKEND_URL + '/api/export/csv', '_blank');
-                }
+                if (data.csv) window.open(BACKEND_URL + '/api/export/csv', '_blank');
             } else {
                 appendMessage({ role: 'ai', text: '❌ ' + data.message, time: nowTime() });
             }
         } catch (err) {
-            appendMessage({ role: 'ai', text: '❌ 执行失败：' + err.message, time: nowTime() });
+            appendMessage({ role: 'ai', text: '❌ 执行失败：' + friendlyError(err), time: nowTime() });
         }
     }
 
-    function cancelAction() {
-        state.pendingAction = null;
+    function markCardExecuted(actionId) {
+        // 更新缓存
+        state.currentMessages.forEach(m => {
+            if (m.card && m.card.actionId === actionId) m.card.executed = true;
+        });
+        // 更新 DOM
+        const list = document.getElementById('messagesList');
+        list.querySelectorAll('.action-card').forEach(card => {
+            const btn = card.querySelector('.btn-sm');
+            if (btn && btn.getAttribute('onclick') && btn.getAttribute('onclick').includes(actionId)) {
+                card.classList.add('executed');
+            }
+        });
+    }
+
+    function cancelAction(actionId) {
+        if (actionId) delete state.pendingActions[actionId];
+        if (actionId) markCardExecuted(actionId);
         appendMessage({ role: 'ai', text: '好的，已取消该操作。', time: nowTime() });
+    }
+
+    // ================================================================
+    // 消息操作：复制 / 重试 / 重发
+    // ================================================================
+    function copyMessageText(btn) {
+        const msgDiv = btn.closest('.message');
+        const bubble = msgDiv.querySelector('.bubble');
+        // 只取 p 的文本，跳过按钮
+        const text = Array.from(bubble.querySelectorAll('p')).map(p => p.innerText).join('\n');
+        if (!text) { showToast('⚠️ 无可复制内容'); return; }
+        navigator.clipboard.writeText(text).then(() => showToast('📋 已复制'))
+            .catch(() => showToast('⚠️ 复制失败'));
+    }
+
+    function retryLastMessage() {
+        if (state.isProcessing) { showToast('⏳ 正在处理中...'); return; }
+        if (!state.lastUserText) { showToast('⚠️ 无上一条消息'); return; }
+        document.getElementById('chatInput').value = state.lastUserText;
+        autoResize(document.getElementById('chatInput'));
+        sendMessage();
+    }
+
+    function editAndResend(btn) {
+        const msgDiv = btn.closest('.message');
+        const bubble = msgDiv.querySelector('.bubble');
+        const text = Array.from(bubble.querySelectorAll('p')).map(p => p.innerText).join('\n');
+        document.getElementById('chatInput').value = text;
+        autoResize(document.getElementById('chatInput'));
+        document.getElementById('chatInput').focus();
+        showToast('✏️ 已填入输入框，可修改后发送');
+    }
+
+    // ================================================================
+    // 工具函数
+    // ================================================================
+    function friendlyError(err) {
+        const msg = (err && err.message) || '';
+        if (msg.includes('Failed to fetch') || msg.includes('NetworkError')) return '🌐 网络连接失败，请确认后端服务已启动';
+        if (msg.includes('500')) return '🔧 后端服务异常（500），请稍后重试';
+        if (msg.includes('429')) return '⏳ 请求过于频繁（429），请稍等几秒再试';
+        if (msg.includes('401') || msg.includes('403')) return '🔒 鉴权失败，请检查后端配置';
+        if (msg.includes('timeout')) return '⌛ 请求超时，请检查网络';
+        return '⚠️ ' + msg;
     }
 
     function nowTime() {
@@ -636,35 +926,57 @@
     }
 
     function sendExample(text) {
+        if (state.isProcessing) { showToast('⏳ 正在处理中...'); return; }
         document.getElementById('chatInput').value = text;
         updateCharCount();
+        updateSendBtn();
         sendMessage();
     }
 
     function clearMessages() {
         if (document.getElementById('messagesList').children.length === 0) return;
-        if (!confirm('确定要清空当前对话吗？')) return;
+        if (!confirm('确定清空当前对话？')) return;
         document.getElementById('messagesList').innerHTML = '';
         document.getElementById('emptyState').style.display = 'flex';
         document.getElementById('chatTitle').textContent = 'AI 经营助手';
         document.getElementById('chatSubtitle').textContent = '基于 DeepSeek · 33 种指令可用';
         state.currentChatId = null;
+        state.currentMessages = [];
+        state.pendingActions = {};
         renderHistory();
         showToast('🗑️ 已清空对话');
     }
 
+    // ✅ 修复：导出只取正文
     function exportChat() {
         const msgs = document.querySelectorAll('#messagesList .message');
         if (msgs.length === 0) { showToast('⚠️ 暂无对话可导出'); return; }
+
         let text = '智控电商 · AI助手对话记录\n' + '='.repeat(50) + '\n';
         msgs.forEach(m => {
             const role = m.classList.contains('user') ? '用户' : 'AI助手';
             const bubble = m.querySelector('.bubble');
-            const content = bubble ? bubble.textContent.replace(/\d{2}:\d{2}/, '').trim() : '';
+            if (!bubble) return;
+
+            const textParts = Array.from(bubble.querySelectorAll('p'))
+                .map(p => p.innerText.trim())
+                .filter(Boolean);
+            const content = textParts.join('\n');
+
+            const card = bubble.querySelector('.action-card');
+            let cardText = '';
+            if (card) {
+                const cardTitle = card.querySelector('.title')?.innerText.trim() || '';
+                const cardDesc = card.querySelector('.desc')?.innerText.trim() || '';
+                cardText = `【操作卡片】${cardTitle}${cardDesc ? ' - ' + cardDesc.replace(/\n/g, ' ') : ''}`;
+            }
+
             text += `[${role}] ${content}\n`;
+            if (cardText) text += `        ${cardText}\n`;
         });
         text += '='.repeat(50) + '\n导出时间: ' + new Date().toLocaleString();
-        const blob = new Blob([text], { type: 'text/plain' });
+
+        const blob = new Blob([text], { type: 'text/plain;charset=utf-8' });
         const a = document.createElement('a');
         a.href = URL.createObjectURL(blob);
         a.download = 'AI助手对话记录_' + new Date().toISOString().slice(0,10) + '.txt';
@@ -674,23 +986,18 @@
     }
 
     function showToast(msg) {
-        let toast = document.getElementById('toast');
-        if (!toast) {
-            toast = document.createElement('div');
-            toast.id = 'toast';
-            toast.style.cssText = `position:fixed;bottom:30px;left:50%;transform:translateX(-50%);background:#0a1e2f;color:white;padding:12px 28px;border-radius:40px;font-size:14px;box-shadow:0 10px 30px rgba(0,0,0,0.15);z-index:999;white-space:nowrap;display:none;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'PingFang SC','Microsoft YaHei',sans-serif;max-width:90vw;overflow:hidden;text-overflow:ellipsis;`;
-            document.body.appendChild(toast);
-        }
+        const toast = document.getElementById('toast');
         toast.innerHTML = msg;
-        toast.style.display = 'block';
+        toast.classList.add('show');
         clearTimeout(toast._timer);
-        toast._timer = setTimeout(() => { toast.style.display = 'none'; }, 2500);
+        toast._timer = setTimeout(() => toast.classList.remove('show'), 2500);
     }
 
     function autoResize(el) {
         el.style.height = 'auto';
         el.style.height = Math.min(el.scrollHeight, 120) + 'px';
         updateCharCount();
+        updateSendBtn();
     }
 
     function updateCharCount() {
@@ -699,6 +1006,14 @@
         const len = input.value.length;
         count.textContent = len + '/500';
         count.style.color = len > 450 ? '#b51a3f' : '#94a3b8';
+    }
+
+    // ✅ 空输入禁用发送
+    function updateSendBtn() {
+        const input = document.getElementById('chatInput');
+        const btn = document.getElementById('sendBtn');
+        const hasText = input.value.trim().length > 0;
+        btn.disabled = !hasText || state.isProcessing;
     }
 
     function handleKeyDown(e) {
@@ -712,8 +1027,10 @@
     // 初始化
     // ================================================================
     document.addEventListener('DOMContentLoaded', function() {
+        loadHistoryFromStorage();
         renderHistory();
-        // 手机端默认不聚焦（避免键盘弹出遮挡）
+        updateSendBtn();
+
         if (window.innerWidth > 768) {
             document.getElementById('chatInput').focus();
         }
@@ -724,14 +1041,11 @@
         });
     });
 
-    // 窗口尺寸变化时：从手机切到桌面，关闭侧边栏
     window.addEventListener('resize', function() {
-        if (window.innerWidth > 768) {
-            closeSidebar();
-        }
+        if (window.innerWidth > 768) closeSidebar();
     });
 
-    console.log('🤖 智控电商 · AI助手已加载（33种指令 · 移动端适配）');
+    console.log('🤖 智控电商 · AI助手已加载（修复版 · 历史持久化 + 多操作队列 + markdown）');
     console.log('💡 后端:', BACKEND_URL);
 </script>
 </body>
