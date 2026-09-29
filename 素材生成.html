@@ -30,9 +30,7 @@
             min-height: 100dvh;
         }
 
-        /* ============================================================
-           左侧导航
-           ============================================================ */
+        /* ===== 左侧导航 ===== */
         .sidebar {
             width: 220px;
             background: var(--primary);
@@ -64,9 +62,7 @@
         .sidebar .nav .item .tag { margin-left: auto; background: rgba(77,171,247,0.15); color: var(--accent); font-size: 10px; padding: 2px 8px; border-radius: 30px; font-weight: 600; }
         .sidebar .bottom { padding: 16px 20px calc(20px + env(safe-area-inset-bottom, 0px)); border-top: 1px solid rgba(255,255,255,0.05); font-size: 12px; color: #5a7f99; display: flex; align-items: center; gap: 10px; }
 
-        /* ============================================================
-           主内容 + 顶部步骤条
-           ============================================================ */
+        /* ===== 主内容 + 顶部步骤条 ===== */
         .main { flex: 1; display: flex; flex-direction: column; max-width: calc(100% - 220px); min-width: 0; }
 
         .topbar {
@@ -105,13 +101,12 @@
         .topbar .actions .btn i { color: var(--text-2); }
         .topbar .actions .avatar { width: 34px; height: 34px; border-radius: 50%; background: var(--accent); color: white; display: flex; align-items: center; justify-content: center; font-size: 14px; font-weight: 600; }
 
-        /* 内容区（滚动的） */
+        /* 内容区 */
         .content { flex: 1; padding: 24px 28px 100px; overflow-y: auto; }
         .step-panel { display: none; }
         .step-panel.active { display: block; animation: fadeIn 0.25s ease; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
 
-        /* 卡片 */
         .card { background: var(--card); border-radius: 16px; padding: 20px 22px; border: 1px solid var(--border); box-shadow: 0 1px 3px rgba(10,30,47,0.03); margin-bottom: 16px; }
         .card-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; flex-wrap: wrap; gap: 8px; }
         .card-header h3 { font-size: 15px; font-weight: 600; color: var(--text); display: flex; align-items: center; gap: 8px; }
@@ -132,12 +127,9 @@
         }
         .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
 
-        /* 大号商品名输入 */
         .hero-input { font-size: 16px !important; padding: 14px 16px !important; font-weight: 500; }
 
-        /* ============================================================
-           步骤 1：生成类型（大按钮）
-           ============================================================ */
+        /* 生成类型 pills */
         .type-pills { display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px; margin-bottom: 8px; }
         .type-pill {
             position: relative;
@@ -164,9 +156,7 @@
         .type-pill .name { font-size: 13px; font-weight: 600; color: var(--text); margin-bottom: 2px; }
         .type-pill .desc { font-size: 10px; color: var(--text-3); }
 
-        /* ============================================================
-           高级折叠区
-           ============================================================ */
+        /* 高级折叠 */
         .advanced-toggle {
             display: flex; align-items: center; justify-content: space-between;
             padding: 12px 16px; border-radius: 10px;
@@ -179,7 +169,6 @@
         .advanced-toggle .label i { color: var(--accent); }
         .advanced-toggle .arrow { font-size: 12px; color: var(--text-3); transition: transform 0.2s; }
         .advanced-toggle.open .arrow { transform: rotate(180deg); }
-
         .advanced-body { display: none; padding: 4px 0 0; }
         .advanced-body.open { display: block; animation: fadeIn 0.2s ease; }
 
@@ -191,7 +180,6 @@
         .prompt-panel { display: none; }
         .prompt-panel.active { display: block; }
 
-        /* 轮播图提示词（紧凑卡片） */
         .carousel-prompts { display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px; }
         .carousel-prompt-card { background: #fafcfe; border: 1px solid var(--border); border-radius: 10px; padding: 8px; }
         .carousel-prompt-card .num { font-size: 10px; font-weight: 700; color: var(--accent); margin-bottom: 4px; }
@@ -203,7 +191,6 @@
         }
         .carousel-prompt-card textarea:focus { outline: none; border-color: var(--accent); }
 
-        /* 详情页提示词（列表） */
         .detail-prompts { display: flex; flex-direction: column; gap: 8px; }
         .detail-prompt-item {
             display: grid; grid-template-columns: 32px 1fr auto;
@@ -225,7 +212,6 @@
         }
         .add-line-btn:hover { border-color: var(--accent); color: var(--accent); background: #f0f8ff; }
 
-        /* 视频剧本（紧凑列表） */
         .video-script { display: flex; flex-direction: column; gap: 8px; }
         .video-shot {
             display: grid; grid-template-columns: 60px 1fr;
@@ -254,21 +240,18 @@
         .video-shot .content .mini-actions .ai { background: var(--accent-soft); color: var(--accent); }
         .video-shot .content .mini-actions .copy { background: rgba(13,124,79,0.1); color: var(--success); }
 
-        /* ============================================================
-           平台 tag
-           ============================================================ */
+        /* 平台 tags */
         .platform-tags { display: flex; gap: 8px; flex-wrap: wrap; }
         .platform-tag {
-            padding: 6px 16px; border-radius: 20px; font-size: 13px; font-weight: 500;
+            padding: 6px 14px; border-radius: 20px; font-size: 13px; font-weight: 500;
             cursor: pointer; border: 1px solid var(--border); background: white;
             color: var(--text-2); transition: 0.15s; user-select: none;
+            display: inline-flex; align-items: center; gap: 4px;
         }
         .platform-tag:hover { border-color: var(--accent); }
         .platform-tag.active { background: var(--primary); border-color: var(--primary); color: white; }
 
-        /* ============================================================
-           上传
-           ============================================================ */
+        /* 上传 */
         .upload-zone {
             border: 2px dashed var(--border); border-radius: 10px; padding: 16px;
             text-align: center; color: var(--text-3); transition: 0.15s; cursor: pointer;
@@ -278,9 +261,7 @@
         .upload-zone .hint { font-size: 13px; color: var(--text-2); }
         .upload-zone .sub { font-size: 11px; color: var(--text-3); margin-top: 2px; }
 
-        /* ============================================================
-           底部固定操作条
-           ============================================================ */
+        /* 底部操作条 */
         .action-bar {
             position: fixed; bottom: 0; left: 220px; right: 0;
             background: white; border-top: 1px solid var(--border);
@@ -319,9 +300,7 @@
         .btn-sm.outline { background: transparent; border: 1px solid var(--border); color: var(--primary); }
         .btn-sm.danger { background: #fde8ed; color: var(--danger); }
 
-        /* ============================================================
-           步骤 2：结果 Tab
-           ============================================================ */
+        /* 结果区 */
         .result-tabs {
             display: flex; gap: 4px; border-bottom: 1px solid var(--border);
             margin-bottom: 16px; overflow-x: auto;
@@ -338,12 +317,10 @@
         .result-tab:hover { color: var(--text); }
         .result-tab.active { color: var(--primary); border-bottom-color: var(--accent); font-weight: 600; }
         .result-tab .count { background: var(--accent-soft); color: var(--accent); font-size: 10px; font-weight: 700; padding: 1px 7px; border-radius: 10px; }
-        .result-tab .dot { width: 6px; height: 6px; border-radius: 50%; background: var(--danger); }
 
         .result-panel { display: none; }
         .result-panel.active { display: block; animation: fadeIn 0.2s ease; }
 
-        /* 图片 grid */
         .image-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 12px; }
         .image-item {
             border-radius: 10px; border: 1px solid var(--border);
@@ -366,7 +343,6 @@
         .image-item .info .title { font-size: 12px; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
         .image-item .info .actions { margin-top: 6px; display: flex; gap: 4px; }
 
-        /* 文案列表 */
         .copy-list { display: flex; flex-direction: column; gap: 10px; }
         .copy-item { padding: 14px 16px; border: 1px solid var(--border); border-radius: 10px; background: white; }
         .copy-item.recommended { border-color: var(--accent); background: #f0f8ff; }
@@ -375,7 +351,6 @@
         .copy-item .content { font-size: 13px; margin-top: 8px; line-height: 1.7; white-space: pre-line; }
         .copy-item .actions { margin-top: 10px; display: flex; gap: 6px; flex-wrap: wrap; }
 
-        /* 详情页预览 */
         .detail-preview {
             background: #f8fafc; border-radius: 10px; padding: 16px;
             max-height: 500px; overflow-y: auto;
@@ -384,7 +359,6 @@
         .detail-preview::-webkit-scrollbar { width: 4px; }
         .detail-preview::-webkit-scrollbar-thumb { background: #c8d8e8; border-radius: 10px; }
 
-        /* 视频预览 */
         .video-preview {
             background: linear-gradient(135deg, #1a1a2e, #2a2a4e);
             border-radius: 12px; padding: 24px 20px;
@@ -397,14 +371,11 @@
         .video-preview .placeholder-sub { font-size: 12px; color: var(--text-3); margin-top: 6px; }
         .video-preview .placeholder-warn { font-size: 11px; color: #f59e0b; margin-top: 6px; }
 
-        /* 空状态 */
         .empty-state { text-align: center; padding: 40px 20px; color: var(--text-3); }
         .empty-state i { font-size: 40px; margin-bottom: 10px; display: block; opacity: 0.4; }
         .empty-state p { font-size: 13px; }
 
-        /* ============================================================
-           步骤 3：同步
-           ============================================================ */
+        /* 同步区 */
         .sync-search { display: flex; align-items: center; gap: 8px; margin-bottom: 10px; }
         .sync-search input { flex: 1; padding: 10px 14px; border: 1px solid var(--border); border-radius: 10px; font-size: 13px; font-family: inherit; background: #fafcfe; }
         .sync-search input:focus { outline: none; border-color: var(--accent); }
@@ -430,12 +401,10 @@
         .sync-product-item .meta { font-size: 11px; color: var(--text-3); white-space: nowrap; }
         .sync-product-item .badge { font-size: 10px; padding: 1px 6px; border-radius: 8px; background: var(--accent-soft); color: var(--accent); }
 
-        /* 素材勾选 */
         .material-checks { display: flex; gap: 16px; flex-wrap: wrap; padding: 12px 14px; background: #fafcfe; border: 1px solid var(--border); border-radius: 10px; }
         .material-checks label { display: inline-flex; align-items: center; gap: 6px; font-size: 13px; cursor: pointer; user-select: none; }
         .material-checks input { width: 16px; height: 16px; accent-color: var(--accent); cursor: pointer; }
 
-        /* 副图细粒度 */
         .sub-picker { display: grid; grid-template-columns: repeat(6, 1fr); gap: 8px; padding: 10px; background: #fafcfe; border: 1px solid var(--border); border-radius: 10px; margin-top: 10px; }
         .sub-picker-item { position: relative; aspect-ratio: 1/1; border-radius: 8px; border: 2px solid var(--border); overflow: hidden; cursor: pointer; transition: 0.15s; background: white; }
         .sub-picker-item:hover { border-color: var(--accent); }
@@ -445,7 +414,6 @@
         .sub-picker-item .no-img { display: flex; align-items: center; justify-content: center; height: 100%; color: var(--accent); font-size: 24px; }
         .sub-picker-item .idx { position: absolute; bottom: 4px; right: 4px; background: rgba(10,30,47,0.75); color: white; font-size: 10px; padding: 1px 6px; border-radius: 8px; }
 
-        /* 同步模式 */
         .mode-picker { display: flex; gap: 10px; }
         .mode-picker label {
             flex: 1; padding: 12px 14px; border: 2px solid var(--border); border-radius: 10px;
@@ -453,15 +421,12 @@
         }
         .mode-picker label:hover { border-color: var(--accent); }
         .mode-picker input { display: none; }
-        .mode-picker input:checked + .mode-content { color: var(--primary); }
         .mode-picker label.active { border-color: var(--accent); background: #f0f8ff; }
         .mode-picker .mode-content { display: flex; flex-direction: column; gap: 2px; }
         .mode-picker .mode-title { font-size: 13px; font-weight: 600; }
         .mode-picker .mode-desc { font-size: 11px; color: var(--text-3); }
 
-        /* ============================================================
-           进度遮罩
-           ============================================================ */
+        /* 进度遮罩 */
         .generating-overlay {
             display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0;
             background: rgba(0,0,0,0.45); backdrop-filter: blur(6px);
@@ -489,9 +454,7 @@
         .generating-box .step-item.done { color: var(--success); }
         .generating-box .time { font-size: 12px; color: var(--text-3); margin-top: 14px; }
 
-        /* ============================================================
-           Toast
-           ============================================================ */
+        /* Toast */
         .toast {
             position: fixed; bottom: 90px; left: 50%; transform: translateX(-50%);
             background: var(--primary); color: white; padding: 12px 24px;
@@ -503,9 +466,7 @@
         .toast.show { display: block; animation: fadeUp 0.3s ease; }
         @keyframes fadeUp { from { opacity: 0; transform: translateX(-50%) translateY(20px); } to { opacity: 1; transform: translateX(-50%) translateY(0); } }
 
-        /* ============================================================
-           历史抽屉
-           ============================================================ */
+        /* 历史抽屉 */
         .drawer-overlay {
             position: fixed; top: 0; left: 0; right: 0; bottom: 0;
             background: rgba(0,0,0,0.4); z-index: 200; display: none;
@@ -528,9 +489,7 @@
         .history-item .meta { font-size: 11px; color: var(--text-3); margin-top: 4px; display: flex; gap: 8px; flex-wrap: wrap; }
         .history-item .badge { font-size: 10px; padding: 2px 8px; border-radius: 8px; background: var(--accent-soft); color: var(--accent); }
 
-        /* ============================================================
-           响应式
-           ============================================================ */
+        /* 响应式 */
         @media (max-width: 1200px) {
             .image-grid { grid-template-columns: repeat(3, 1fr); }
             .carousel-prompts { grid-template-columns: repeat(3, 1fr); }
@@ -572,9 +531,7 @@
 </head>
 <body>
 
-<!-- ============================================================ -->
-<!-- 左侧导航 -->
-<!-- ============================================================ -->
+<!-- ===== 左侧导航 ===== -->
 <div class="sidebar">
     <div class="logo">
         <i class="fas fa-bolt"></i>
@@ -610,56 +567,37 @@
     </div>
 </div>
 
-<!-- ============================================================ -->
-<!-- 主内容 -->
-<!-- ============================================================ -->
+<!-- ===== 主内容 ===== -->
 <div class="main">
 
-    <!-- 顶部：步骤条 + 操作 -->
     <div class="topbar">
         <div class="title">
             <i class="fas fa-wand-magic-sparkles"></i>
             <h1>智能素材生成</h1>
         </div>
-
         <div class="stepper">
-            <div class="step active" data-step="1" onclick="goStep(1)">
-                <span class="num">1</span>
-                <span>输入</span>
-            </div>
+            <div class="step active" data-step="1" onclick="goStep(1)"><span class="num">1</span><span>输入</span></div>
             <span class="arrow"><i class="fas fa-chevron-right"></i></span>
-            <div class="step" data-step="2" onclick="goStep(2)">
-                <span class="num">2</span>
-                <span>结果</span>
-            </div>
+            <div class="step" data-step="2" onclick="goStep(2)"><span class="num">2</span><span>结果</span></div>
             <span class="arrow"><i class="fas fa-chevron-right"></i></span>
-            <div class="step" data-step="3" onclick="goStep(3)">
-                <span class="num">3</span>
-                <span>同步</span>
-            </div>
+            <div class="step" data-step="3" onclick="goStep(3)"><span class="num">3</span><span>同步</span></div>
         </div>
-
         <div class="actions">
             <span class="btn" onclick="openHistoryDrawer()"><i class="fas fa-history"></i> <span>历史</span></span>
             <span class="avatar">M</span>
         </div>
     </div>
 
-    <!-- 内容区 -->
     <div class="content">
 
-        <!-- ============================================================ -->
-        <!-- 步骤 1：输入 -->
-        <!-- ============================================================ -->
+        <!-- ============ 步骤 1：输入 ============ -->
         <div class="step-panel active" id="step1">
 
-            <!-- 主表单：只放 3 个必要元素 -->
             <div class="card">
                 <div class="form-group">
                     <label><i class="fas fa-tag"></i> 商品名称 <span class="req">*</span></label>
                     <input type="text" id="productName" class="hero-input" placeholder="例如：云山茶叶礼盒" value="云山茶叶礼盒" onkeydown="if(event.key==='Enter') startGenerate()">
                 </div>
-
                 <div class="form-group">
                     <label><i class="fas fa-list"></i> 商品类别</label>
                     <select id="productCategory">
@@ -671,7 +609,6 @@
                         <option value="家居">🏠 家居</option>
                     </select>
                 </div>
-
                 <div class="form-group" style="margin-bottom: 0;">
                     <label><i class="fas fa-check-square"></i> 生成什么？（可多选，默认全选）</label>
                     <div class="type-pills" id="genTypeGrid">
@@ -709,7 +646,6 @@
                 </div>
             </div>
 
-            <!-- 高级设置（折叠） -->
             <div class="advanced-toggle" onclick="toggleAdvanced()" id="advancedToggle">
                 <div class="label">
                     <i class="fas fa-cog"></i>
@@ -721,7 +657,6 @@
 
             <div class="advanced-body" id="advancedBody">
 
-                <!-- 参考图上传 -->
                 <div class="card">
                     <div class="card-header">
                         <h3><i class="fas fa-cloud-upload-alt"></i> 参考图（可选）</h3>
@@ -729,14 +664,13 @@
                     <div class="upload-zone" onclick="document.getElementById('fileUpload').click()">
                         <i class="fas fa-cloud-upload-alt"></i>
                         <div class="hint">点击上传 3-5 张参考图</div>
-                        <div class="sub">AI 将参考图风格生成图片/视频（≤4MB/张）</div>
+                        <div class="sub">AI 将参考图风格生成图片/视频（≤4MB/张，最多 5 张）</div>
                         <input type="file" id="fileUpload" multiple accept="image/*" style="display:none;" onchange="handleFileUpload(event)">
                     </div>
                     <div id="uploadPreview" style="display:flex; gap:6px; flex-wrap:wrap; margin-top:10px;"></div>
                     <div id="uploadHint" style="font-size:11px; color:var(--text-3); margin-top:6px; display:none;"></div>
                 </div>
 
-                <!-- 卖点 + 风格 -->
                 <div class="card">
                     <div class="card-header">
                         <h3><i class="fas fa-bullseye"></i> 卖点与风格</h3>
@@ -760,19 +694,16 @@
                     </div>
                 </div>
 
-                <!-- 提示词编辑（Tab 化） -->
                 <div class="card">
                     <div class="card-header">
                         <h3><i class="fas fa-comment-dots"></i> 提示词编辑</h3>
                         <span class="action" onclick="resetAllPrompts()"><i class="fas fa-undo"></i> 重置默认</span>
                     </div>
-
                     <div class="prompt-tabs" id="promptTabs">
                         <button class="prompt-tab active" data-tab="carousel" onclick="switchPromptTab('carousel')">轮播图（5）</button>
                         <button class="prompt-tab" data-tab="detail" onclick="switchPromptTab('detail')">详情页（4）</button>
                         <button class="prompt-tab" data-tab="video" onclick="switchPromptTab('video')">视频剧本（4）</button>
                     </div>
-
                     <div class="prompt-panel active" id="prompt-carousel">
                         <div class="carousel-prompts" id="carouselPrompts"></div>
                     </div>
@@ -787,7 +718,6 @@
                     </div>
                 </div>
 
-                <!-- API Key -->
                 <div class="card" id="apiKeyCard">
                     <div class="card-header">
                         <h3><i class="fas fa-key"></i> Agnes AI API Key</h3>
@@ -805,15 +735,10 @@
                 </div>
 
             </div>
-            <!-- /advanced-body -->
         </div>
-        <!-- /step1 -->
 
-        <!-- ============================================================ -->
-        <!-- 步骤 2：结果 -->
-        <!-- ============================================================ -->
+        <!-- ============ 步骤 2：结果 ============ -->
         <div class="step-panel" id="step2">
-
             <div class="result-tabs" id="resultTabs">
                 <button class="result-tab active" data-tab="images" onclick="switchResultTab('images')">
                     <i class="fas fa-image"></i> 主图 <span class="count" id="cnt-images">0</span>
@@ -832,7 +757,6 @@
                 </button>
             </div>
 
-            <!-- 主图 -->
             <div class="result-panel active" id="result-images">
                 <div class="card">
                     <div class="card-header">
@@ -843,7 +767,6 @@
                 </div>
             </div>
 
-            <!-- 轮播图 -->
             <div class="result-panel" id="result-carousel">
                 <div class="card">
                     <div class="card-header">
@@ -854,7 +777,6 @@
                 </div>
             </div>
 
-            <!-- 文案 -->
             <div class="result-panel" id="result-copy">
                 <div class="card">
                     <div class="card-header">
@@ -864,7 +786,6 @@
                 </div>
             </div>
 
-            <!-- 详情页 -->
             <div class="result-panel" id="result-detail">
                 <div class="card">
                     <div class="card-header">
@@ -878,7 +799,6 @@
                 </div>
             </div>
 
-            <!-- 视频 -->
             <div class="result-panel" id="result-video">
                 <div class="card">
                     <div class="card-header">
@@ -896,39 +816,31 @@
                 </div>
             </div>
         </div>
-        <!-- /step2 -->
 
-        <!-- ============================================================ -->
-        <!-- 步骤 3：同步 -->
-        <!-- ============================================================ -->
+        <!-- ============ 步骤 3：同步 ============ -->
         <div class="step-panel" id="step3">
 
-            <!-- 选商品 -->
             <div class="card">
                 <div class="card-header">
                     <h3><i class="fas fa-box"></i> 选择目标商品</h3>
                     <span class="action" onclick="loadSyncProducts()"><i class="fas fa-sync-alt"></i> 刷新</span>
                 </div>
-
                 <div class="sync-search">
                     <input type="text" id="syncSearchInput" placeholder="🔍 搜索商品名称..." oninput="filterSyncProducts()">
                     <span class="quick" onclick="selectAllSyncProducts()">全选</span>
                     <span class="quick" onclick="invertSyncProducts()">反选</span>
                     <span class="quick" onclick="clearSyncSelection()">清空</span>
                 </div>
-
                 <div class="sync-product-list" id="syncProductList">
                     <div style="text-align:center; padding:20px; color:var(--text-3);">
                         <i class="fas fa-spinner fa-spin"></i> 加载中...
                     </div>
                 </div>
-
                 <div style="margin-top:10px; font-size:12px; color:var(--text-2);">
                     已选 <strong id="syncSelectedCount" style="color:var(--success);">0</strong> 个商品
                 </div>
             </div>
 
-            <!-- 选素材 -->
             <div class="card">
                 <div class="card-header">
                     <h3><i class="fas fa-check-square"></i> 要同步哪些素材？</h3>
@@ -940,7 +852,6 @@
                     <label><input type="checkbox" id="syncDetail"> 详情页</label>
                     <label><input type="checkbox" id="syncVideo"> 视频</label>
                 </div>
-
                 <div id="subPickerWrap" style="display:none; margin-top:12px;">
                     <div style="font-size:12px; color:var(--text-2); margin-bottom:6px;">
                         <i class="fas fa-image"></i> 自定义要同步的轮播图（不勾选则默认全部）
@@ -952,17 +863,28 @@
             <!-- 目标平台（新位置：同步方式卡片上方） -->
             <div class="card">
                 <div class="card-header">
-                    <h3><i class="fas fa-globe"></i> 目标平台</h3>
+                    <h3><i class="fas fa-globe"></i> 目标平台 <span class="action" onclick="toggleAllPlatforms()" id="platformToggleBtn">全选</span></h3>
                 </div>
                 <div class="platform-tags" id="platformContainer">
+                    <span class="platform-tag active" data-platform="1688" onclick="togglePlatform(this)">🏭 1688</span>
                     <span class="platform-tag active" data-platform="淘宝" onclick="togglePlatform(this)">🛒 淘宝</span>
                     <span class="platform-tag active" data-platform="抖音" onclick="togglePlatform(this)">🎵 抖音</span>
                     <span class="platform-tag active" data-platform="拼多多" onclick="togglePlatform(this)">🛍️ 拼多多</span>
                     <span class="platform-tag active" data-platform="京东" onclick="togglePlatform(this)">📦 京东</span>
+                    <span class="platform-tag active" data-platform="亚马逊" onclick="togglePlatform(this)">🌍 亚马逊</span>
+                    <span class="platform-tag active" data-platform="速卖通" onclick="togglePlatform(this)">🚀 速卖通</span>
+                    <span class="platform-tag active" data-platform="阿里国际站" onclick="togglePlatform(this)">🌐 阿里国际站</span>
+                    <span class="platform-tag active" data-platform="美客多" onclick="togglePlatform(this)">🦅 美客多</span>
+                    <span class="platform-tag active" data-platform="希音" onclick="togglePlatform(this)">👗 希音</span>
+                    <span class="platform-tag active" data-platform="Shopify" onclick="togglePlatform(this)">🛍️ Shopify</span>
+                    <span class="platform-tag active" data-platform="Shopee" onclick="togglePlatform(this)">🛒 Shopee</span>
+                    <span class="platform-tag active" data-platform="Temu" onclick="togglePlatform(this)">✨ Temu</span>
+                </div>
+                <div style="font-size:11px; color:var(--text-3); margin-top:8px;">
+                    <i class="fas fa-info-circle"></i> 勾选的平台将自动适配尺寸比例
                 </div>
             </div>
 
-            <!-- 同步方式 -->
             <div class="card">
                 <div class="card-header">
                     <h3><i class="fas fa-cog"></i> 同步方式</h3>
@@ -985,10 +907,8 @@
                 </div>
             </div>
         </div>
-        <!-- /step3 -->
 
     </div>
-    <!-- /content -->
 
     <!-- 底部固定操作条 -->
     <div class="action-bar" id="actionBar">
@@ -1012,9 +932,7 @@
     </div>
 </div>
 
-<!-- ============================================================ -->
 <!-- 生成进度遮罩 -->
-<!-- ============================================================ -->
 <div class="generating-overlay" id="generatingOverlay">
     <div class="generating-box">
         <div class="spinner"></div>
@@ -1028,9 +946,7 @@
     </div>
 </div>
 
-<!-- ============================================================ -->
 <!-- 历史抽屉 -->
-<!-- ============================================================ -->
 <div class="drawer-overlay" id="drawerOverlay" onclick="closeHistoryDrawer()"></div>
 <div class="drawer" id="historyDrawer">
     <div class="drawer-header">
@@ -1043,17 +959,42 @@
     <div class="drawer-body" id="historyList"></div>
 </div>
 
-<!-- Toast -->
 <div id="toast" class="toast"></div>
 
 <script>
     // ================================================================
-    // 常量
+    // 常量配置
     // ================================================================
     const AGNES_API_BASE = 'https://apihub.agnes-ai.com/v1';
-    const AGNES_IMAGE_MODEL = 'agnes-image-2.0-flash';
+    // ✅ 升级到 Agnes Image 2.5 Flash
+    const AGNES_IMAGE_MODEL = 'agnes-image-2.5-flash';
     const AGNES_VIDEO_MODEL = 'agnes-video-2.5-flash';
     const BACKEND_URL = 'https://ai-ecommerce-backend-production-0776.up.railway.app';
+
+    // 平台配置：每个平台的图片尺寸比例 + 视频比例
+    const PLATFORM_CONFIG = {
+        '1688':       { imageRatio: '1:1',  videoRatio: '1:1'  },
+        '淘宝':       { imageRatio: '1:1',  videoRatio: '9:16' },
+        '抖音':       { imageRatio: '1:1',  videoRatio: '9:16' },
+        '拼多多':     { imageRatio: '1:1',  videoRatio: '9:16' },
+        '京东':       { imageRatio: '1:1',  videoRatio: '16:9' },
+        '亚马逊':     { imageRatio: '1:1',  videoRatio: '16:9' },
+        '速卖通':     { imageRatio: '1:1',  videoRatio: '16:9' },
+        '阿里国际站': { imageRatio: '1:1',  videoRatio: '16:9' },
+        '美客多':     { imageRatio: '1:1',  videoRatio: '9:16' },
+        '希音':       { imageRatio: '3:4',  videoRatio: '9:16' },
+        'Shopify':    { imageRatio: '1:1',  videoRatio: '16:9' },
+        'Shopee':     { imageRatio: '1:1',  videoRatio: '9:16' },
+        'Temu':       { imageRatio: '1:1',  videoRatio: '9:16' }
+    };
+
+    function getAgnesApiKey() {
+        return document.getElementById('agnesApiKey').value.trim() || localStorage.getItem('agnes_api_key') || 'sk-XmLjN9e3Mhh8wf';
+    }
+    function saveAgnesApiKey() {
+        const key = document.getElementById('agnesApiKey').value.trim();
+        if (key) localStorage.setItem('agnes_api_key', key);
+    }
 
     // ================================================================
     // 全局状态
@@ -1086,7 +1027,6 @@
         ]
     };
 
-    // 同步状态
     const syncState = {
         allProducts: [],
         filteredProducts: [],
@@ -1106,27 +1046,14 @@
         toast._timer = setTimeout(() => toast.classList.remove('show'), 2500);
     }
 
-    function getAgnesApiKey() {
-        return document.getElementById('agnesApiKey').value.trim() || localStorage.getItem('agnes_api_key') || 'sk-XmLjN9e3Mhh8wf';
-    }
-
-    function saveAgnesApiKey() {
-        const key = document.getElementById('agnesApiKey').value.trim();
-        if (key) localStorage.setItem('agnes_api_key', key);
-    }
-
     // ================================================================
     // 步骤切换
     // ================================================================
     function goStep(n) {
-        if (n === 2 && !state.generatedData.images && !state.generatedData.copyVersions && !state.generatedData.detailHTML) {
-            // 允许跳到 step2 显示空状态
-        }
         if (n === 3 && !state.generatedData.images && !state.generatedData.copyVersions) {
             showToast('⚠️ 请先完成生成');
             return;
         }
-
         state.currentStep = n;
         document.querySelectorAll('.step-panel').forEach(p => p.classList.remove('active'));
         document.getElementById('step' + n).classList.add('active');
@@ -1159,17 +1086,10 @@
             actionInfo.innerHTML = '<i class="fas fa-info-circle"></i> 选择要同步的商品和素材，确认后点击「同步到商品」';
             loadSyncProducts();
         }
-
         document.querySelector('.content').scrollTop = 0;
     }
-
-    function goStepBack() {
-        if (state.currentStep > 1) goStep(state.currentStep - 1);
-    }
-
-    function goStepNext() {
-        if (state.currentStep < 3) goStep(state.currentStep + 1);
-    }
+    function goStepBack() { if (state.currentStep > 1) goStep(state.currentStep - 1); }
+    function goStepNext() { if (state.currentStep < 3) goStep(state.currentStep + 1); }
 
     function autoSelectFirstResultTab() {
         const tabs = ['images', 'carousel', 'copy', 'detail', 'video'];
@@ -1180,36 +1100,22 @@
             detail: !!state.generatedData.detailHTML,
             video: !!state.generatedData.videoUrl,
         };
-        for (const t of tabs) {
-            if (map[t]) { switchResultTab(t); return; }
-        }
+        for (const t of tabs) { if (map[t]) { switchResultTab(t); return; } }
     }
 
     // ================================================================
-    // 高级设置折叠
+    // 高级折叠 / API Key
     // ================================================================
     function toggleAdvanced() {
-        const toggle = document.getElementById('advancedToggle');
-        const body = document.getElementById('advancedBody');
-        toggle.classList.toggle('open');
-        body.classList.toggle('open');
+        document.getElementById('advancedToggle').classList.toggle('open');
+        document.getElementById('advancedBody').classList.toggle('open');
     }
-
-    // ================================================================
-    // API Key 显示切换
-    // ================================================================
     function toggleApiKeyVisibility() {
         const input = document.getElementById('agnesApiKey');
         const btn = document.getElementById('apiKeyEyeBtn');
-        if (input.type === 'password') {
-            input.type = 'text';
-            btn.innerHTML = '<i class="fas fa-eye-slash"></i>';
-        } else {
-            input.type = 'password';
-            btn.innerHTML = '<i class="fas fa-eye"></i>';
-        }
+        if (input.type === 'password') { input.type = 'text'; btn.innerHTML = '<i class="fas fa-eye-slash"></i>'; }
+        else { input.type = 'password'; btn.innerHTML = '<i class="fas fa-eye"></i>'; }
     }
-
     function toggleApiKeyCard() {
         const body = document.getElementById('apiKeyBody');
         const btn = document.getElementById('apiKeyToggleBtn');
@@ -1229,15 +1135,12 @@
         else state.selectedTypes.push(type);
         updatePromptTabsVisibility();
     }
-
     function updatePromptTabsVisibility() {
         const videoTab = document.querySelector('.prompt-tab[data-tab="video"]');
         const hasVideo = state.selectedTypes.includes('video');
         videoTab.style.opacity = hasVideo ? '1' : '0.4';
         videoTab.style.pointerEvents = hasVideo ? 'auto' : 'none';
-        if (!hasVideo && videoTab.classList.contains('active')) {
-            switchPromptTab('carousel');
-        }
+        if (!hasVideo && videoTab.classList.contains('active')) switchPromptTab('carousel');
     }
 
     // ================================================================
@@ -1249,14 +1152,34 @@
     }
 
     // ================================================================
-    // 平台
+    // 平台切换
     // ================================================================
     function togglePlatform(el) {
         el.classList.toggle('active');
+        updatePlatformToggleBtn();
     }
-
+    function toggleAllPlatforms() {
+        const tags = document.querySelectorAll('#platformContainer .platform-tag');
+        const allActive = Array.from(tags).every(t => t.classList.contains('active'));
+        tags.forEach(t => t.classList.toggle('active', !allActive));
+        updatePlatformToggleBtn();
+    }
+    function updatePlatformToggleBtn() {
+        const tags = document.querySelectorAll('#platformContainer .platform-tag');
+        const allActive = Array.from(tags).every(t => t.classList.contains('active'));
+        document.getElementById('platformToggleBtn').textContent = allActive ? '全不选' : '全选';
+    }
     function getSelectedPlatforms() {
         return Array.from(document.querySelectorAll('#platformContainer .platform-tag.active')).map(t => t.dataset.platform);
+    }
+    // 根据平台列表，计算主流图片比例（取第一个平台的配置）
+    function getImageRatioByPlatforms(platforms) {
+        if (!platforms || platforms.length === 0) return '1:1';
+        return PLATFORM_CONFIG[platforms[0]]?.imageRatio || '1:1';
+    }
+    function getVideoRatioByPlatforms(platforms) {
+        if (!platforms || platforms.length === 0) return '9:16';
+        return PLATFORM_CONFIG[platforms[0]]?.videoRatio || '9:16';
     }
 
     // ================================================================
@@ -1269,9 +1192,15 @@
         if (!files || files.length === 0) return;
 
         const MAX_SIZE = 4 * 1024 * 1024;
+        const MAX_COUNT = 5;
         let loaded = 0, total = 0;
+
         for (let i = 0; i < files.length; i++) {
             const file = files[i];
+            if (state.referenceImages.length >= MAX_COUNT) {
+                showToast(`⚠️ 参考图最多 ${MAX_COUNT} 张`);
+                break;
+            }
             if (!file.type.startsWith('image/')) { showToast('⚠️ 跳过非图片：' + file.name); continue; }
             if (file.size > MAX_SIZE) { showToast('⚠️ 过大已跳过（>4MB）：' + file.name); continue; }
             total++;
@@ -1297,7 +1226,7 @@
     }
 
     // ================================================================
-    // 提示词渲染：轮播图
+    // 提示词渲染
     // ================================================================
     function renderCarouselPrompts() {
         const container = document.getElementById('carouselPrompts');
@@ -1311,9 +1240,7 @@
             </div>
         `).join('');
     }
-
     function updateCarouselPrompt(idx, val) { state.carouselPrompts[idx] = val; }
-
     function aiFillCarouselPrompt(idx) {
         const name = document.getElementById('productName').value.trim() || '商品';
         const features = document.getElementById('productFeatures').value.split(',').map(s => s.trim()).filter(Boolean);
@@ -1329,9 +1256,6 @@
         showToast('✨ 已生成推荐提示词');
     }
 
-    // ================================================================
-    // 提示词渲染：详情页
-    // ================================================================
     function renderDetailPrompts() {
         const container = document.getElementById('detailPrompts');
         container.innerHTML = state.detailPrompts.map((d, i) => `
@@ -1345,9 +1269,7 @@
             </div>
         `).join('');
     }
-
     function updateDetailPrompt(idx, val) { state.detailPrompts[idx].prompt = val; }
-
     function aiFillDetailPrompt(idx) {
         const name = document.getElementById('productName').value.trim() || '商品';
         const features = document.getElementById('productFeatures').value.split(',').map(s => s.trim()).filter(Boolean);
@@ -1362,23 +1284,18 @@
         renderDetailPrompts();
         showToast('✨ 已生成推荐提示词');
     }
-
     function removeDetailItem(idx) {
         if (state.detailPrompts.length <= 1) { showToast('⚠️ 至少保留一张'); return; }
         state.detailPrompts.splice(idx, 1);
         state.detailPrompts.forEach((d, i) => d.step = i + 1);
         renderDetailPrompts();
     }
-
     function addDetailItem() {
         if (state.detailPrompts.length >= 8) { showToast('⚠️ 最多 8 张'); return; }
         state.detailPrompts.push({ step: state.detailPrompts.length + 1, prompt: '' });
         renderDetailPrompts();
     }
 
-    // ================================================================
-    // 提示词渲染：视频
-    // ================================================================
     function renderVideoScript() {
         const container = document.getElementById('videoScript');
         container.innerHTML = state.videoPrompts.map((v, i) => `
@@ -1397,9 +1314,7 @@
             </div>
         `).join('');
     }
-
     function updateVideoPrompt(idx, val) { state.videoPrompts[idx].prompt = val; }
-
     function aiFillVideoPrompt(idx) {
         const name = document.getElementById('productName').value.trim() || '商品';
         const features = document.getElementById('productFeatures').value.split(',').map(s => s.trim()).filter(Boolean);
@@ -1413,7 +1328,6 @@
         renderVideoScript();
         showToast('✨ 已生成推荐提示词');
     }
-
     function copyVideoSample(idx) {
         const samples = {
             '开场': '【参考样本】3秒黄金钩子：特写产品使用瞬间的慢动作，配合轻快音乐 + 悬念文案',
@@ -1426,7 +1340,6 @@
         navigator.clipboard.writeText(sample).then(() => showToast('📋 已复制'))
             .catch(() => showToast('⚠️ 复制失败'));
     }
-
     function resetAllPrompts() {
         if (!confirm('确定重置所有提示词为默认值？')) return;
         state.carouselPrompts = [
@@ -1456,17 +1369,26 @@
     }
 
     // ================================================================
-    // Agnes 图片生成
+    // ★ Agnes 图片生成（修复版：使用 2.5 Flash + extra_body.image）
     // ================================================================
-    async function generateAgnesImage(prompt, size = '1024x1024', referenceImages = []) {
+    async function generateAgnesImage(prompt, sizeTier = '1K', ratio = '1:1', referenceImages = []) {
         const apiKey = getAgnesApiKey();
         if (!apiKey) throw new Error('请先填写 Agnes AI API Key');
         saveAgnesApiKey();
 
-        const body = { model: AGNES_IMAGE_MODEL, prompt: prompt, size: size };
+        const body = {
+            model: AGNES_IMAGE_MODEL,        // ✅ agnes-image-2.5-flash
+            prompt: prompt,
+            size: sizeTier,                  // ✅ 档位：1K/2K/3K/4K
+            ratio: ratio,                    // ✅ 宽高比
+            extra_body: {
+                response_format: 'url'       // ✅ 明确要 URL 输出
+            }
+        };
+
+        // ✅ 图生图：image 必须放 extra_body 里，不放顶层
         if (referenceImages && referenceImages.length > 0) {
-            const refs = referenceImages.slice(0, 5);
-            body.image = refs; body.reference_images = refs; body.images = refs;
+            body.extra_body.image = referenceImages.slice(0, 5);
             if (!/参考|reference|<Picture/i.test(prompt)) {
                 body.prompt = prompt + '（参考上传的图片风格与主体）';
             }
@@ -1489,7 +1411,7 @@
     }
 
     // ================================================================
-    // Agnes 视频生成
+    // ★ Agnes 视频生成（修复版：严格 video_id + 严格 mode 字段）
     // ================================================================
     async function createVideoTaskWithRetry(apiKey, body, maxRetries = 4) {
         let lastErr = null;
@@ -1512,9 +1434,7 @@
             const status = res.status;
             const errText = await res.text().catch(() => '');
             lastErr = new Error(`视频任务创建失败 (${status}): ${errText.slice(0, 300)}`);
-            if (status === 429) {
-                throw new Error('视频服务速率限制（免费账号）。请等待 1-2 分钟后再试，或升级 Token Plan。');
-            }
+            if (status === 429) throw new Error('视频服务速率限制（免费账号）。请等待 1-2 分钟后再试，或升级 Token Plan。');
             const retryable = [502, 503, 504].includes(status);
             if (!retryable || attempt === maxRetries) throw lastErr;
             const wait = 10000 * Math.pow(2, attempt - 1);
@@ -1524,27 +1444,40 @@
         throw lastErr || new Error('视频任务创建失败');
     }
 
-    async function generateAgnesVideo(prompt, seconds = '5', referenceImages = [], onProgress) {
+    async function generateAgnesVideo(prompt, seconds = '5', referenceImages = [], aspectRatio = '9:16', onProgress) {
         const apiKey = getAgnesApiKey();
         if (!apiKey) throw new Error('请先填写 Agnes AI API Key');
         saveAgnesApiKey();
 
         const hasRefs = referenceImages && referenceImages.length > 0;
+
+        // ✅ 严格按 mode 分配字段
         const body = {
-            model: AGNES_VIDEO_MODEL, prompt: prompt, seconds: seconds,
+            model: AGNES_VIDEO_MODEL,
+            prompt: prompt,
+            seconds: String(seconds),
             mode: hasRefs ? 'reference' : 'text',
-            size: '720P', aspect_ratio: '9:16', n: 1
+            size: '720P',                       // Flash 固定 720P
+            aspect_ratio: aspectRatio,          // 按平台自动选
+            n: 1
         };
+
         if (hasRefs) {
-            body.images = referenceImages.slice(0, 5);
+            body.images = referenceImages.slice(0, 5);   // 严格 ≤ 5
             if (!/<Picture\s*\d+/i.test(prompt)) {
-                body.prompt = prompt + '。以 <Picture 1> 中的商品外观、色调和风格为参考。';
+                body.prompt = prompt + '。以 <Picture 1> 中的商品外观、色调和风格为参考，保持主体一致性。';
             }
         }
+        // text 模式不传任何媒体字段
 
         const createData = await createVideoTaskWithRetry(apiKey, body, 4);
+
+        // ✅ 严格只取 video_id
         const videoId = createData.video_id;
-        if (!videoId) { console.error(createData); throw new Error('创建任务未返回 video_id'); }
+        if (!videoId) {
+            console.error('创建任务响应:', createData);
+            throw new Error('创建任务未返回 video_id');
+        }
 
         const maxAttempts = 300, intervalMs = 2000;
         let lastStatus = '';
@@ -1572,7 +1505,7 @@
             if (typeof onProgress === 'function') onProgress(i + 1, maxAttempts, status, statusText);
 
             if (status === 'completed') {
-                const url = qd.url || (qd.data && qd.data.url);
+                const url = qd.url;              // ✅ 顶层 url
                 if (url) return url;
                 throw new Error('视频已完成但未返回 URL');
             }
@@ -1603,40 +1536,56 @@
         const style = document.getElementById('designStyle').value;
         const platforms = getSelectedPlatforms();
         const refImages = state.referenceImages.slice();
+        // ✅ 按所选平台自动选择图片/视频比例
+        const imageRatio = getImageRatioByPlatforms(platforms);
+        const videoRatio = getVideoRatioByPlatforms(platforms);
 
         state.isGenerating = true;
         showGeneratingOverlay(state.selectedTypes);
 
         try {
-            // 图片
+            // ---- 图片生成 ----
             let images = [];
             if (state.selectedTypes.includes('images') || state.selectedTypes.includes('carousel')) {
                 const prompts = state.carouselPrompts.slice(0, 5);
-                updateProgress(15, refImages.length > 0 ? `正在生成图片（参考 ${refImages.length} 张）...` : '正在生成图片...');
+                updateProgress(15, refImages.length > 0
+                    ? `正在调用 Agnes Image 2.5（参考 ${refImages.length} 张，比例 ${imageRatio}）...`
+                    : `正在调用 Agnes Image 2.5（比例 ${imageRatio}）...`);
+
                 for (let i = 0; i < prompts.length; i++) {
                     try {
-                        const url = await generateAgnesImage(prompts[i], '1024x1024', refImages);
-                        images.push({ url, style, score: 90 + Math.floor(Math.random() * 10), ctr: (3 + Math.random() * 3).toFixed(1), prompt: prompts[i] });
+                        const url = await generateAgnesImage(prompts[i], '1K', imageRatio, refImages);
+                        images.push({
+                            url, style,
+                            score: 90 + Math.floor(Math.random() * 10),
+                            ctr: (3 + Math.random() * 3).toFixed(1),
+                            prompt: prompts[i]
+                        });
                     } catch (imgErr) {
-                        console.warn('单张图片失败:', imgErr);
-                        images.push({ url: '', style, score: 70, ctr: '3.0', prompt: prompts[i], error: imgErr.message });
+                        console.warn('单张图片生成失败:', imgErr);
+                        images.push({
+                            url: '', style, score: 70, ctr: '3.0',
+                            prompt: prompts[i], error: imgErr.message
+                        });
                     }
                     updateProgress(15 + (i + 1) / prompts.length * 40, `图片 ${i + 1}/${prompts.length} 已生成`);
                 }
             }
 
-            // 文案 + 详情
-            const fallback = generateFallbackData(name, category, features, style, platforms);
-            const copyVersions = fallback.copyVersions;
-            const detailHTML = fallback.detailHTML;
+            // ---- 文案和详情页 ----
+            const fallbackData = generateFallbackData(name, category, features, style, platforms);
+            const copyVersions = fallbackData.copyVersions;
+            const detailHTML = fallbackData.detailHTML;
 
-            // 视频
+            // ---- 视频生成 ----
             let videoUrl = '';
             if (state.selectedTypes.includes('video')) {
                 const videoPrompt = state.videoPrompts.map(v => v.prompt).filter(Boolean).join('。') || `${name} 商品展示短视频`;
-                updateProgress(60, refImages.length > 0 ? `正在生成视频（参考 ${refImages.length} 张，排队中，最长 10 分钟）...` : '正在生成视频（排队中，最长 10 分钟）...');
+                updateProgress(60, refImages.length > 0
+                    ? `正在生成视频（参考 ${refImages.length} 张，比例 ${videoRatio}，排队中，最长 10 分钟）...`
+                    : `正在生成视频（比例 ${videoRatio}，排队中，最长 10 分钟）...`);
                 try {
-                    videoUrl = await generateAgnesVideo(videoPrompt, '5', refImages, (attempt, total, status, text) => {
+                    videoUrl = await generateAgnesVideo(videoPrompt, '5', refImages, videoRatio, (attempt, total, status, text) => {
                         const pct = 60 + Math.min(35, (attempt / total) * 35);
                         updateProgress(pct, '视频：' + text);
                     });
@@ -1654,12 +1603,11 @@
                 hideGeneratingOverlay();
                 state.isGenerating = false;
 
-                const resultData = { images, copyVersions, detailHTML, videoUrl, platforms };
+                const resultData = { images, copyVersions, detailHTML, videoUrl, platforms, imageRatio, videoRatio };
                 state.generatedData = resultData;
                 renderResults(resultData, name);
                 addHistory(name, state.selectedTypes, style, platforms);
                 showToast('✅ 素材生成完成');
-
                 goStep(2);
             }, 500);
 
@@ -1721,25 +1669,21 @@
         } else {
             document.getElementById('imageGrid').innerHTML = `<div class="empty-state" style="grid-column:1/-1;"><i class="fas fa-image"></i><p>未生成主图</p></div>`;
         }
-
         if (state.selectedTypes.includes('carousel') && data.images && data.images.length > 0) {
             renderImageGrid('carouselGrid', data.images, productName, '轮播图');
         } else {
             document.getElementById('carouselGrid').innerHTML = `<div class="empty-state" style="grid-column:1/-1;"><i class="fas fa-images"></i><p>未生成轮播图</p></div>`;
         }
-
         if (state.selectedTypes.includes('copy') && data.copyVersions) {
             renderCopyList(data.copyVersions);
         } else {
             document.getElementById('copyList').innerHTML = `<div class="empty-state"><i class="fas fa-pen-fancy"></i><p>未生成文案</p></div>`;
         }
-
         if (state.selectedTypes.includes('detail') && data.detailHTML) {
             document.getElementById('detailPreview').innerHTML = data.detailHTML;
         } else {
             document.getElementById('detailPreview').innerHTML = `<div class="empty-state"><i class="fas fa-file-alt"></i><p>未生成详情页</p></div>`;
         }
-
         const videoContainer = document.getElementById('videoPreviewContainer');
         if (state.selectedTypes.includes('video')) {
             if (data.videoUrl) {
@@ -1748,7 +1692,7 @@
                 videoContainer.innerHTML = `
                     <i class="fas fa-play-circle placeholder-icon"></i>
                     <div class="placeholder-text">${productName} · 5秒种草短视频</div>
-                    <div class="placeholder-sub">🎵 轻快流行 · 竖屏 9:16</div>
+                    <div class="placeholder-sub">🎵 轻快流行 · ${data.videoRatio || '9:16'}</div>
                     <div class="placeholder-warn"><i class="fas fa-exclamation-triangle"></i> 视频生成未完成或失败</div>
                 `;
             }
@@ -1846,7 +1790,6 @@
             box.innerHTML = `<div style="text-align:center; padding:20px; color:var(--danger);">加载失败：${e.message}</div>`;
         }
     }
-
     function renderSyncProductList() {
         const box = document.getElementById('syncProductList');
         const list = syncState.filteredProducts;
@@ -1866,7 +1809,6 @@
         `).join('');
         document.getElementById('syncSelectedCount').textContent = syncState.selectedProducts.length;
     }
-
     function filterSyncProducts() {
         const kw = document.getElementById('syncSearchInput').value.trim().toLowerCase();
         if (!kw) syncState.filteredProducts = syncState.allProducts.slice();
@@ -1875,14 +1817,12 @@
         );
         renderSyncProductList();
     }
-
     function toggleSyncProduct(name, checked) {
         const idx = syncState.selectedProducts.indexOf(name);
         if (checked && idx < 0) syncState.selectedProducts.push(name);
         if (!checked && idx >= 0) syncState.selectedProducts.splice(idx, 1);
         renderSyncProductList();
     }
-
     function selectAllSyncProducts() {
         syncState.filteredProducts.forEach(p => {
             if (!syncState.selectedProducts.includes(p.name)) syncState.selectedProducts.push(p.name);
@@ -1915,7 +1855,6 @@
         document.getElementById('subPickerWrap').style.display = want ? 'block' : 'none';
         if (want) renderSubPicker();
     }
-
     function renderSubPicker() {
         const grid = document.getElementById('subPicker');
         const images = (state.generatedData.images || []);
@@ -1928,7 +1867,6 @@
             </label>
         `).join('');
     }
-
     function toggleSubIndex(i) {
         const idx = syncState.selectedSubIndexes.indexOf(i);
         if (idx >= 0) syncState.selectedSubIndexes.splice(idx, 1);
@@ -1992,9 +1930,14 @@
             });
             const data = await res.json();
             if (data.success) {
-                showToast('✅ ' + data.message);
-                if (wantCopy) {
-                    console.log('文案未同步（后端暂未支持文案字段）');
+                const results = data.results || [];
+                const failList = results.filter(x => !x.ok);
+                if (failList.length > 0) {
+                    const reasons = failList.map(x => `${x.name}：${x.msg}`).join('\n');
+                    showToast(`⚠️ 部分失败：${failList.length} 个商品未同步成功`);
+                    console.warn('同步失败明细：\n' + reasons);
+                } else {
+                    showToast('✅ ' + data.message);
                 }
             } else {
                 showToast('❌ ' + (data.message || '同步失败'));
@@ -2020,7 +1963,6 @@
         overlay.classList.add('show');
         updateProgress(5, '正在启动AI引擎...');
     }
-
     function updateProgress(pct, text) {
         document.getElementById('generateProgress').style.width = pct + '%';
         if (text) document.getElementById('generateStatus').textContent = text;
@@ -2042,10 +1984,7 @@
             }
         });
     }
-
-    function hideGeneratingOverlay() {
-        document.getElementById('generatingOverlay').classList.remove('show');
-    }
+    function hideGeneratingOverlay() { document.getElementById('generatingOverlay').classList.remove('show'); }
 
     // ================================================================
     // 历史
@@ -2066,7 +2005,6 @@
         try { localStorage.setItem('material_history', JSON.stringify(state.history)); } catch (e) {}
         renderHistoryDrawer();
     }
-
     function renderHistoryDrawer() {
         const list = document.getElementById('historyList');
         if (state.history.length === 0) {
@@ -2079,13 +2017,11 @@
                 <div class="meta">
                     <span class="badge">${h.types}</span>
                     <span>${h.style}</span>
-                    <span>${h.platforms}</span>
                     <span>${h.time}</span>
                 </div>
             </div>
         `).join('');
     }
-
     function loadHistory() {
         try {
             const data = localStorage.getItem('material_history');
@@ -2093,7 +2029,6 @@
         } catch (e) {}
         renderHistoryDrawer();
     }
-
     function clearHistory() {
         if (state.history.length === 0) { showToast('📭 暂无记录'); return; }
         if (!confirm('确定清空所有记录？')) return;
@@ -2102,7 +2037,6 @@
         renderHistoryDrawer();
         showToast('🗑️ 已清空');
     }
-
     function openHistoryDrawer() {
         document.getElementById('historyDrawer').classList.add('show');
         document.getElementById('drawerOverlay').classList.add('show');
@@ -2122,15 +2056,16 @@
         document.getElementById('agnesApiKey').addEventListener('input', function() {
             if (this.value.trim()) localStorage.setItem('agnes_api_key', this.value.trim());
         });
-
         renderCarouselPrompts();
         renderDetailPrompts();
         renderVideoScript();
         updatePromptTabsVisibility();
         toggleSubPicker();
         loadHistory();
-
-        console.log('🎨 智能素材生成已就绪（三步向导版 · 目标平台已移至同步页）');
+        updatePlatformToggleBtn();
+        console.log('🎨 智能素材生成已就绪（Agnes Image 2.5 + Video 2.5 + 13 平台）');
+        console.log('🖼️ 图片模型:', AGNES_IMAGE_MODEL);
+        console.log('🎬 视频模型:', AGNES_VIDEO_MODEL);
     });
 
     // 全局暴露
@@ -2144,6 +2079,7 @@
     window.switchPromptTab = switchPromptTab;
     window.switchResultTab = switchResultTab;
     window.togglePlatform = togglePlatform;
+    window.toggleAllPlatforms = toggleAllPlatforms;
     window.handleFileUpload = handleFileUpload;
     window.updateCarouselPrompt = updateCarouselPrompt;
     window.aiFillCarouselPrompt = aiFillCarouselPrompt;
