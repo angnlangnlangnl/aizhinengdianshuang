@@ -695,7 +695,7 @@
     const MAX_HISTORY = 50;
 
     const AGNES_API_BASE = 'https://apihub.agnes-ai.com/v1';
-    const AGNES_IMAGE_MODEL = 'agnes-image-2.5-flash';    // ✅ 升级到 2.5
+    const AGNES_IMAGE_MODEL = 'agnes-image-2.5-flash';
     const AGNES_VIDEO_MODEL = 'agnes-video-2.5-flash';
     const AGNES_API_KEY_DEFAULT = 'sk-XmLjN9e3Mhh8wf';
 
@@ -705,8 +705,34 @@
     const REF_VIDEO_MAX_SIZE = 20 * 1024 * 1024;
     const KEYFRAME_COUNT = 3;
 
+    // ★ 安全 storage 封装：沙箱环境下不会崩
+    const safeStorage = {
+        get(key, def = null) {
+            try { return localStorage.getItem(key) ?? def; }
+            catch (e) { console.warn(`[storage] 读取 ${key} 失败:`, e.message); return def; }
+        },
+        set(key, val) {
+            try { localStorage.setItem(key, val); return true; }
+            catch (e) { console.warn(`[storage] 写入 ${key} 失败:`, e.message); return false; }
+        },
+        remove(key) {
+            try { localStorage.removeItem(key); return true; }
+            catch (e) { return false; }
+        }
+    };
+
+    // ✅ 修复：沙箱安全
     function getAgnesApiKey() {
-        return localStorage.getItem('agnes_api_key') || AGNES_API_KEY_DEFAULT;
+        const fromInput = document.getElementById('agnesApiKey')?.value.trim();
+        if (fromInput) return fromInput;
+        const fromStorage = safeStorage.get('agnes_api_key');
+        return fromStorage || AGNES_API_KEY_DEFAULT;
+    }
+
+    // ✅ 修复：沙箱安全
+    function saveAgnesApiKey() {
+        const key = document.getElementById('agnesApiKey')?.value.trim();
+        if (key) safeStorage.set('agnes_api_key', key);
     }
 
     // ================================================================
@@ -733,11 +759,11 @@
     let historyData = [];
 
     // ================================================================
-    // 持久化
+    // 持久化（用 safeStorage）
     // ================================================================
     function loadHistoryFromStorage() {
         try {
-            const raw = localStorage.getItem(STORAGE_KEY);
+            const raw = safeStorage.get(STORAGE_KEY);
             if (raw) historyData = JSON.parse(raw) || [];
         } catch (e) { historyData = []; }
     }
@@ -751,9 +777,9 @@
                     media: slimMedia(m.media)
                 }))
             }));
-            localStorage.setItem(STORAGE_KEY, JSON.stringify(slim));
+            safeStorage.set(STORAGE_KEY, JSON.stringify(slim));
         } catch (e) {
-            console.warn('saveHistory 失败（可能空间不足）:', e);
+            console.warn('saveHistory 失败:', e);
         }
     }
 
@@ -942,7 +968,6 @@
 
         let bubbleContent = `<div class="bubble">`;
 
-        // 参考素材预览
         if (msg.media && msg.media.type === 'references') {
             bubbleContent += `<div class="media-preview ref-preview">`;
             (msg.media.images || []).forEach((url, i) => {
@@ -962,7 +987,6 @@
 
         if (msg.text) bubbleContent += `<p class="msg-text">${renderMarkdown(msg.text)}</p>`;
 
-        // 视频反解结果
         if (msg.analysis) {
             const a = msg.analysis;
             bubbleContent += `<div class="analysis-card">
@@ -1143,46 +1167,94 @@
         return new Blob([array], { type: mime });
     }
 
+    // ✅ 修复：去掉 crossOrigin，加超时，加错误分类
     async function extractVideoKeyframes(file, count = KEYFRAME_COUNT) {
         const url = URL.createObjectURL(file);
         const video = document.createElement('video');
         video.src = url;
         video.muted = true;
-        video.crossOrigin = 'anonymous';
-        video.preload = 'metadata';
+        video.preload = 'auto';
+        // ✅ 不加 crossOrigin，blob URL 是同源的
 
+        // 1) 加载 metadata（含超时 + 错误分类）
         await new Promise((resolve, reject) => {
-            video.onloadedmetadata = resolve;
-            video.onerror = () => reject(new Error('视频加载失败'));
+            const timeout = setTimeout(() => {
+                reject(new Error('视频加载超时（可能编码不支持）'));
+            }, 15000);
+
+            video.onloadedmetadata = () => {
+                clearTimeout(timeout);
+                resolve();
+            };
+            video.onerror = () => {
+                clearTimeout(timeout);
+                const err = video.error;
+                let msg = '未知错误';
+                if (err) {
+                    msg = {
+                        1: '已中止',
+                        2: '网络错误',
+                        3: '解码失败（推荐 H.264 编码的 MP4）',
+                        4: '格式不支持'
+                    }[err.code] || `错误码 ${err.code}`;
+                }
+                reject(new Error(`视频加载失败：${msg}`));
+            };
         });
 
-        const duration = video.duration || 5;
+        const duration = video.duration;
+        if (!isFinite(duration) || duration <= 0) {
+            throw new Error('无法获取视频时长');
+        }
+        if (!video.videoWidth || !video.videoHeight) {
+            throw new Error('无视频轨道（可能是纯音频文件）');
+        }
+
         const canvas = document.createElement('canvas');
         const ctx = canvas.getContext('2d');
         const frames = [];
 
+        // 2) 抽帧位置（避开 0 和末尾）
         const positions = [];
-        if (count === 1) positions.push(duration / 2);
-        else {
+        if (count === 1) {
+            positions.push(duration / 2);
+        } else {
             for (let i = 0; i < count; i++) {
-                positions.push((duration * i) / (count - 1));
+                const t = (duration * i) / (count - 1);
+                positions.push(Math.max(0.1, Math.min(t, duration - 0.1)));
             }
         }
 
+        // 3) 逐帧抽取（每次 seek 加超时）
         for (const t of positions) {
-            await new Promise((resolve) => {
+            await new Promise((resolve, reject) => {
+                const timeout = setTimeout(() => {
+                    video.removeEventListener('seeked', onSeeked);
+                    reject(new Error(`seek 超时（目标 ${t.toFixed(2)}s）`));
+                }, 8000);
+
                 const onSeeked = () => {
+                    clearTimeout(timeout);
                     video.removeEventListener('seeked', onSeeked);
                     resolve();
                 };
                 video.addEventListener('seeked', onSeeked);
-                video.currentTime = Math.min(t, Math.max(0, duration - 0.05));
+                video.currentTime = t;
             });
 
-            canvas.width = video.videoWidth || 720;
-            canvas.height = video.videoHeight || 1280;
+            canvas.width = video.videoWidth;
+            canvas.height = video.videoHeight;
             ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
-            const dataUrl = canvas.toDataURL('image/jpeg', 0.85);
+
+            let dataUrl;
+            try {
+                dataUrl = canvas.toDataURL('image/jpeg', 0.85);
+            } catch (canvasErr) {
+                throw new Error('canvas 导出失败（可能画布被污染）');
+            }
+            if (!dataUrl || dataUrl === 'data:,' || dataUrl.length < 100) {
+                throw new Error('canvas 导出为空');
+            }
             frames.push(dataUrl);
         }
 
@@ -1231,7 +1303,7 @@
                 continue;
             }
             if (file.size > REF_VIDEO_MAX_SIZE) {
-                showToast(`⚠️ ${file.name} 超过 20MB，已跳过`);
+                showToast(`⚠️ ${file.name} 超过 20MB，请压缩后重试`);
                 continue;
             }
 
@@ -1249,9 +1321,13 @@
                 state.referenceMedia.videoAnalysis = null;
                 showToast(`✅ 已抽取 ${keyframes.length} 张关键帧`);
             } catch (err) {
-                console.warn('抽帧失败:', err);
+                console.error('抽帧失败详情:', err);
                 state.referenceMedia.keyframes = [];
-                showToast('⚠️ 抽帧失败，将使用纯文本模式');
+                const msg = err.message || '未知原因';
+                showToast(`⚠️ 抽帧失败：${msg}\n将使用纯文本模式生成`);
+                setTimeout(() => {
+                    showToast('💡 建议：用 H.264 编码的 MP4 重新导出');
+                }, 3000);
             }
         }
         renderReferenceChips();
@@ -1566,7 +1642,7 @@
     }
 
     // ================================================================
-    // Agnes 图片（修复版）
+    // Agnes 图片
     // ================================================================
     async function generateAgnesImage(prompt, sizeTier = '1K', ratio = '1:1', referenceImages = []) {
         const apiKey = getAgnesApiKey();
@@ -1603,7 +1679,7 @@
     }
 
     // ================================================================
-    // Agnes 视频（修复版）
+    // Agnes 视频
     // ================================================================
     async function createVideoTaskWithRetry(apiKey, body, maxRetries = 4) {
         let lastErr = null;
@@ -1738,7 +1814,6 @@
             return;
         }
 
-        // ============ 图片生成 ============
         if (kind === 'images') {
             const aiMsg = {
                 role: 'ai',
@@ -1801,7 +1876,6 @@
             return;
         }
 
-        // ============ 视频生成（含反解） ============
         if (kind === 'video') {
             let finalPrompt = `${productName} 商品展示短视频${extraDesc ? '，' + extraDesc : ''}`;
             let refUrls = [];
@@ -1978,7 +2052,6 @@
             return;
         }
 
-        // 普通意图
         document.getElementById('typingIndicator').classList.add('show');
         document.getElementById('messageContainer').scrollTop = document.getElementById('messageContainer').scrollHeight;
 
@@ -2061,9 +2134,6 @@
         }
     }
 
-    // ================================================================
-    // 同步生成的素材到商品（检查每条结果）
-    // ================================================================
     async function syncGeneratedMedia(args) {
         const { product_name, media_type, urls, video_url, mode } = args;
 
@@ -2163,9 +2233,6 @@
         appendMessage({ role: 'ai', text: '好的，已取消该操作。', time: nowTime() });
     }
 
-    // ================================================================
-    // 消息操作
-    // ================================================================
     function copyMessageText(btn) {
         const msgDiv = btn.closest('.message');
         const bubble = msgDiv.querySelector('.bubble');
@@ -2193,9 +2260,6 @@
         showToast('✏️ 已填入输入框');
     }
 
-    // ================================================================
-    // 工具
-    // ================================================================
     function friendlyError(err) {
         const msg = (err && err.message) || '';
         if (msg.includes('Failed to fetch') || msg.includes('NetworkError')) return '🌐 网络连接失败，请确认后端服务已启动';
@@ -2333,7 +2397,7 @@
         if (window.innerWidth > 768) closeSidebar();
     });
 
-    console.log('🤖 智控电商 · AI助手已加载（Agnes 2.5 + 视频反解 + 商品校验 + 真实同步）');
+    console.log('🤖 智控电商 · AI助手已加载（修复沙箱 + 抽帧加固）');
     console.log('💡 后端:', BACKEND_URL);
 </script>
 </body>
