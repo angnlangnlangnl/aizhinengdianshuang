@@ -30,7 +30,6 @@
             min-height: 100dvh;
         }
 
-        /* ===== 左侧导航 ===== */
         .sidebar {
             width: 220px;
             background: var(--primary);
@@ -62,7 +61,6 @@
         .sidebar .nav .item .tag { margin-left: auto; background: rgba(77,171,247,0.15); color: var(--accent); font-size: 10px; padding: 2px 8px; border-radius: 30px; font-weight: 600; }
         .sidebar .bottom { padding: 16px 20px calc(20px + env(safe-area-inset-bottom, 0px)); border-top: 1px solid rgba(255,255,255,0.05); font-size: 12px; color: #5a7f99; display: flex; align-items: center; gap: 10px; }
 
-        /* ===== 主内容 + 顶部步骤条 ===== */
         .main { flex: 1; display: flex; flex-direction: column; max-width: calc(100% - 220px); min-width: 0; }
 
         .topbar {
@@ -253,7 +251,6 @@
         .upload-zone .hint { font-size: 13px; color: var(--text-2); }
         .upload-zone .sub { font-size: 11px; color: var(--text-3); margin-top: 2px; }
 
-        /* ★ 参考视频预览 chips */
         .ref-video-chips {
             display: flex;
             gap: 10px;
@@ -386,6 +383,73 @@
             background: white;
             color: #2a7faa;
             border: 1px solid #b8d8f7;
+        }
+
+        /* ★ 同步记录卡片 */
+        .sync-record-list {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            max-height: 360px;
+            overflow-y: auto;
+            padding: 4px;
+        }
+        .sync-record-list::-webkit-scrollbar { width: 4px; }
+        .sync-record-list::-webkit-scrollbar-thumb { background: #c8d8e8; border-radius: 10px; }
+        .sync-record-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 10px 14px;
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            background: #fafcfe;
+            transition: 0.15s;
+        }
+        .sync-record-item:hover { border-color: var(--accent); background: #f0f8ff; }
+        .sync-record-item .rec-icon {
+            width: 32px; height: 32px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            flex-shrink: 0;
+        }
+        .sync-record-item .rec-icon.success { background: #e6f7ec; color: var(--success); }
+        .sync-record-item .rec-icon.partial { background: #fef0e6; color: #b55a1a; }
+        .sync-record-item .rec-icon.fail { background: #fde8ed; color: var(--danger); }
+        .sync-record-item .rec-main {
+            flex: 1;
+            min-width: 0;
+        }
+        .sync-record-item .rec-title {
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--text);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        .sync-record-item .rec-meta {
+            font-size: 11px;
+            color: var(--text-3);
+            margin-top: 2px;
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+        .sync-record-item .rec-meta .badge {
+            font-size: 10px;
+            padding: 1px 6px;
+            border-radius: 8px;
+            background: var(--accent-soft);
+            color: var(--accent);
+        }
+        .sync-record-item .rec-time {
+            font-size: 11px;
+            color: var(--text-3);
+            flex-shrink: 0;
         }
 
         .action-bar {
@@ -651,7 +715,6 @@
 </head>
 <body>
 
-<!-- ===== 左侧导航 ===== -->
 <div class="sidebar">
     <div class="logo">
         <i class="fas fa-bolt"></i>
@@ -687,7 +750,6 @@
     </div>
 </div>
 
-<!-- ===== 主内容 ===== -->
 <div class="main">
 
     <div class="topbar">
@@ -710,7 +772,6 @@
 
     <div class="content">
 
-        <!-- ============ 步骤 1：输入 ============ -->
         <div class="step-panel active" id="step1">
 
             <div class="card">
@@ -777,7 +838,6 @@
 
             <div class="advanced-body" id="advancedBody">
 
-                <!-- 参考图 -->
                 <div class="card">
                     <div class="card-header">
                         <h3><i class="fas fa-cloud-upload-alt"></i> 参考图（可选）</h3>
@@ -792,7 +852,6 @@
                     <div id="uploadHint" style="font-size:11px; color:var(--text-3); margin-top:6px; display:none;"></div>
                 </div>
 
-                <!-- ★ 新增：参考视频 -->
                 <div class="card">
                     <div class="card-header">
                         <h3><i class="fas fa-video"></i> 参考视频（可选）</h3>
@@ -875,7 +934,6 @@
             </div>
         </div>
 
-        <!-- ============ 步骤 2：结果 ============ -->
         <div class="step-panel" id="step2">
             <div class="result-tabs" id="resultTabs">
                 <button class="result-tab active" data-tab="images" onclick="switchResultTab('images')">
@@ -955,7 +1013,6 @@
             </div>
         </div>
 
-        <!-- ============ 步骤 3：同步 ============ -->
         <div class="step-panel" id="step3">
 
             <div class="card">
@@ -1043,6 +1100,23 @@
                     </label>
                 </div>
             </div>
+
+            <!-- ★ 新增：同步记录卡片 -->
+            <div class="card" id="syncRecordCard">
+                <div class="card-header">
+                    <h3><i class="fas fa-clipboard-check"></i> 同步记录</h3>
+                    <span class="action" onclick="clearSyncRecords()" id="clearSyncRecordsBtn" style="display:none;">
+                        <i class="fas fa-trash-alt"></i> 清空
+                    </span>
+                </div>
+                <div class="sync-record-list" id="syncRecordList">
+                    <div class="empty-state" style="padding:20px;">
+                        <i class="fas fa-clipboard-check"></i>
+                        <p>还没有同步记录</p>
+                    </div>
+                </div>
+            </div>
+
         </div>
 
     </div>
@@ -1097,17 +1171,32 @@
 
 <script>
     // ================================================================
-    // 常量配置
+    // 常量
     // ================================================================
     const AGNES_API_BASE = 'https://apihub.agnes-ai.com/v1';
     const AGNES_IMAGE_MODEL = 'agnes-image-2.5-flash';
     const AGNES_VIDEO_MODEL = 'agnes-video-2.5-flash';
     const BACKEND_URL = 'https://ai-ecommerce-backend-production-0776.up.railway.app';
 
-    // ★ 参考视频配置
     const REF_VIDEO_MAX = 1;
     const REF_VIDEO_MAX_SIZE = 20 * 1024 * 1024;
     const KEYFRAME_COUNT = 3;
+
+    // ★ 安全 storage
+    const safeStorage = {
+        get(key, def = null) {
+            try { return localStorage.getItem(key) ?? def; }
+            catch (e) { return def; }
+        },
+        set(key, val) {
+            try { localStorage.setItem(key, val); return true; }
+            catch (e) { return false; }
+        },
+        remove(key) {
+            try { localStorage.removeItem(key); return true; }
+            catch (e) { return false; }
+        }
+    };
 
     const PLATFORM_CONFIG = {
         '1688':       { imageRatio: '1:1',  videoRatio: '1:1'  },
@@ -1126,11 +1215,13 @@
     };
 
     function getAgnesApiKey() {
-        return document.getElementById('agnesApiKey').value.trim() || localStorage.getItem('agnes_api_key') || 'sk-XmLjN9e3Mhh8wf';
+        const fromInput = document.getElementById('agnesApiKey')?.value.trim();
+        if (fromInput) return fromInput;
+        return safeStorage.get('agnes_api_key') || 'sk-XmLjN9e3Mhh8wf';
     }
     function saveAgnesApiKey() {
-        const key = document.getElementById('agnesApiKey').value.trim();
-        if (key) localStorage.setItem('agnes_api_key', key);
+        const key = document.getElementById('agnesApiKey')?.value.trim();
+        if (key) safeStorage.set('agnes_api_key', key);
     }
 
     // ================================================================
@@ -1143,11 +1234,10 @@
         generatedData: {},
         history: [],
         referenceImages: [],
-        // ★ 参考视频状态
-        referenceVideo: null,       // {file, name, previewUrl}
-        keyframes: [],              // 抽帧 dataUrl 数组
-        keyframeUrls: [],           // 上传到临时图床后的 URL 数组
-        videoAnalysis: null,        // 反解结果
+        referenceVideo: null,
+        keyframes: [],
+        keyframeUrls: [],
+        videoAnalysis: null,
         carouselPrompts: [
             '商品正面主图，突出包装设计，暖色调，自然光',
             '商品细节特写，展示材质质感，微距拍摄',
@@ -1175,6 +1265,12 @@
         selectedProducts: [],
         selectedSubIndexes: [],
         mode: 'merge',
+    };
+
+    // ★ 同步记录状态
+    const syncRecordState = {
+        records: [],   // [{id, productNames, types, mode, status, time, detail}]
+        maxRecords: 50
     };
 
     // ================================================================
@@ -1243,6 +1339,7 @@
             btnSync.style.display = 'inline-flex';
             actionInfo.innerHTML = '<i class="fas fa-info-circle"></i> 选择要同步的商品和素材，确认后点击「同步到商品」';
             loadSyncProducts();
+            renderSyncRecords();
         }
         document.querySelector('.content').scrollTop = 0;
     }
@@ -1380,7 +1477,7 @@
     }
 
     // ================================================================
-    // ★ 参考视频：上传 + 抽帧
+    // 参考视频：上传 + 抽帧
     // ================================================================
     async function handleVideoUpload(event) {
         const file = event.target.files[0];
@@ -1404,10 +1501,7 @@
 
         const previewUrl = URL.createObjectURL(file);
         state.referenceVideo = {
-            file,
-            name: file.name,
-            previewUrl,
-            size: file.size
+            file, name: file.name, previewUrl, size: file.size
         };
         state.keyframes = [];
         state.keyframeUrls = [];
@@ -1416,7 +1510,6 @@
         renderReferenceVideoChip();
         document.getElementById('clearVideoBtn').style.display = 'inline-block';
 
-        // 自动抽帧
         showToast('🎬 正在从视频抽帧...');
         try {
             const keyframes = await extractVideoKeyframes(file, KEYFRAME_COUNT);
@@ -1424,55 +1517,101 @@
             renderKeyframeThumbnails();
             showToast(`✅ 已抽取 ${keyframes.length} 张关键帧`);
         } catch (err) {
-            console.warn('抽帧失败:', err);
+            console.error('抽帧失败详情:', err);
             state.keyframes = [];
-            showToast('⚠️ 抽帧失败，将使用纯文本模式生成');
+            const msg = err.message || '未知原因';
+            showToast(`⚠️ 抽帧失败：${msg}\n将使用纯文本模式生成`);
+            setTimeout(() => {
+                showToast('💡 建议：用 H.264 编码的 MP4 重新导出');
+            }, 3000);
         }
 
         event.target.value = '';
     }
 
-    // ★ 前端抽帧
     async function extractVideoKeyframes(file, count = KEYFRAME_COUNT) {
         const url = URL.createObjectURL(file);
         const video = document.createElement('video');
         video.src = url;
         video.muted = true;
-        video.crossOrigin = 'anonymous';
-        video.preload = 'metadata';
+        video.preload = 'auto';
 
         await new Promise((resolve, reject) => {
-            video.onloadedmetadata = resolve;
-            video.onerror = () => reject(new Error('视频加载失败'));
+            const timeout = setTimeout(() => {
+                reject(new Error('视频加载超时（可能编码不支持）'));
+            }, 15000);
+
+            video.onloadedmetadata = () => {
+                clearTimeout(timeout);
+                resolve();
+            };
+            video.onerror = () => {
+                clearTimeout(timeout);
+                const err = video.error;
+                let msg = '未知错误';
+                if (err) {
+                    msg = {
+                        1: '已中止',
+                        2: '网络错误',
+                        3: '解码失败（推荐 H.264 编码的 MP4）',
+                        4: '格式不支持'
+                    }[err.code] || `错误码 ${err.code}`;
+                }
+                reject(new Error(`视频加载失败：${msg}`));
+            };
         });
 
-        const duration = video.duration || 5;
+        const duration = video.duration;
+        if (!isFinite(duration) || duration <= 0) {
+            throw new Error('无法获取视频时长');
+        }
+        if (!video.videoWidth || !video.videoHeight) {
+            throw new Error('无视频轨道（可能是纯音频文件）');
+        }
+
         const canvas = document.createElement('canvas');
         const ctx = canvas.getContext('2d');
         const frames = [];
 
         const positions = [];
-        if (count === 1) positions.push(duration / 2);
-        else {
+        if (count === 1) {
+            positions.push(duration / 2);
+        } else {
             for (let i = 0; i < count; i++) {
-                positions.push((duration * i) / (count - 1));
+                const t = (duration * i) / (count - 1);
+                positions.push(Math.max(0.1, Math.min(t, duration - 0.1)));
             }
         }
 
         for (const t of positions) {
-            await new Promise((resolve) => {
+            await new Promise((resolve, reject) => {
+                const timeout = setTimeout(() => {
+                    video.removeEventListener('seeked', onSeeked);
+                    reject(new Error(`seek 超时（目标 ${t.toFixed(2)}s）`));
+                }, 8000);
+
                 const onSeeked = () => {
+                    clearTimeout(timeout);
                     video.removeEventListener('seeked', onSeeked);
                     resolve();
                 };
                 video.addEventListener('seeked', onSeeked);
-                video.currentTime = Math.min(t, Math.max(0, duration - 0.05));
+                video.currentTime = t;
             });
 
-            canvas.width = video.videoWidth || 720;
-            canvas.height = video.videoHeight || 1280;
+            canvas.width = video.videoWidth;
+            canvas.height = video.videoHeight;
             ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
-            const dataUrl = canvas.toDataURL('image/jpeg', 0.85);
+
+            let dataUrl;
+            try {
+                dataUrl = canvas.toDataURL('image/jpeg', 0.85);
+            } catch (canvasErr) {
+                throw new Error('canvas 导出失败（可能画布被污染）');
+            }
+            if (!dataUrl || dataUrl === 'data:,' || dataUrl.length < 100) {
+                throw new Error('canvas 导出为空');
+            }
             frames.push(dataUrl);
         }
 
@@ -1539,7 +1678,7 @@
     }
 
     // ================================================================
-    // ★ 上传关键帧到临时图床
+    // 临时图床 + 反解
     // ================================================================
     async function uploadKeyframesToTemp(keyframes) {
         if (!keyframes || keyframes.length === 0) return [];
@@ -1560,7 +1699,6 @@
         return (data.results || []).filter(r => r.success).map(r => r.url);
     }
 
-    // ★ 调用反解接口
     async function decomposeVideoReference(keyframeUrls, productName) {
         const res = await fetch(BACKEND_URL + '/api/video/decompose', {
             method: 'POST',
@@ -1575,7 +1713,6 @@
         return data.analysis;
     }
 
-    // ★ 渲染反解结果卡片
     function renderVideoAnalysis(analysis) {
         const box = document.getElementById('videoAnalysisBox');
         if (!analysis) { box.innerHTML = ''; return; }
@@ -1745,9 +1882,7 @@
             prompt: prompt,
             size: sizeTier,
             ratio: ratio,
-            extra_body: {
-                response_format: 'url'
-            }
+            extra_body: { response_format: 'url' }
         };
 
         if (referenceImages && referenceImages.length > 0) {
@@ -1823,7 +1958,6 @@
             aspect_ratio: aspectRatio,
             n: 1
         };
-
         if (hasRefs) {
             body.images = referenceImages.slice(0, 5);
             if (!/<Picture\s*\d+/i.test(prompt)) {
@@ -1877,7 +2011,7 @@
     }
 
     // ================================================================
-    // ★ 开始生成（含参考视频反解）
+    // 开始生成
     // ================================================================
     async function startGenerate() {
         if (state.isGenerating) { showToast('⏳ 正在生成中...'); return; }
@@ -1898,7 +2032,6 @@
         const imageRatio = getImageRatioByPlatforms(platforms);
         const videoRatio = getVideoRatioByPlatforms(platforms);
 
-        // ★ 参考视频快照
         const hasVideoRef = !!state.referenceVideo;
         const keyframes = state.keyframes.slice();
 
@@ -1906,7 +2039,6 @@
         showGeneratingOverlay(state.selectedTypes);
 
         try {
-            // ★ 参考视频反解（仅当有视频且有抽帧时）
             let videoAnalysis = null;
             let keyframeUrls = [];
             if (hasVideoRef && keyframes.length > 0) {
@@ -1933,11 +2065,9 @@
                 }
             }
 
-            // ---- 图片生成 ----
             let images = [];
             if (state.selectedTypes.includes('images') || state.selectedTypes.includes('carousel')) {
                 const prompts = state.carouselPrompts.slice(0, 5);
-                // 如果反解成功，把反解内容作为额外提示词合并
                 const analysisSuffix = videoAnalysis?.content ? `，参考风格：${videoAnalysis.content.slice(0, 50)}` : '';
                 updateProgress(15, refImages.length > 0
                     ? `正在调用 Agnes Image 2.5（参考 ${refImages.length} 张，比例 ${imageRatio}）...`
@@ -1964,16 +2094,13 @@
                 }
             }
 
-            // ---- 文案和详情页 ----
             const fallbackData = generateFallbackData(name, category, features, style, platforms);
             const copyVersions = fallbackData.copyVersions;
             const detailHTML = fallbackData.detailHTML;
 
-            // ---- 视频生成 ----
             let videoUrl = '';
             if (state.selectedTypes.includes('video')) {
                 let videoPrompt = state.videoPrompts.map(v => v.prompt).filter(Boolean).join('。') || `${name} 商品展示短视频`;
-                // ★ 如果反解成功，用反解出的 prompt 作为主提示词
                 if (videoAnalysis?.prompt) {
                     videoPrompt = videoAnalysis.prompt;
                 }
@@ -1981,7 +2108,6 @@
                     ? `正在生成同款视频（参考帧 ${keyframeUrls.length} + 图片 ${refImages.length}，比例 ${videoRatio}，排队中，最长 10 分钟）...`
                     : `正在生成视频（比例 ${videoRatio}，排队中，最长 10 分钟）...`);
                 try {
-                    // ★ 合并参考素材：关键帧 URL（优先） + 参考图 dataUrl
                     const combinedRefs = keyframeUrls.length > 0 ? keyframeUrls : refImages;
                     videoUrl = await generateAgnesVideo(videoPrompt, '5', combinedRefs, videoRatio, (attempt, total, status, text) => {
                         const pct = 60 + Math.min(35, (attempt / total) * 35);
@@ -2170,6 +2296,9 @@
         } else showToast('⚠️ 暂无视频');
     }
 
+    // ================================================================
+    // 同步：商品列表
+    // ================================================================
     async function loadSyncProducts() {
         const box = document.getElementById('syncProductList');
         box.innerHTML = '<div style="text-align:center; padding:20px; color:var(--text-3);"><i class="fas fa-spinner fa-spin"></i> 加载中...</div>';
@@ -2270,6 +2399,69 @@
         syncState.mode = mode;
     }
 
+    // ================================================================
+    // ★ 同步记录：渲染 + 新增 + 清空
+    // ================================================================
+    function renderSyncRecords() {
+        const list = document.getElementById('syncRecordList');
+        const btn = document.getElementById('clearSyncRecordsBtn');
+        if (syncRecordState.records.length === 0) {
+            list.innerHTML = `<div class="empty-state" style="padding:20px;"><i class="fas fa-clipboard-check"></i><p>还没有同步记录</p></div>`;
+            btn.style.display = 'none';
+            return;
+        }
+        btn.style.display = 'inline';
+        list.innerHTML = syncRecordState.records.map(rec => {
+            let iconCls = 'success', iconName = 'fa-check-circle';
+            if (rec.status === 'partial') { iconCls = 'partial'; iconName = 'fa-exclamation-circle'; }
+            else if (rec.status === 'fail') { iconCls = 'fail'; iconName = 'fa-times-circle'; }
+            return `
+                <div class="sync-record-item">
+                    <div class="rec-icon ${iconCls}"><i class="fas ${iconName}"></i></div>
+                    <div class="rec-main">
+                        <div class="rec-title">${escapeHtml(rec.title)}</div>
+                        <div class="rec-meta">
+                            <span class="badge">${escapeHtml(rec.types)}</span>
+                            <span>${escapeHtml(rec.modeLabel)}</span>
+                            <span>${escapeHtml(rec.detail)}</span>
+                        </div>
+                    </div>
+                    <div class="rec-time">${escapeHtml(rec.time)}</div>
+                </div>
+            `;
+        }).join('');
+    }
+
+    function addSyncRecord({ title, types, mode, status, detail }) {
+        const modeLabel = mode === 'replace' ? '覆盖' : '合并';
+        const rec = {
+            id: 'rec_' + Date.now() + '_' + Math.random().toString(36).slice(2, 6),
+            title,
+            types,
+            mode,
+            modeLabel,
+            status,     // 'success' | 'partial' | 'fail'
+            detail,
+            time: new Date().toLocaleTimeString('zh-CN', { hour12: false })
+        };
+        syncRecordState.records.unshift(rec);
+        if (syncRecordState.records.length > syncRecordState.maxRecords) {
+            syncRecordState.records = syncRecordState.records.slice(0, syncRecordState.maxRecords);
+        }
+        renderSyncRecords();
+    }
+
+    function clearSyncRecords() {
+        if (syncRecordState.records.length === 0) { showToast('📭 暂无同步记录'); return; }
+        if (!confirm('确定清空所有同步记录？')) return;
+        syncRecordState.records = [];
+        renderSyncRecords();
+        showToast('🗑️ 同步记录已清空');
+    }
+
+    // ================================================================
+    // 执行同步
+    // ================================================================
     async function doSyncToProducts() {
         if (syncState.selectedProducts.length === 0) { showToast('⚠️ 请至少选择一个商品'); return; }
         const r = state.generatedData;
@@ -2305,7 +2497,18 @@
             return;
         }
 
-        showToast(`⏳ 正在同步到 ${syncState.selectedProducts.length} 个商品...`);
+        // 组装素材类型字符串（用于同步记录）
+        const typeArr = [];
+        if (payload.main_image) typeArr.push('主图');
+        if (payload.sub_images && payload.sub_images.length > 0) typeArr.push(`副图x${payload.sub_images.length}`);
+        if (payload.detail_html) typeArr.push('详情页');
+        if (payload.video) typeArr.push('视频');
+        const typesLabel = typeArr.join(' + ') || '未选择';
+
+        const selectedCount = syncState.selectedProducts.length;
+        const selectedNames = syncState.selectedProducts.join('、');
+
+        showToast(`⏳ 正在同步到 ${selectedCount} 个商品...`);
         try {
             const res = await fetch(BACKEND_URL + '/api/materials/sync', {
                 method: 'POST',
@@ -2313,24 +2516,67 @@
                 body: JSON.stringify(payload)
             });
             const data = await res.json();
+            const results = data.results || [];
+            const failList = results.filter(x => !x.ok);
+            const okList = results.filter(x => x.ok);
+
+            let status = 'success';
+            let detail = '';
+
             if (data.success) {
-                const results = data.results || [];
-                const failList = results.filter(x => !x.ok);
-                if (failList.length > 0) {
+                if (failList.length === 0 && results.length > 0) {
+                    status = 'success';
+                    detail = `成功 ${results.length} 个`;
+                    showToast('✅ ' + data.message);
+                } else if (failList.length === 0 && results.length === 0) {
+                    // 接口没返回明细，保守成功
+                    status = 'success';
+                    detail = data.message || '完成';
+                    showToast('✅ ' + data.message);
+                } else if (okList.length === 0) {
+                    status = 'fail';
+                    detail = `全部失败 ${failList.length} 个`;
                     const reasons = failList.map(x => `${x.name}：${x.msg}`).join('\n');
-                    showToast(`⚠️ 部分失败：${failList.length} 个商品未同步成功`);
+                    showToast(`❌ 同步失败（${failList.length} 个商品）`);
                     console.warn('同步失败明细：\n' + reasons);
                 } else {
-                    showToast('✅ ' + data.message);
+                    status = 'partial';
+                    detail = `成功 ${okList.length} 个，失败 ${failList.length} 个`;
+                    showToast(`⚠️ 部分失败：${failList.length} 个商品未同步成功`);
                 }
             } else {
+                status = 'fail';
+                detail = data.message || '接口返回失败';
                 showToast('❌ ' + (data.message || '同步失败'));
             }
+
+            addSyncRecord({
+                title: selectedCount > 2
+                    ? `${selectedNames.slice(0, 30)}... 等 ${selectedCount} 个`
+                    : selectedNames,
+                types: typesLabel,
+                mode: syncState.mode,
+                status,
+                detail
+            });
+
         } catch (e) {
             showToast('❌ 同步失败：' + e.message);
+            addSyncRecord({
+                title: selectedCount > 2
+                    ? `${selectedNames.slice(0, 30)}... 等 ${selectedCount} 个`
+                    : selectedNames,
+                types: typesLabel,
+                mode: syncState.mode,
+                status: 'fail',
+                detail: '网络错误：' + e.message
+            });
         }
     }
 
+    // ================================================================
+    // 进度遮罩
+    // ================================================================
     function showGeneratingOverlay(types) {
         const overlay = document.getElementById('generatingOverlay');
         const steps = document.getElementById('generateSteps');
@@ -2367,6 +2613,9 @@
     }
     function hideGeneratingOverlay() { document.getElementById('generatingOverlay').classList.remove('show'); }
 
+    // ================================================================
+    // 历史
+    // ================================================================
     function addHistory(productName, types, style, platforms) {
         const typeNames = { images: '主图', carousel: '轮播图', copy: '文案', detail: '详情', video: '视频' };
         const entry = {
@@ -2380,7 +2629,7 @@
         };
         state.history.unshift(entry);
         if (state.history.length > 50) state.history.pop();
-        try { localStorage.setItem('material_history', JSON.stringify(state.history)); } catch (e) {}
+        safeStorage.set('material_history', JSON.stringify(state.history));
         renderHistoryDrawer();
     }
     function renderHistoryDrawer() {
@@ -2402,7 +2651,7 @@
     }
     function loadHistory() {
         try {
-            const data = localStorage.getItem('material_history');
+            const data = safeStorage.get('material_history');
             if (data) state.history = JSON.parse(data);
         } catch (e) {}
         renderHistoryDrawer();
@@ -2411,7 +2660,7 @@
         if (state.history.length === 0) { showToast('📭 暂无记录'); return; }
         if (!confirm('确定清空所有记录？')) return;
         state.history = [];
-        try { localStorage.removeItem('material_history'); } catch (e) {}
+        safeStorage.remove('material_history');
         renderHistoryDrawer();
         showToast('🗑️ 已清空');
     }
@@ -2425,11 +2674,14 @@
         document.getElementById('drawerOverlay').classList.remove('show');
     }
 
+    // ================================================================
+    // 初始化
+    // ================================================================
     document.addEventListener('DOMContentLoaded', () => {
-        const savedKey = localStorage.getItem('agnes_api_key');
+        const savedKey = safeStorage.get('agnes_api_key');
         if (savedKey) document.getElementById('agnesApiKey').value = savedKey;
         document.getElementById('agnesApiKey').addEventListener('input', function() {
-            if (this.value.trim()) localStorage.setItem('agnes_api_key', this.value.trim());
+            if (this.value.trim()) safeStorage.set('agnes_api_key', this.value.trim());
         });
         renderCarouselPrompts();
         renderDetailPrompts();
@@ -2438,7 +2690,8 @@
         toggleSubPicker();
         loadHistory();
         updatePlatformToggleBtn();
-        console.log('🎨 智能素材生成已就绪（Agnes 2.5 + 13 平台 + 参考视频反解）');
+        renderSyncRecords();
+        console.log('🎨 智能素材生成已就绪（Agnes 2.5 + 13 平台 + 参考视频反解 + 同步记录）');
     });
 
     // 全局暴露
@@ -2485,6 +2738,7 @@
     window.toggleSubIndex = toggleSubIndex;
     window.selectMode = selectMode;
     window.doSyncToProducts = doSyncToProducts;
+    window.clearSyncRecords = clearSyncRecords;
     window.openHistoryDrawer = openHistoryDrawer;
     window.closeHistoryDrawer = closeHistoryDrawer;
     window.clearHistory = clearHistory;
