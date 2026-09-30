@@ -288,6 +288,53 @@
             border: 1px solid #b8d8f7;
         }
 
+        /* ★ 市场分析卡片 */
+        .bubble .market-card {
+            background: linear-gradient(135deg, #fff8e6, #ffeccc);
+            border: 1px solid #ffd88c;
+            border-radius: 10px;
+            padding: 12px 14px;
+            margin: 8px 0 4px 0;
+            font-size: 13px;
+        }
+        .bubble .market-card .mkt-title {
+            font-weight: 600;
+            color: #8a5a00;
+            margin-bottom: 6px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .bubble .market-card .mkt-row {
+            display: flex;
+            gap: 6px;
+            margin-bottom: 4px;
+            line-height: 1.6;
+        }
+        .bubble .market-card .mkt-label {
+            color: #b57a00;
+            font-weight: 500;
+            flex-shrink: 0;
+        }
+        .bubble .market-card .mkt-val {
+            color: #5a3a00;
+            word-break: break-word;
+        }
+        .bubble .market-card .mkt-tags {
+            display: flex;
+            gap: 4px;
+            flex-wrap: wrap;
+            margin-top: 6px;
+        }
+        .bubble .market-card .mkt-tags .mkt-tag {
+            font-size: 10px;
+            padding: 2px 8px;
+            border-radius: 10px;
+            background: white;
+            color: #b57a00;
+            border: 1px solid #ffd88c;
+        }
+
         .bubble .inline-progress {
             margin-top: 8px;
             background: #e8edf4;
@@ -727,7 +774,7 @@
         <div class="chat-main-header">
             <div class="info">
                 <h4 id="chatTitle">AI 经营助手</h4>
-                <p id="chatSubtitle">基于 DeepSeek · 图片/视频/海报自由生成 · 视频反解</p>
+                <p id="chatSubtitle">基于 DeepSeek · 智能商品匹配 · 市场趋势分析</p>
             </div>
             <div class="actions">
                 <span class="btn-sm" onclick="clearMessages()"><i class="fas fa-eraser"></i> 清空</span>
@@ -739,12 +786,12 @@
             <div class="empty-state" id="emptyState">
                 <i class="fas fa-robot"></i>
                 <h3>👋 你好，我是 AI 经营助手</h3>
-                <p>支持 33 种商品操作 + 图片/视频/海报自由生成 + 视频反解。<strong>生成图片不再强制绑定商品</strong>，可自由创作。</p>
+                <p>支持 33 种商品操作 + 图片/视频/海报生成 + 视频反解 + <strong>智能商品匹配</strong>。<br>说「生成3张茶叶主图」，我会自动识别并推荐到对应商品。</p>
                 <div class="examples">
-                    <span class="ex accent" onclick="sendExample('生成一张茶叶促销海报')">🎨 自由生成海报</span>
-                    <span class="ex accent" onclick="sendExample('生成3张商品主图')">🖼️ 自由生成主图</span>
+                    <span class="ex accent" onclick="sendExample('生成3张茶叶主图')">🖼️ 智能匹配生成</span>
+                    <span class="ex accent" onclick="sendExample('生成一张母亲节海报')">🎨 市场分析海报</span>
                     <span class="ex accent" onclick="sendExample('给云山茶叶礼盒生成3张主图')">🖼️ 绑定商品生成</span>
-                    <span class="ex accent" onclick="sendExample('给云山茶叶礼盒生成5秒种草短视频')">🎬 生成视频</span>
+                    <span class="ex accent" onclick="sendExample('生成5秒陶瓷杯视频')">🎬 智能匹配视频</span>
                     <span class="ex" onclick="sendExample('把云山茶叶礼盒的价格改成118元')">💰 改价格</span>
                     <span class="ex accent" onclick="hintUploadVideo()">🎥 上传参考视频生成同款</span>
                     <span class="ex" onclick="sendExample('导出所有商品数据到CSV')">📤 导出CSV</span>
@@ -763,7 +810,7 @@
             <div class="input-area">
                 <button class="attach-btn" id="attachBtn" onclick="toggleAttachMenu(event)" title="添加参考素材">+</button>
                 <div class="input-wrap">
-                    <textarea id="chatInput" rows="1" placeholder="试试：生成3张茶叶主图 / 给云山茶叶礼盒生成视频 / 上传参考视频" onkeydown="handleKeyDown(event)" oninput="autoResize(this)"></textarea>
+                    <textarea id="chatInput" rows="1" placeholder="试试：生成3张茶叶主图 / 生成母亲节海报 / 给云山茶叶礼盒生成视频" onkeydown="handleKeyDown(event)" oninput="autoResize(this)"></textarea>
                     <span class="char-count" id="charCount">0/500</span>
                 </div>
                 <button class="send-btn" id="sendBtn" onclick="sendMessage()" disabled><i class="fas fa-paper-plane"></i></button>
@@ -824,7 +871,11 @@
     const REF_VIDEO_MAX_SIZE = 20 * 1024 * 1024;
     const KEYFRAME_COUNT = 3;
 
-    // ★ 商品名黑名单（避免误识别）
+    // ★ 智能匹配阈值
+    const MATCH_EXACT_THRESHOLD = 0.95;
+    const MATCH_SEMANTIC_THRESHOLD = 0.5;
+
+    // ★ 商品名黑名单
     const PRODUCT_BLACKLIST = new Set([
         '参考图', '参考图片', '参考视频', '参考素材', '参考',
         '图片', '视频', '素材', '素材图', '样图', '样片',
@@ -836,7 +887,7 @@
         '文字', '图', '内容'
     ]);
 
-    // ★ 5 张图固定提示词模板
+    // ★ 5 张图提示词模板
     const IMAGE_PROMPT_TEMPLATES = [
         (name, features, extra) => `${name}，突出样品设计，正面主图，突出包装设计和品牌感，暖色调自然光，高清晰产品摄影，白色或浅色背景，专业电商主图${extra ? '，' + extra : ''}`,
         (name, features, extra) => `${name}，商品细节特写，微距拍摄展示材质质感，突出${features[0] || '工艺细节'}，柔和光线，浅景深，高清产品摄影${extra ? '，' + extra : ''}`,
@@ -845,7 +896,7 @@
         (name, features, extra) => `${name}，商品+赠品组合图，展示超值感，促销风格，突出${features.join(' · ') || '卖点'}，明快亮丽配色，促销海报风格${extra ? '，' + extra : ''}`
     ];
 
-    // ★ 产品类型 → 视频分镜模板
+    // ★ 视频分镜模板
     const VIDEO_STORYBOARD_BY_CATEGORY = {
         '茶叶': [
             { time: '0-3s', type: '开场', prompt: '特写茶叶落入白瓷杯中泛起涟漪的慢动作，配合轻快音乐，悬念文案"你知道明前龙井为什么珍贵吗？"' },
@@ -871,18 +922,6 @@
             { time: '8-12s', type: '卖点', prompt: '文字叠加设计理念与卖点，配使用画面' },
             { time: '12-15s', type: '收尾', prompt: '品牌logo + 购买引导"点击下方链接购买"' }
         ],
-        '服饰': [
-            { time: '0-3s', type: '开场', prompt: '模特身着服饰的走位慢动作，配合时尚音乐，文案"这个夏天，就要这样穿"' },
-            { time: '3-8s', type: '产品', prompt: '360度展示服饰版型，特写面料质感和细节' },
-            { time: '8-12s', type: '卖点', prompt: '文字叠加面料卖点，配不同穿搭场景' },
-            { time: '12-15s', type: '收尾', prompt: '品牌logo + 购买引导"点击下方链接购买"' }
-        ],
-        '家居': [
-            { time: '0-3s', type: '开场', prompt: '温馨家居场景慢镜头，配合轻音乐，文案"让家更有温度"' },
-            { time: '3-8s', type: '产品', prompt: '展示家居产品外观和使用场景，自然光，温馨氛围' },
-            { time: '8-12s', type: '卖点', prompt: '文字叠加材质与工艺卖点，配使用细节画面' },
-            { time: '12-15s', type: '收尾', prompt: '品牌logo + 购买引导"点击下方链接购买"' }
-        ],
         'default': [
             { time: '0-3s', type: '开场', prompt: '商品使用瞬间的特写慢动作，配合轻快音乐开场' },
             { time: '3-8s', type: '产品', prompt: '展示商品外观与内部细节，特写核心材质' },
@@ -891,39 +930,26 @@
         ]
     };
 
-    // ★ 海报生成模板（不含文字，避免AI渲染错乱）
+    // ★ 海报模板（不绑定商品）
     const POSTER_TEMPLATES = {
-        '促销海报': (name, features) => `为「${name}」设计一张电商促销海报底图：主视觉为商品高清大图居中，背景为明亮渐变红/橙/金色，上方留出 25% 空白区域，下方留出 30% 空白区域，装饰元素：金色边框、闪光、礼盒彩带，商业设计感，高信息密度，电商海报风格。重要：不要生成任何文字、汉字、字母、数字、水印、logo。文字将由后期排版添加。`,
+        '促销海报': (name, features) => `为「${name}」设计一张电商促销海报底图：主视觉为商品高清大图居中，背景为明亮渐变红/橙/金色，上方留出 25% 空白区域，下方留出 30% 空白区域，装饰元素：金色边框、闪光、礼盒彩带，商业设计感，高信息密度，电商海报风格。重要：不要生成任何文字、汉字、字母、数字、水印、logo。`,
         '新品海报': (name, features) => `为「${name}」设计一张新品发布海报底图：高级感设计，主视觉为商品特写，背景为深色或高级灰渐变，上方和下方留出空白区域，装饰元素：几何线条、光影，整体简约高级，商业摄影风格。重要：不要生成任何文字、汉字、字母、数字、水印、logo。`,
         '国潮海报': (name, features) => `为「${name}」设计一张国潮风格海报底图：融合传统中式元素（云纹、山水、印章）与现代设计，主视觉为商品，配色为中国红/墨黑/金色，上方和下方留出空白区域，新中式商业海报风格。重要：不要生成任何文字、汉字、字母、数字、水印、logo。`,
         '简约海报': (name, features) => `为「${name}」设计一张简约风格海报底图：大量留白，主视觉居中为商品，背景为纯白或浅米色，装饰极简，高级极简商业设计。重要：不要生成任何文字、汉字、字母、数字、水印、logo。`,
+        '节日海报': (name, features) => `为「${name}」设计一张节日主题海报底图：节日氛围装饰（灯笼/花瓣/雪景等根据节日自动匹配），主视觉为商品，温暖明亮的配色，上方和下方留出空白区域，电商节日促销海报风格。重要：不要生成任何文字、汉字、字母、数字、水印、logo。`,
         '自由海报': (theme, features) => `设计一张主题为「${theme}」的电商宣传海报底图：${features.length > 0 ? '突出' + features.slice(0, 3).join(' · ') + '等要素，' : ''}高质量商业设计，视觉冲击力强，构图平衡，配色协调，上方和下方留出空白区域供后期排版。重要：不要生成任何文字、汉字、字母、数字、水印、logo。`
     };
 
-    // ★ 安全 storage
     const safeStorage = {
-        get(key, def = null) {
-            try { return localStorage.getItem(key) ?? def; }
-            catch (e) { return def; }
-        },
-        set(key, val) {
-            try { localStorage.setItem(key, val); return true; }
-            catch (e) { return false; }
-        },
-        remove(key) {
-            try { localStorage.removeItem(key); return true; }
-            catch (e) { return false; }
-        }
+        get(key, def = null) { try { return localStorage.getItem(key) ?? def; } catch (e) { return def; } },
+        set(key, val) { try { localStorage.setItem(key, val); return true; } catch (e) { return false; } },
+        remove(key) { try { localStorage.removeItem(key); return true; } catch (e) { return false; } }
     };
 
     function getAgnesApiKey() {
         const fromInput = document.getElementById('agnesApiKey')?.value.trim();
         if (fromInput) return fromInput;
         return safeStorage.get('agnes_api_key') || AGNES_API_KEY_DEFAULT;
-    }
-    function saveAgnesApiKey() {
-        const key = document.getElementById('agnesApiKey')?.value.trim();
-        if (key) safeStorage.set('agnes_api_key', key);
     }
 
     // ================================================================
@@ -969,9 +995,7 @@
                 }))
             }));
             safeStorage.set(STORAGE_KEY, JSON.stringify(slim));
-        } catch (e) {
-            console.warn('saveHistory 失败:', e);
-        }
+        } catch (e) { console.warn('saveHistory 失败:', e); }
     }
 
     function slimMedia(media) {
@@ -996,10 +1020,7 @@
         const sidebar = document.getElementById('sidebarChat');
         const overlay = document.getElementById('sidebarOverlay');
         if (sidebar.classList.contains('show')) closeSidebar();
-        else {
-            sidebar.classList.add('show');
-            overlay.classList.add('show');
-        }
+        else { sidebar.classList.add('show'); overlay.classList.add('show'); }
     }
     function closeSidebar() {
         document.getElementById('sidebarChat').classList.remove('show');
@@ -1064,7 +1085,7 @@
             document.getElementById('messagesList').innerHTML = '';
             document.getElementById('emptyState').style.display = 'flex';
             document.getElementById('chatTitle').textContent = 'AI 经营助手';
-            document.getElementById('chatSubtitle').textContent = '基于 DeepSeek · 图片/视频/海报自由生成';
+            document.getElementById('chatSubtitle').textContent = '基于 DeepSeek · 智能商品匹配 · 市场趋势分析';
         }
         saveHistoryToStorage();
         renderHistory();
@@ -1088,7 +1109,7 @@
         state.lastGeneratedMedia = null;
         renderHistory();
         document.getElementById('chatTitle').textContent = 'AI 经营助手';
-        document.getElementById('chatSubtitle').textContent = '基于 DeepSeek · 图片/视频/海报自由生成';
+        document.getElementById('chatSubtitle').textContent = '基于 DeepSeek · 智能商品匹配 · 市场趋势分析';
         document.getElementById('messagesList').innerHTML = '';
         document.getElementById('emptyState').style.display = 'flex';
         document.getElementById('chatInput').value = '';
@@ -1099,7 +1120,7 @@
     }
 
     // ================================================================
-    // 消息渲染
+    // 渲染工具
     // ================================================================
     function escapeHtml(s) {
         return String(s || '').replace(/[&<>"']/g, c => ({
@@ -1107,12 +1128,7 @@
         })[c]);
     }
     function escapeAttr(s) {
-        return String(s || '')
-            .replace(/&/g, '&amp;')
-            .replace(/"/g, '&quot;')
-            .replace(/'/g, '&#39;')
-            .replace(/</g, '&lt;')
-            .replace(/>/g, '&gt;');
+        return String(s || '').replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/'/g, '&#39;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
     }
 
     function renderMarkdown(text) {
@@ -1198,9 +1214,6 @@
                     <span class="zoom-hint">点击放大</span>
                 </div>`;
             });
-            if (msg.media.count && msg.media.count > (msg.media.images || []).length) {
-                bubbleContent += `<div class="media-item" style="display:flex;align-items:center;justify-content:center;color:#94a3b8;font-size:12px;">+${msg.media.count - (msg.media.images || []).length}</div>`;
-            }
             bubbleContent += `</div>`;
         }
 
@@ -1215,6 +1228,18 @@
                 ${a.rhythm ? `<div class="an-row"><span class="an-label">节奏：</span><span class="an-val">${escapeHtml(a.rhythm)}</span></div>` : ''}
                 ${a.prompt ? `<div class="an-row"><span class="an-label">生成 Prompt：</span><span class="an-val">${escapeHtml(a.prompt)}</span></div>` : ''}
                 ${a.style_tags && a.style_tags.length ? `<div class="an-tags">${a.style_tags.map(t => `<span class="an-tag">${escapeHtml(t)}</span>`).join('')}</div>` : ''}
+            </div>`;
+        }
+
+        if (msg.marketAnalysis) {
+            const ma = msg.marketAnalysis;
+            bubbleContent += `<div class="market-card">
+                <div class="mkt-title"><i class="fas fa-chart-line"></i> 市场趋势分析</div>
+                ${ma.trend_style ? `<div class="mkt-row"><span class="mkt-label">流行风格：</span><span class="mkt-val">${escapeHtml(ma.trend_style)}</span></div>` : ''}
+                ${ma.scenario ? `<div class="mkt-row"><span class="mkt-label">主流场景：</span><span class="mkt-val">${escapeHtml(ma.scenario)}</span></div>` : ''}
+                ${ma.selling_points && ma.selling_points.length ? `<div class="mkt-row"><span class="mkt-label">核心卖点：</span><span class="mkt-val">${ma.selling_points.map(escapeHtml).join('、')}</span></div>` : ''}
+                ${ma.avoid && ma.avoid.length ? `<div class="mkt-row"><span class="mkt-label">避免元素：</span><span class="mkt-val">${ma.avoid.map(escapeHtml).join('、')}</span></div>` : ''}
+                ${ma.season_tag ? `<div class="mkt-tags"><span class="mkt-tag">${escapeHtml(ma.season_tag)}</span></div>` : ''}
             </div>`;
         }
 
@@ -1247,8 +1272,6 @@
                     data-media-type="video"
                     data-caption="生成的视频"
                     onclick="openLightboxFromEl(this)"></video>`;
-            } else {
-                bubbleContent += `<div class="media-item" style="grid-column:1/-1; aspect-ratio:16/9;"><div class="ph"><i class="fas fa-video"></i></div></div>`;
             }
             bubbleContent += `</div>`;
         }
@@ -1280,7 +1303,7 @@
                     <div class="desc">${escapeHtml(msg.card.desc)}</div>
                     <div class="btn-group">
                         ${msg.card.actions.map(a => {
-                            const cls = a.type === 'confirm' ? 'success' : a.type === 'cancel' ? 'outline' : a.type === 'danger' ? 'danger' : 'primary';
+                            const cls = a.type === 'confirm' ? 'success' : a.type === 'cancel' ? 'outline' : a.type === 'danger' ? 'danger' : a.type === 'outline' ? 'outline' : 'primary';
                             return `<span class="btn-sm ${cls}" onclick="${a.onclick}">${a.label}</span>`;
                         }).join('')}
                     </div>
@@ -1336,6 +1359,7 @@
             time: m.time || nowStr,
             media: m.media || null,
             analysis: m.analysis || null,
+            marketAnalysis: m.marketAnalysis || null,
             card: m.card ? {
                 title: m.card.title,
                 desc: m.card.desc,
@@ -1384,15 +1408,11 @@
         mediaBox.innerHTML = '';
         if (type === 'video') {
             const v = document.createElement('video');
-            v.src = url;
-            v.controls = true;
-            v.autoplay = true;
-            v.preload = 'metadata';
+            v.src = url; v.controls = true; v.autoplay = true; v.preload = 'metadata';
             mediaBox.appendChild(v);
         } else {
             const img = document.createElement('img');
-            img.src = url;
-            img.alt = caption || '预览图';
+            img.src = url; img.alt = caption || '预览图';
             mediaBox.appendChild(img);
         }
 
@@ -1483,89 +1503,46 @@
     async function extractVideoKeyframes(file, count = KEYFRAME_COUNT) {
         const url = URL.createObjectURL(file);
         const video = document.createElement('video');
-        video.src = url;
-        video.muted = true;
-        video.preload = 'auto';
+        video.src = url; video.muted = true; video.preload = 'auto';
 
         await new Promise((resolve, reject) => {
-            const timeout = setTimeout(() => {
-                reject(new Error('视频加载超时（可能编码不支持）'));
-            }, 15000);
-
-            video.onloadedmetadata = () => {
-                clearTimeout(timeout);
-                resolve();
-            };
+            const timeout = setTimeout(() => reject(new Error('视频加载超时')), 15000);
+            video.onloadedmetadata = () => { clearTimeout(timeout); resolve(); };
             video.onerror = () => {
                 clearTimeout(timeout);
                 const err = video.error;
                 let msg = '未知错误';
-                if (err) {
-                    msg = {
-                        1: '已中止',
-                        2: '网络错误',
-                        3: '解码失败（推荐 H.264 编码的 MP4）',
-                        4: '格式不支持'
-                    }[err.code] || `错误码 ${err.code}`;
-                }
+                if (err) msg = { 1: '已中止', 2: '网络错误', 3: '解码失败', 4: '格式不支持' }[err.code] || `错误码 ${err.code}`;
                 reject(new Error(`视频加载失败：${msg}`));
             };
         });
 
         const duration = video.duration;
-        if (!isFinite(duration) || duration <= 0) {
-            throw new Error('无法获取视频时长');
-        }
-        if (!video.videoWidth || !video.videoHeight) {
-            throw new Error('无视频轨道（可能是纯音频文件）');
-        }
+        if (!isFinite(duration) || duration <= 0) throw new Error('无法获取视频时长');
+        if (!video.videoWidth || !video.videoHeight) throw new Error('无视频轨道');
 
         const canvas = document.createElement('canvas');
         const ctx = canvas.getContext('2d');
         const frames = [];
-
         const positions = [];
-        if (count === 1) {
-            positions.push(duration / 2);
-        } else {
-            for (let i = 0; i < count; i++) {
-                const t = (duration * i) / (count - 1);
-                positions.push(Math.max(0.1, Math.min(t, duration - 0.1)));
-            }
-        }
+        if (count === 1) positions.push(duration / 2);
+        else for (let i = 0; i < count; i++) positions.push(Math.max(0.1, Math.min(duration * i / (count - 1), duration - 0.1)));
 
         for (const t of positions) {
             await new Promise((resolve, reject) => {
-                const timeout = setTimeout(() => {
-                    video.removeEventListener('seeked', onSeeked);
-                    reject(new Error(`seek 超时（目标 ${t.toFixed(2)}s）`));
-                }, 8000);
-
-                const onSeeked = () => {
-                    clearTimeout(timeout);
-                    video.removeEventListener('seeked', onSeeked);
-                    resolve();
-                };
+                const timeout = setTimeout(() => { video.removeEventListener('seeked', onSeeked); reject(new Error(`seek 超时`)); }, 8000);
+                const onSeeked = () => { clearTimeout(timeout); video.removeEventListener('seeked', onSeeked); resolve(); };
                 video.addEventListener('seeked', onSeeked);
                 video.currentTime = t;
             });
-
             canvas.width = video.videoWidth;
             canvas.height = video.videoHeight;
             ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
-
             let dataUrl;
-            try {
-                dataUrl = canvas.toDataURL('image/jpeg', 0.85);
-            } catch (canvasErr) {
-                throw new Error('canvas 导出失败（可能画布被污染）');
-            }
-            if (!dataUrl || dataUrl === 'data:,' || dataUrl.length < 100) {
-                throw new Error('canvas 导出为空');
-            }
+            try { dataUrl = canvas.toDataURL('image/jpeg', 0.85); } catch (e) { throw new Error('canvas 导出失败'); }
+            if (!dataUrl || dataUrl.length < 100) throw new Error('canvas 导出为空');
             frames.push(dataUrl);
         }
-
         URL.revokeObjectURL(url);
         return frames;
     }
@@ -1578,11 +1555,7 @@
         for (const file of fileArr) {
             if (state.referenceMedia.images.length >= REF_IMAGE_MAX) { skipped++; continue; }
             if (!file.type.startsWith('image/')) { skipped++; continue; }
-            if (file.size > REF_IMAGE_MAX_SIZE) {
-                showToast(`⚠️ ${file.name} 超过 4MB，已跳过`);
-                skipped++;
-                continue;
-            }
+            if (file.size > REF_IMAGE_MAX_SIZE) { showToast(`⚠️ ${file.name} 超过 4MB`); skipped++; continue; }
             try {
                 const dataUrl = await fileToDataUrl(file);
                 state.referenceMedia.images.push({
@@ -1602,25 +1575,15 @@
         if (fileArr.length === 0) return;
 
         for (const file of fileArr) {
-            if (state.referenceMedia.videos.length >= REF_VIDEO_MAX) {
-                showToast('⚠️ 参考视频最多 1 个');
-                continue;
-            }
-            if (!file.type.startsWith('video/')) {
-                showToast(`⚠️ ${file.name} 不是视频文件`);
-                continue;
-            }
-            if (file.size > REF_VIDEO_MAX_SIZE) {
-                showToast(`⚠️ ${file.name} 超过 20MB，请压缩后重试`);
-                continue;
-            }
+            if (state.referenceMedia.videos.length >= REF_VIDEO_MAX) { showToast('⚠️ 参考视频最多 1 个'); continue; }
+            if (!file.type.startsWith('video/')) { showToast(`⚠️ ${file.name} 不是视频`); continue; }
+            if (file.size > REF_VIDEO_MAX_SIZE) { showToast(`⚠️ ${file.name} 超过 20MB`); continue; }
 
             const previewUrl = URL.createObjectURL(file);
             state.referenceMedia.videos.push({
                 id: 'ref_vid_' + Date.now() + '_' + Math.random().toString(36).slice(2, 6),
                 file, name: file.name, previewUrl
             });
-
             showToast('🎬 正在从视频抽帧...');
             try {
                 const keyframes = await extractVideoKeyframes(file, KEYFRAME_COUNT);
@@ -1629,13 +1592,9 @@
                 state.referenceMedia.videoAnalysis = null;
                 showToast(`✅ 已抽取 ${keyframes.length} 张关键帧`);
             } catch (err) {
-                console.error('抽帧失败详情:', err);
+                console.error('抽帧失败:', err);
                 state.referenceMedia.keyframes = [];
-                const msg = err.message || '未知原因';
-                showToast(`⚠️ 抽帧失败：${msg}\n将使用纯文本模式生成`);
-                setTimeout(() => {
-                    showToast('💡 建议：用 H.264 编码的 MP4 重新导出');
-                }, 3000);
+                showToast(`⚠️ 抽帧失败：${err.message}`);
             }
         }
         renderReferenceChips();
@@ -1689,9 +1648,7 @@
 
     function clearReferenceMedia(silent = false) {
         if (silent === true || confirm('确定清空所有参考素材？')) {
-            state.referenceMedia.videos.forEach(v => {
-                try { URL.revokeObjectURL(v.previewUrl); } catch (e) {}
-            });
+            state.referenceMedia.videos.forEach(v => { try { URL.revokeObjectURL(v.previewUrl); } catch (e) {} });
             state.referenceMedia.images = [];
             state.referenceMedia.videos = [];
             state.referenceMedia.keyframes = [];
@@ -1706,14 +1663,8 @@
     document.addEventListener('DOMContentLoaded', () => {
         const imgInput = document.getElementById('imageInput');
         const vidInput = document.getElementById('videoInput');
-        imgInput.addEventListener('change', async (e) => {
-            await handleReferenceImageUpload(e.target.files);
-            e.target.value = '';
-        });
-        vidInput.addEventListener('change', async (e) => {
-            await handleReferenceVideoUpload(e.target.files);
-            e.target.value = '';
-        });
+        imgInput.addEventListener('change', async (e) => { await handleReferenceImageUpload(e.target.files); e.target.value = ''; });
+        vidInput.addEventListener('change', async (e) => { await handleReferenceVideoUpload(e.target.files); e.target.value = ''; });
 
         const wrap = document.getElementById('inputAreaWrap');
         let dragDepth = 0;
@@ -1724,9 +1675,7 @@
             if (dragDepth <= 0) { dragDepth = 0; wrap.classList.remove('drag-over'); }
         });
         wrap.addEventListener('drop', async (e) => {
-            e.preventDefault();
-            dragDepth = 0;
-            wrap.classList.remove('drag-over');
+            e.preventDefault(); dragDepth = 0; wrap.classList.remove('drag-over');
             const files = Array.from(e.dataTransfer.files);
             const imgs = files.filter(f => f.type.startsWith('image/'));
             const vids = files.filter(f => f.type.startsWith('video/'));
@@ -1744,17 +1693,14 @@
                     if (file) imageFiles.push(file);
                 }
             }
-            if (imageFiles.length > 0) {
-                e.preventDefault();
-                await handleReferenceImageUpload(imageFiles);
-            }
+            if (imageFiles.length > 0) { e.preventDefault(); await handleReferenceImageUpload(imageFiles); }
         });
 
         renderReferenceChips();
     });
 
     // ================================================================
-    // 临时图床 + 反解
+    // 临时图床
     // ================================================================
     async function uploadKeyframesToTemp(keyframes) {
         if (!keyframes || keyframes.length === 0) return [];
@@ -1766,10 +1712,7 @@
         });
         formData.append('purpose', 'keyframe');
 
-        const res = await fetch(BACKEND_URL + '/api/upload/temp/batch', {
-            method: 'POST',
-            body: formData
-        });
+        const res = await fetch(BACKEND_URL + '/api/upload/temp/batch', { method: 'POST', body: formData });
         const data = await res.json();
         if (!data.success) throw new Error(data.message || '上传关键帧失败');
         return (data.results || []).filter(r => r.success).map(r => r.url);
@@ -1779,10 +1722,7 @@
         const res = await fetch(BACKEND_URL + '/api/video/decompose', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-                keyframe_urls: keyframeUrls,
-                product_name: productName || ''
-            })
+            body: JSON.stringify({ keyframe_urls: keyframeUrls, product_name: productName || '' })
         });
         const data = await res.json();
         if (!data.success) throw new Error(data.message || '反解失败');
@@ -1790,7 +1730,7 @@
     }
 
     // ================================================================
-    // ★ AI 意图解析
+    // AI 意图解析
     // ================================================================
     async function callAiParseGeneration(text, refSnapshot) {
         const products = await fetchProducts();
@@ -1802,8 +1742,7 @@
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
-                    text: text,
-                    available_products: availableNames,
+                    text, available_products: availableNames,
                     has_reference: hasRef,
                     ref_types: [
                         ...(refSnapshot.images.length > 0 ? ['image'] : []),
@@ -1811,21 +1750,20 @@
                     ]
                 })
             });
-            const data = await res.json();
-            return data;
+            return await res.json();
         } catch (e) {
-            console.warn('AI 意图解析失败，降级到正则:', e);
+            console.warn('AI 意图解析失败:', e);
             return { kind: null, is_bound: false, product_name: '' };
         }
     }
 
     // ================================================================
-    // ★ 意图类型判定
+    // 意图类型判定
     // ================================================================
     function detectIntentType(text) {
         const t = text.trim();
 
-        // 1. 明确绑定：给/为/帮 XXX 生成
+        // 1. 明确绑定
         const boundMatch = t.match(/[给为帮]([^\s，,。]{2,20}?)(?:生成|做|画|出|来|弄|制作|设计)/);
         if (boundMatch) {
             const candidate = boundMatch[1].trim();
@@ -1834,7 +1772,13 @@
             }
         }
 
-        // 2. 有参考素材 + 生成动词
+        // 2. 智能匹配
+        const candidates = extractPotentialProductNames(t);
+        if (candidates.length > 0) {
+            return { type: 'smart', candidateNames: candidates };
+        }
+
+        // 3. 参考素材 + 生成动词
         const hasRef = state.referenceMedia.images.length > 0
             || state.referenceMedia.videos.length > 0
             || state.referenceMedia.keyframes.length > 0;
@@ -1842,12 +1786,12 @@
             return { type: 'reference' };
         }
 
-        // 3. 自由创作
+        // 4. 自由创作
         return { type: 'free' };
     }
 
     // ================================================================
-    // ★ 从文本提取主题词
+    // 主题词提取
     // ================================================================
     function extractThemeFromText(text) {
         if (!text) return '';
@@ -1860,8 +1804,33 @@
         return words[0] || '';
     }
 
+    // ★ 提取潜在商品名
+    function extractPotentialProductNames(text) {
+        const t = text.trim();
+        const candidates = new Set();
+
+        let cleaned = t
+            .replace(/[给为帮]/g, ' ')
+            .replace(/[生成做画出来弄制作设计]+/g, ' ')
+            .replace(/\d+\s*[张个条段秒]/g, ' ')
+            .replace(/[一张一个几个张个条段秒视频图片海报主图轮播图详情页种草同款商品]/g, ' ')
+            .replace(/[+，,。、\s]+/g, ' ')
+            .trim();
+
+        const words = cleaned.split(/\s+/).filter(w => w.length >= 2 && w.length <= 20);
+        for (const w of words) {
+            if (!PRODUCT_BLACKLIST.has(w)) candidates.add(w);
+        }
+
+        if (candidates.size === 0 && cleaned.length >= 2 && cleaned.length <= 20 && !PRODUCT_BLACKLIST.has(cleaned)) {
+            candidates.add(cleaned);
+        }
+
+        return Array.from(candidates);
+    }
+
     // ================================================================
-    // 商品校验
+    // 商品校验 / 匹配
     // ================================================================
     async function fetchProducts(force = false) {
         const now = Date.now();
@@ -1916,6 +1885,55 @@
             (products.length > limit ? `\n（共 ${products.length} 个商品）` : '');
     }
 
+    // ★ 调用后端智能匹配
+    async function matchProductsFromBackend(keywords, context = '') {
+        if (!keywords || keywords.length === 0) return [];
+        try {
+            const res = await fetch(BACKEND_URL + '/api/products/match', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ keywords, generation_context: context })
+            });
+            const data = await res.json();
+            return data.matches || [];
+        } catch (e) {
+            console.warn('商品匹配失败:', e);
+            return [];
+        }
+    }
+
+    // ★ 调用后端市场分析
+    async function analyzeMarketFromBackend(theme, kind, platform = '全平台') {
+        try {
+            const res = await fetch(BACKEND_URL + '/api/ai/market-analysis', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ theme, kind, platform })
+            });
+            const data = await res.json();
+            if (data.success && data.analysis) return data.analysis;
+            return null;
+        } catch (e) {
+            console.warn('市场分析失败:', e);
+            return null;
+        }
+    }
+
+    // ★ 把市场分析转成 prompt 增强
+    function buildMarketPromptEnhancement(analysis) {
+        if (!analysis) return '';
+        const parts = [];
+        if (analysis.trend_style) parts.push(analysis.trend_style);
+        if (analysis.scenario) parts.push(`适用场景：${analysis.scenario}`);
+        if (analysis.selling_points && analysis.selling_points.length > 0) {
+            parts.push(`突出卖点：${analysis.selling_points.slice(0, 3).join('、')}`);
+        }
+        if (analysis.avoid && analysis.avoid.length > 0) {
+            parts.push(`避免：${analysis.avoid.join('、')}`);
+        }
+        return parts.join('。');
+    }
+
     // ================================================================
     // 卡片构造
     // ================================================================
@@ -1958,8 +1976,8 @@
                 return { title: '📦 批量改库存预览', desc: `分类：${a.category}\n操作：${actionText} ${a.amount} 件` };
             },
             batch_put_on_shelf: () => ({ title: '⬆️ 批量上架预览', desc: `分类：${a.category}\n将上架该分类所有商品` }),
-            batch_delete_by_category: () => ({ title: '🗑️ 批量删除预览', desc: `分类：${a.category}\n⚠️ 将删除该分类所有商品，不可恢复`, isDanger: true }),
-            add_product: () => ({ title: '➕ 新增商品预览', desc: `名称：${a.name}\n价格：¥${a.price}\n库存：${a.stock || 0} 件\n分类：${a.category || '文创'}\n平台：${a.platform || '淘宝'}` }),
+            batch_delete_by_category: () => ({ title: '🗑️ 批量删除预览', desc: `分类：${a.category}\n⚠️ 将删除该分类所有商品`, isDanger: true }),
+            add_product: () => ({ title: '➕ 新增商品预览', desc: `名称：${a.name}\n价格：¥${a.price}\n库存：${a.stock || 0} 件` }),
             delete_product: () => ({ title: '🗑️ 删除商品预览', desc: `商品：${a.product_name}\n⚠️ 删除后不可恢复`, isDanger: true }),
             duplicate_product: () => ({ title: '📋 复制商品预览', desc: `原商品：${a.product_name}\n新名称：${a.new_name}` }),
             query_by_platform: () => ({ title: '🔍 按平台查询', desc: `平台：${a.platform}` }),
@@ -1975,11 +1993,10 @@
     }
 
     // ================================================================
-    // 意图识别（保留正则作为降级）
+    // 意图识别（正则降级）
     // ================================================================
     function parseGenerationIntent(text) {
         const t = text.trim();
-
         const imgKeywords = ['生成', '做', '画', '出', '来', '弄', '制作', '设计'];
         const imgNouns = ['主图', '图片', '商品图', '轮播图', '详情图'];
         const videoNouns = ['视频', '短视频', '种草视频', '广告片', '同款'];
@@ -1995,17 +2012,12 @@
         if (countMatch) count = Math.min(10, parseInt(countMatch[1], 10));
         else if (hasImgNoun && (t.includes('轮播') || t.includes('全部') || t.includes('一套'))) count = 5;
 
-        // 商品名提取（黑名单过滤）
         let productName = '';
         const m1 = t.match(/[给为帮]([^\s，,。]{2,20}?)(?:生成|做|画|出|来|弄|制作|设计)/);
-        if (m1 && !PRODUCT_BLACKLIST.has(m1[1].trim())) {
-            productName = m1[1].trim();
-        }
+        if (m1 && !PRODUCT_BLACKLIST.has(m1[1].trim())) productName = m1[1].trim();
         if (!productName) {
             const m2 = t.match(/([^\s，,。]{2,20}?)(?:的|主图|图片|视频|轮播图|海报|种草|同款)/);
-            if (m2 && !PRODUCT_BLACKLIST.has(m2[1].trim())) {
-                productName = m2[1].trim();
-            }
+            if (m2 && !PRODUCT_BLACKLIST.has(m2[1].trim())) productName = m2[1].trim();
         }
         productName = productName.replace(/^的|生成$|做$|画$|出$|来$|弄$|制作$|设计$/, '').trim();
 
@@ -2018,6 +2030,7 @@
             if (t.includes('新品') || t.includes('首发')) posterType = '新品海报';
             else if (t.includes('国潮') || t.includes('新中式')) posterType = '国潮海报';
             else if (t.includes('简约') || t.includes('极简')) posterType = '简约海报';
+            else if (/春节|中秋|国庆|元旦|端午|母亲节|父亲节|情人节|女神节|618|双11|双12/.test(t)) posterType = '节日海报';
 
             const boundMatch = t.match(/[给为帮]([^\s，,。]{2,20}?)(?:生成|做|画|出|来|弄|制作|设计)/);
             const isBound = !!boundMatch && !PRODUCT_BLACKLIST.has(boundMatch[1].trim());
@@ -2032,12 +2045,9 @@
             }
 
             return {
-                kind: 'poster',
-                posterType,
+                kind: 'poster', posterType,
                 productName: isBound ? productName : '',
-                isBound,
-                freeTheme,
-                extraDesc
+                isBound, freeTheme, extraDesc
             };
         }
 
@@ -2057,7 +2067,7 @@
     }
 
     // ================================================================
-    // Agnes 图片
+    // Agnes 图片 / 视频
     // ================================================================
     async function generateAgnesImage(prompt, sizeTier = '1K', ratio = '1:1', referenceImages = []) {
         const apiKey = getAgnesApiKey();
@@ -2068,14 +2078,12 @@
             ratio: ratio,
             extra_body: { response_format: 'url' }
         };
-
         if (referenceImages && referenceImages.length > 0) {
             body.extra_body.image = referenceImages.slice(0, 5);
             if (!/参考|reference|<Picture/i.test(prompt)) {
                 body.prompt = prompt + '（参考上传的图片风格与主体）';
             }
         }
-
         const res = await fetch(AGNES_API_BASE + '/images/generations', {
             method: 'POST',
             headers: { 'Authorization': 'Bearer ' + apiKey, 'Content-Type': 'application/json' },
@@ -2091,9 +2099,6 @@
         throw new Error('图片生成返回格式异常');
     }
 
-    // ================================================================
-    // Agnes 视频
-    // ================================================================
     async function createVideoTaskWithRetry(apiKey, body, maxRetries = 4) {
         let lastErr = null;
         for (let attempt = 1; attempt <= maxRetries; attempt++) {
@@ -2107,19 +2112,18 @@
             } catch (netErr) {
                 lastErr = netErr;
                 if (attempt === maxRetries) throw netErr;
-                const wait = 10000 * Math.pow(2, attempt - 1);
-                await new Promise(r => setTimeout(r, wait));
+                await new Promise(r => setTimeout(r, 10000 * Math.pow(2, attempt - 1)));
                 continue;
             }
             if (res.ok) return await res.json();
             const status = res.status;
             const errText = await res.text().catch(() => '');
             lastErr = new Error(`视频任务创建失败 (${status}): ${errText.slice(0, 300)}`);
-            if (status === 429) throw new Error('视频服务速率限制（免费账号）。请等待 1-2 分钟后再试。');
+            if (status === 429) throw new Error('视频服务速率限制。请等待 1-2 分钟后再试。');
             const retryable = [502, 503, 504].includes(status);
             if (!retryable || attempt === maxRetries) throw lastErr;
             const wait = 10000 * Math.pow(2, attempt - 1);
-            showToast(`⏳ 视频队列繁忙，${Math.round(wait/1000)}s 后重试（${attempt}/${maxRetries}）`);
+            showToast(`⏳ 视频队列繁忙，${Math.round(wait/1000)}s 后重试`);
             await new Promise(r => setTimeout(r, wait));
         }
         throw lastErr || new Error('视频任务创建失败');
@@ -2128,7 +2132,6 @@
     async function generateAgnesVideo(prompt, seconds = '5', referenceImages = [], aspectRatio = '9:16', onProgress) {
         const apiKey = getAgnesApiKey();
         const hasRefs = referenceImages && referenceImages.length > 0;
-
         const body = {
             model: AGNES_VIDEO_MODEL,
             prompt: prompt,
@@ -2144,13 +2147,9 @@
                 body.prompt = prompt + '。以 <Picture 1> 中的商品外观、色调和风格为参考，保持主体一致性。';
             }
         }
-
         const createData = await createVideoTaskWithRetry(apiKey, body, 4);
         const videoId = createData.video_id;
-        if (!videoId) {
-            console.error('创建任务响应:', createData);
-            throw new Error('创建任务未返回 video_id');
-        }
+        if (!videoId) throw new Error('创建任务未返回 video_id');
 
         const maxAttempts = 300, intervalMs = 2000;
         let lastStatus = '';
@@ -2170,7 +2169,7 @@
             const status = qd.status;
             lastStatus = status || lastStatus;
             let statusText = '';
-            if (status === 'pending' || status === 'queued') statusText = `排队中... (第 ${i + 1} 次查询)`;
+            if (status === 'pending' || status === 'queued') statusText = `排队中...`;
             else if (status === 'processing' || status === 'running') {
                 const pct = (typeof qd.progress === 'number') ? qd.progress : Math.min(99, Math.round((i / maxAttempts) * 100));
                 statusText = `生成中... (${pct}%)`;
@@ -2178,8 +2177,7 @@
             if (typeof onProgress === 'function') onProgress(i + 1, maxAttempts, status, statusText);
 
             if (status === 'completed') {
-                const url = qd.url;
-                if (url) return url;
+                if (qd.url) return qd.url;
                 throw new Error('视频已完成但未返回 URL');
             }
             if (status === 'failed') {
@@ -2191,50 +2189,57 @@
     }
 
     // ================================================================
-    // ★ 不查商品的自由生成
+    // ★ 智能生成处理
     // ================================================================
-    async function generateWithoutProduct(intent, originalText, refSnapshot) {
-        const aiResult = await callAiParseGeneration(originalText, refSnapshot);
-        
-        const kind = aiResult.kind || intent.kind || 'images';
-        const count = Math.min(aiResult.count || intent.count || 1, 10);
-        const seconds = aiResult.seconds || intent.seconds || '5';
-        
-        let theme = aiResult.free_theme || '';
-        if (!theme) {
-            theme = extractThemeFromText(originalText) || '商品';
-        }
-        
-        const refImages = refSnapshot.images || [];
+    async function handleSmartGenerationIntent(intent, originalText, refSnapshot, candidateNames) {
+        const matches = await matchProductsFromBackend(candidateNames, intent.kind || 'images');
+        const topMatch = matches[0];
 
-        if (kind === 'poster') {
-            return await generatePosterFree(theme, aiResult.poster_type || '促销海报', refImages);
+        // 精确匹配
+        if (topMatch && topMatch.match_level === 'exact' && topMatch.score >= MATCH_EXACT_THRESHOLD) {
+            intent.productName = topMatch.product_name;
+            return await handleGenerationIntent(intent, originalText, refSnapshot);
         }
-        if (kind === 'video') {
-            return await generateVideoFree(theme, seconds, refSnapshot);
+
+        // 无匹配 → 完全自由生成
+        if (!topMatch) {
+            return await generateWithoutProduct(intent, originalText, refSnapshot);
         }
-        return await generateImagesFree(theme, count, refImages);
+
+        // 海报：不绑定商品（但用匹配到的商品名作为主题）
+        if (intent.kind === 'poster') {
+            return await generatePosterFree(
+                topMatch.product_name,
+                intent.posterType || '促销海报',
+                refSnapshot.images || []
+            );
+        }
+
+        // 视频 / 图片：走智能推荐
+        if (intent.kind === 'video') {
+            return await generateVideoWithSuggestion(intent, originalText, refSnapshot, matches);
+        }
+        return await generateImagesWithSuggestion(intent, originalText, refSnapshot, matches);
     }
 
-    async function generateImagesFree(theme, count, refImages) {
-        const hasRef = refImages.length > 0;
-        
+    // ★ 生成图片 + 智能推荐
+    async function generateImagesWithSuggestion(intent, originalText, refSnapshot, matches) {
+        const theme = matches[0].product_name;
+        const count = intent.count || 1;
+        const refImages = refSnapshot.images || [];
         const aiMsg = {
             role: 'ai',
-            text: hasRef
-                ? `🎨 已开始根据参考图生成 ${count} 张「${theme}」主图...`
-                : `🎨 已开始生成 ${count} 张「${theme}」主图...`,
+            text: `🎨 已开始生成 ${count} 张「${theme}」主图...`,
             time: nowTime(),
             progress: 0
         };
         const msgId = appendMessage(aiMsg);
-        
         const urls = [];
         const labels = [];
         const typeNames = ['样品设计', '细节特写', '内部展示', '使用场景', '促销风格'];
         const actualCount = Math.min(count, 5);
         const features = [];
-        
+
         for (let i = 0; i < actualCount; i++) {
             try {
                 const tmplFn = IMAGE_PROMPT_TEMPLATES[i];
@@ -2243,7 +2248,6 @@
                 urls.push(url);
                 labels.push(`图${i+1}·${typeNames[i]}`);
             } catch (err) {
-                console.warn(`第 ${i+1} 张失败:`, err);
                 urls.push('');
                 labels.push(`图${i+1}·${typeNames[i]}`);
             }
@@ -2254,100 +2258,92 @@
                 updateMessageNode(m);
             }
         }
-        
+
         const m = state.currentMessages.find(x => x.id === msgId);
         if (m) {
             const validCount = urls.filter(u => u).length;
             m.progress = undefined;
             m.media = { type: 'images', urls, labels };
-            m.text = `✅ 已生成 ${validCount}/${actualCount} 张「${theme}」主图\n（${typeNames.slice(0, actualCount).join(' / ')}）`;
-            
+            m.text = `✅ 已生成 ${validCount}/${actualCount} 张「${theme}」主图`;
+
             const applyId = 'apply_' + Date.now();
+            const topMatch = matches[0];
+            const otherMatches = matches.slice(1, 3);
+
+            const actions = [
+                { label: `✅ 替换到「${topMatch.product_name}」`, type: 'confirm', onclick: `confirmAction('${applyId}')` }
+            ];
+            for (const m2 of otherMatches) {
+                actions.push({
+                    label: `📦 应用到「${m2.product_name}」`,
+                    type: 'primary',
+                    onclick: `applyToSpecificProductFromSmart('${applyId}', '${m2.product_name.replace(/'/g, "\\'")}')`
+                });
+            }
+            actions.push({ label: '🔽 仅下载', type: 'outline', onclick: `cancelAction('${applyId}')` });
+
             m.card = {
                 title: '📌 下一步',
-                desc: `图片已生成完成，可以下载使用，或将其应用到某个商品。`,
+                desc: `检测到你的商品可能是「${topMatch.product_name}」（相关度 ${Math.round(topMatch.score * 100)}%）\n${topMatch.reason}`,
                 actionId: applyId,
                 rawAction: {
-                    type: 'apply_media_to_product',
-                    args: { urls, labels }
+                    type: 'apply_media_to_product_smart',
+                    args: {
+                        urls, labels,
+                        suggestedProduct: topMatch.product_name,
+                        allMatches: matches.map(x => x.product_name)
+                    }
                 },
-                actions: [
-                    { label: '📦 应用到商品', type: 'confirm', onclick: `confirmAction('${applyId}')` },
-                    { label: '✖ 完成', type: 'cancel', onclick: `cancelAction('${applyId}')` }
-                ]
+                actions: actions
             };
             state.pendingActions[applyId] = m.card.rawAction;
             updateMessageNode(m);
         }
-        
+
         state.lastGeneratedMedia = { type: 'images', urls, theme };
     }
 
-    async function generateVideoFree(theme, seconds, refSnapshot) {
+    // ★ 生成视频 + 智能推荐
+    async function generateVideoWithSuggestion(intent, originalText, refSnapshot, matches) {
+        const theme = matches[0].product_name;
+        const seconds = intent.seconds || '5';
         const keyframes = refSnapshot.keyframes || [];
         const hasVideoRef = keyframes.length > 0;
-        
+
         let finalPrompt = `${theme} 商品展示短视频`;
         let refUrls = [];
         let analysis = null;
-        
+
         if (hasVideoRef) {
-            const analyzeMsg = {
-                role: 'ai',
-                text: '🔍 正在分析参考视频（抽帧 → 上传 → 反解）...',
-                time: nowTime(),
-                progress: 5
-            };
+            const analyzeMsg = { role: 'ai', text: '🔍 正在分析参考视频...', time: nowTime(), progress: 5 };
             const analyzeId = appendMessage(analyzeMsg);
-            
             try {
                 let kfUrls = state.referenceMedia.keyframeUrls;
                 if (!kfUrls || kfUrls.length === 0) {
-                    const m = state.currentMessages.find(x => x.id === analyzeId);
-                    if (m) { m.text = '🔍 正在上传关键帧到临时图床...'; m.progress = 20; updateMessageNode(m); }
                     kfUrls = await uploadKeyframesToTemp(keyframes);
                     state.referenceMedia.keyframeUrls = kfUrls;
                 }
-                
-                const m2 = state.currentMessages.find(x => x.id === analyzeId);
-                if (m2) { m2.text = '🧠 正在用多模态模型反解画面与运镜...'; m2.progress = 50; updateMessageNode(m2); }
                 analysis = await decomposeVideoReference(kfUrls, theme);
                 state.referenceMedia.videoAnalysis = analysis;
-                
                 if (analysis.prompt) finalPrompt = analysis.prompt;
                 refUrls = kfUrls;
-                
-                const m3 = state.currentMessages.find(x => x.id === analyzeId);
-                if (m3) {
-                    m3.progress = undefined;
-                    m3.analysis = analysis;
-                    m3.text = `✅ 参考视频分析完成，将生成「${theme}」同款视频...`;
-                    updateMessageNode(m3);
-                }
-            } catch (err) {
-                console.warn('反解失败，降级为默认分镜:', err);
                 const m = state.currentMessages.find(x => x.id === analyzeId);
-                if (m) { m.progress = undefined; m.text = `⚠️ 参考视频分析失败：${err.message}`; updateMessageNode(m); }
+                if (m) { m.progress = undefined; m.analysis = analysis; m.text = '✅ 分析完成'; updateMessageNode(m); }
+            } catch (err) {
+                const m = state.currentMessages.find(x => x.id === analyzeId);
+                if (m) { m.progress = undefined; m.text = `⚠️ 反解失败：${err.message}`; updateMessageNode(m); }
                 refUrls = [];
-                analysis = null;
             }
         }
-        
-        if (!analysis && !hasVideoRef) {
-            const storyboard = VIDEO_STORYBOARD_BY_CATEGORY['default'];
-            finalPrompt = `${theme} 商品展示短视频。分镜脚本：${storyboard.map(s => s.prompt).join('，')}`;
-        }
-        
+
         const aiMsg = {
             role: 'ai',
-            text: refUrls.length > 0
-                ? `🎬 已开始生成 ${seconds} 秒「${theme}」同款视频（参考 ${refUrls.length} 帧）...`
-                : `🎬 已开始生成 ${seconds} 秒「${theme}」短视频...`,
+            text: `🎬 已开始生成 ${seconds} 秒「${theme}」种草视频...`,
             time: nowTime(),
             progress: 0
         };
         const msgId = appendMessage(aiMsg);
-        
+
         let videoUrl = '';
         try {
             videoUrl = await generateAgnesVideo(finalPrompt, seconds, refUrls, '9:16', (attempt, total, status, text) => {
@@ -2360,33 +2356,228 @@
             });
         } catch (err) {
             const m = state.currentMessages.find(x => x.id === msgId);
-            if (m) {
-                m.progress = undefined;
-                m.text = `❌ 视频生成失败：${err.message}`;
-                m.retryable = true;
-                updateMessageNode(m);
-            }
+            if (m) { m.progress = undefined; m.text = `❌ 视频生成失败：${err.message}`; m.retryable = true; updateMessageNode(m); }
             return;
         }
-        
+
         const m = state.currentMessages.find(x => x.id === msgId);
         if (m) {
             m.progress = undefined;
             m.media = { type: 'video', videoUrl };
             m.text = `✅ 已生成 ${seconds} 秒「${theme}」视频`;
-            
+
+            const applyId = 'apply_' + Date.now();
+            const topMatch = matches[0];
+            const otherMatches = matches.slice(1, 3);
+
+            const actions = [
+                { label: `✅ 替换到「${topMatch.product_name}」`, type: 'confirm', onclick: `confirmAction('${applyId}')` }
+            ];
+            for (const m2 of otherMatches) {
+                actions.push({
+                    label: `📦 应用到「${m2.product_name}」`,
+                    type: 'primary',
+                    onclick: `applyVideoFromSmart('${applyId}', '${m2.product_name.replace(/'/g, "\\'")}')`
+                });
+            }
+            actions.push({ label: '🔽 仅下载', type: 'outline', onclick: `cancelAction('${applyId}')` });
+
+            m.card = {
+                title: '📌 下一步',
+                desc: `检测到你的商品可能是「${topMatch.product_name}」（相关度 ${Math.round(topMatch.score * 100)}%）\n${topMatch.reason}`,
+                actionId: applyId,
+                rawAction: {
+                    type: 'apply_video_to_product_smart',
+                    args: {
+                        videoUrl,
+                        suggestedProduct: topMatch.product_name,
+                        allMatches: matches.map(x => x.product_name)
+                    }
+                },
+                actions: actions
+            };
+            state.pendingActions[applyId] = m.card.rawAction;
+            updateMessageNode(m);
+        }
+    }
+
+    // ================================================================
+    // ★ 自由生成（含市场分析）
+    // ================================================================
+    async function generateWithoutProduct(intent, originalText, refSnapshot) {
+        const aiResult = await callAiParseGeneration(originalText, refSnapshot);
+        const kind = aiResult.kind || intent.kind || 'images';
+        const count = Math.min(aiResult.count || intent.count || 1, 10);
+        const seconds = aiResult.seconds || intent.seconds || '5';
+
+        let theme = aiResult.free_theme || '';
+        if (!theme) theme = extractThemeFromText(originalText) || '商品';
+
+        const refImages = refSnapshot.images || [];
+
+        // 市场分析
+        const marketMsg = { role: 'ai', text: `🔍 正在分析当下市场环境（${theme}）...`, time: nowTime() };
+        const marketMsgId = appendMessage(marketMsg);
+        const marketAnalysis = await analyzeMarketFromBackend(theme, kind);
+
+        const marketM = state.currentMessages.find(x => x.id === marketMsgId);
+        if (marketM && marketAnalysis) {
+            marketM.text = `📊 已完成市场趋势分析`;
+            marketM.marketAnalysis = marketAnalysis;
+            updateMessageNode(marketM);
+        } else if (marketM) {
+            marketM.text = '⚠️ 市场分析失败，使用默认风格生成';
+            updateMessageNode(marketM);
+        }
+
+        const marketEnhance = buildMarketPromptEnhancement(marketAnalysis);
+
+        if (kind === 'poster') {
+            return await generatePosterFree(theme, aiResult.poster_type || '促销海报', refImages, marketEnhance);
+        }
+        if (kind === 'video') {
+            return await generateVideoFree(theme, seconds, refSnapshot, marketEnhance);
+        }
+        return await generateImagesFree(theme, count, refImages, marketEnhance);
+    }
+
+    async function generateImagesFree(theme, count, refImages, marketEnhance = '') {
+        const hasRef = refImages.length > 0;
+        const aiMsg = {
+            role: 'ai',
+            text: hasRef ? `🎨 已开始根据参考图生成 ${count} 张「${theme}」主图...` : `🎨 已开始生成 ${count} 张「${theme}」主图...`,
+            time: nowTime(),
+            progress: 0
+        };
+        const msgId = appendMessage(aiMsg);
+        const urls = [];
+        const labels = [];
+        const typeNames = ['样品设计', '细节特写', '内部展示', '使用场景', '促销风格'];
+        const actualCount = Math.min(count, 5);
+        const features = [];
+
+        for (let i = 0; i < actualCount; i++) {
+            try {
+                const tmplFn = IMAGE_PROMPT_TEMPLATES[i];
+                const basePrompt = tmplFn(theme, features, marketEnhance);
+                const url = await generateAgnesImage(basePrompt, '1K', '1:1', refImages);
+                urls.push(url);
+                labels.push(`图${i+1}·${typeNames[i]}`);
+            } catch (err) {
+                urls.push('');
+                labels.push(`图${i+1}·${typeNames[i]}`);
+            }
+            const m = state.currentMessages.find(x => x.id === msgId);
+            if (m) {
+                m.progress = Math.round(((i + 1) / actualCount) * 100);
+                m.text = `🎨 正在生成「${theme}」主图（${i + 1}/${actualCount}）：${typeNames[i]}...`;
+                updateMessageNode(m);
+            }
+        }
+
+        const m = state.currentMessages.find(x => x.id === msgId);
+        if (m) {
+            const validCount = urls.filter(u => u).length;
+            m.progress = undefined;
+            m.media = { type: 'images', urls, labels };
+            m.text = `✅ 已生成 ${validCount}/${actualCount} 张「${theme}」主图`;
+
+            const applyId = 'apply_' + Date.now();
+            m.card = {
+                title: '📌 下一步',
+                desc: `图片已生成完成，可以下载使用，或将其应用到某个商品。`,
+                actionId: applyId,
+                rawAction: { type: 'apply_media_to_product', args: { urls, labels } },
+                actions: [
+                    { label: '📦 应用到商品', type: 'confirm', onclick: `confirmAction('${applyId}')` },
+                    { label: '🔽 仅下载', type: 'cancel', onclick: `cancelAction('${applyId}')` }
+                ]
+            };
+            state.pendingActions[applyId] = m.card.rawAction;
+            updateMessageNode(m);
+        }
+        state.lastGeneratedMedia = { type: 'images', urls, theme };
+    }
+
+    async function generateVideoFree(theme, seconds, refSnapshot, marketEnhance = '') {
+        const keyframes = refSnapshot.keyframes || [];
+        const hasVideoRef = keyframes.length > 0;
+        let finalPrompt = `${theme} 商品展示短视频`;
+        let refUrls = [];
+        let analysis = null;
+
+        if (hasVideoRef) {
+            const analyzeMsg = { role: 'ai', text: '🔍 正在分析参考视频...', time: nowTime(), progress: 5 };
+            const analyzeId = appendMessage(analyzeMsg);
+            try {
+                let kfUrls = state.referenceMedia.keyframeUrls;
+                if (!kfUrls || kfUrls.length === 0) {
+                    kfUrls = await uploadKeyframesToTemp(keyframes);
+                    state.referenceMedia.keyframeUrls = kfUrls;
+                }
+                analysis = await decomposeVideoReference(kfUrls, theme);
+                state.referenceMedia.videoAnalysis = analysis;
+                if (analysis.prompt) finalPrompt = analysis.prompt;
+                refUrls = kfUrls;
+                const m = state.currentMessages.find(x => x.id === analyzeId);
+                if (m) { m.progress = undefined; m.analysis = analysis; m.text = '✅ 分析完成'; updateMessageNode(m); }
+            } catch (err) {
+                const m = state.currentMessages.find(x => x.id === analyzeId);
+                if (m) { m.progress = undefined; m.text = `⚠️ 反解失败：${err.message}`; updateMessageNode(m); }
+                refUrls = [];
+            }
+        }
+
+        if (!analysis && !hasVideoRef) {
+            const storyboard = VIDEO_STORYBOARD_BY_CATEGORY['default'];
+            finalPrompt = `${theme} 商品展示短视频。分镜脚本：${storyboard.map(s => s.prompt).join('，')}`;
+        }
+
+        if (marketEnhance && !finalPrompt.includes(marketEnhance)) {
+            finalPrompt += `。${marketEnhance}`;
+        }
+
+        const aiMsg = {
+            role: 'ai',
+            text: refUrls.length > 0
+                ? `🎬 已开始生成 ${seconds} 秒「${theme}」同款视频...`
+                : `🎬 已开始生成 ${seconds} 秒「${theme}」短视频...`,
+            time: nowTime(),
+            progress: 0
+        };
+        const msgId = appendMessage(aiMsg);
+
+        let videoUrl = '';
+        try {
+            videoUrl = await generateAgnesVideo(finalPrompt, seconds, refUrls, '9:16', (attempt, total, status, text) => {
+                const m = state.currentMessages.find(x => x.id === msgId);
+                if (m) {
+                    m.progress = Math.min(95, Math.round((attempt / total) * 100));
+                    m.text = `🎬 正在生成「${theme}」视频：${text}`;
+                    updateMessageNode(m);
+                }
+            });
+        } catch (err) {
+            const m = state.currentMessages.find(x => x.id === msgId);
+            if (m) { m.progress = undefined; m.text = `❌ 视频生成失败：${err.message}`; m.retryable = true; updateMessageNode(m); }
+            return;
+        }
+
+        const m = state.currentMessages.find(x => x.id === msgId);
+        if (m) {
+            m.progress = undefined;
+            m.media = { type: 'video', videoUrl };
+            m.text = `✅ 已生成 ${seconds} 秒「${theme}」视频`;
+
             const applyId = 'apply_' + Date.now();
             m.card = {
                 title: '📌 下一步',
                 desc: `视频已生成完成，可以下载使用，或将其应用到某个商品。`,
                 actionId: applyId,
-                rawAction: {
-                    type: 'apply_video_to_product',
-                    args: { videoUrl }
-                },
+                rawAction: { type: 'apply_video_to_product', args: { videoUrl } },
                 actions: [
                     { label: '📦 应用到商品', type: 'confirm', onclick: `confirmAction('${applyId}')` },
-                    { label: '✖ 完成', type: 'cancel', onclick: `cancelAction('${applyId}')` }
+                    { label: '🔽 仅下载', type: 'cancel', onclick: `cancelAction('${applyId}')` }
                 ]
             };
             state.pendingActions[applyId] = m.card.rawAction;
@@ -2394,53 +2585,38 @@
         }
     }
 
-    async function generatePosterFree(theme, posterType, refImages) {
-        const aiMsg = {
-            role: 'ai',
-            text: `🎨 已开始生成「${theme}」主题${posterType}（自由创作）...`,
-            time: nowTime(),
-            progress: 0
-        };
+    // ★ 海报：不绑定商品
+    async function generatePosterFree(theme, posterType, refImages, marketEnhance = '') {
+        const aiMsg = { role: 'ai', text: `🎨 已开始生成「${theme}」主题${posterType}...`, time: nowTime(), progress: 0 };
         const msgId = appendMessage(aiMsg);
-        
+
         let posterUrl = '';
         try {
             const promptFn = POSTER_TEMPLATES[posterType] || POSTER_TEMPLATES['自由海报'];
-            const prompt = promptFn(theme, []);
+            let prompt = promptFn(theme, []);
+            if (marketEnhance) prompt += `。市场趋势参考：${marketEnhance}`;
             posterUrl = await generateAgnesImage(prompt, '2K', '3:4', refImages);
         } catch (err) {
             const m = state.currentMessages.find(x => x.id === msgId);
-            if (m) {
-                m.progress = undefined;
-                m.text = `❌ 海报生成失败：${err.message}`;
-                m.retryable = true;
-                updateMessageNode(m);
-            }
+            if (m) { m.progress = undefined; m.text = `❌ 海报生成失败：${err.message}`; m.retryable = true; updateMessageNode(m); }
             return;
         }
-        
+
         const m = state.currentMessages.find(x => x.id === msgId);
         if (m) {
             m.progress = undefined;
-            m.media = {
-                type: 'poster',
-                posterUrl,
-                posterTitle: `${theme} · ${posterType}`
-            };
-            m.text = `✅ 已生成「${theme}」主题${posterType}（自由创作）`;
-            
+            m.media = { type: 'poster', posterUrl, posterTitle: `${theme} · ${posterType}` };
+            m.text = `✅ 已生成「${theme}」主题${posterType}`;
+
             const regenId = 'regen_' + Date.now();
             m.card = {
                 title: '📌 下一步',
-                desc: `海报已生成完成。可下载使用，或换一个主题重新生成。`,
+                desc: `海报已生成完成。可下载使用，或换个主题/风格重新生成。`,
                 actionId: regenId,
-                rawAction: {
-                    type: 'regen_poster',
-                    args: { posterType, freeTheme: theme }
-                },
+                rawAction: { type: 'regen_poster', args: { posterType, freeTheme: theme } },
                 actions: [
                     { label: '🔄 换主题再生成', type: 'confirm', onclick: `confirmAction('${regenId}')` },
-                    { label: '✖ 完成', type: 'cancel', onclick: `cancelAction('${regenId}')` }
+                    { label: '🔽 完成', type: 'outline', onclick: `cancelAction('${regenId}')` }
                 ]
             };
             state.pendingActions[regenId] = m.card.rawAction;
@@ -2449,19 +2625,18 @@
     }
 
     // ================================================================
-    // 生成意图处理
+    // 绑定商品的生成
     // ================================================================
     async function handleGenerationIntent(intent, originalText, refSnapshot) {
         let { kind, count, productName, seconds, extraDesc, category } = intent;
-        
         const intentType = detectIntentType(originalText);
-        
+
         if (intentType.type === 'free' || intentType.type === 'reference') {
             return await generateWithoutProduct(intent, originalText, refSnapshot);
         }
-        
+
         const candidateName = intentType.candidateProductName || productName;
-        
+
         if (candidateName) {
             const check = await checkProductExists(candidateName);
             if (!check.ok) {
@@ -2480,68 +2655,18 @@
             productName = check.product.name;
             category = check.product.category || '';
         } else {
-            // 没有候选商品名 → 走自由生成
             return await generateWithoutProduct(intent, originalText, refSnapshot);
         }
-        
-        // ============ 海报（绑定商品） ============
+
+        // 海报（绑定商品时也走海报逻辑，不绑定）
         if (kind === 'poster') {
-            const posterType = intent.posterType || '促销海报';
-            const aiMsg = {
-                role: 'ai',
-                text: `🎨 已开始为「${productName}」生成${posterType}...`,
-                time: nowTime(),
-                progress: 0
-            };
-            const msgId = appendMessage(aiMsg);
-            
-            let posterUrl = '';
-            try {
-                const promptFn = POSTER_TEMPLATES[posterType] || POSTER_TEMPLATES['促销海报'];
-                const prompt = promptFn(productName, []);
-                posterUrl = await generateAgnesImage(prompt, '2K', '3:4', refSnapshot.images || []);
-            } catch (err) {
-                const m = state.currentMessages.find(x => x.id === msgId);
-                if (m) { m.progress = undefined; m.text = `❌ 海报生成失败：${err.message}`; m.retryable = true; updateMessageNode(m); }
-                return;
-            }
-            
-            const m = state.currentMessages.find(x => x.id === msgId);
-            if (m) {
-                m.progress = undefined;
-                m.media = { type: 'poster', posterUrl, posterTitle: `${productName} · ${posterType}` };
-                m.text = `✅ 已为「${productName}」生成${posterType}`;
-                const syncId = 'sync_' + Date.now();
-                m.card = {
-                    title: '📌 下一步',
-                    desc: `是否将这张海报添加到商品「${productName}」？\n（会添加到副图最后一张，不影响主图）`,
-                    actionId: syncId,
-                    rawAction: {
-                        type: 'sync_generated_media',
-                        args: {
-                            product_name: productName,
-                            media_type: 'sub_image_only',
-                            sub_image_url: posterUrl,
-                            mode: 'merge'
-                        }
-                    },
-                    actions: [
-                        { label: '✅ 添加到商品', type: 'confirm', onclick: `confirmAction('${syncId}')` },
-                        { label: '✖ 不用了', type: 'cancel', onclick: `cancelAction('${syncId}')` }
-                    ]
-                };
-                state.pendingActions[syncId] = m.card.rawAction;
-                updateMessageNode(m);
-            }
-            return;
+            return await generatePosterFree(productName, intent.posterType || '促销海报', refSnapshot.images || []);
         }
-        
-        // ============ 图片（绑定商品） ============
+
         if (kind === 'images') {
             return await generateImagesWithProduct(productName, count, extraDesc, refSnapshot, category);
         }
-        
-        // ============ 视频（绑定商品） ============
+
         if (kind === 'video') {
             return await generateVideoWithProduct(productName, seconds, refSnapshot, category);
         }
@@ -2563,8 +2688,8 @@
         const labels = [];
         const typeNames = ['样品设计', '细节特写', '内部展示', '使用场景', '促销风格'];
         const actualCount = Math.min(count, 5);
-        const features = (document.getElementById('productFeatures')?.value || '').split(',').map(s => s.trim()).filter(Boolean);
-        
+        const features = [];
+
         for (let i = 0; i < actualCount; i++) {
             try {
                 const tmplFn = IMAGE_PROMPT_TEMPLATES[i];
@@ -2583,7 +2708,7 @@
                 updateMessageNode(m);
             }
         }
-        
+
         const m = state.currentMessages.find(x => x.id === msgId);
         if (m) {
             const validCount = urls.filter(u => u).length;
@@ -2597,16 +2722,11 @@
                 actionId: syncId,
                 rawAction: {
                     type: 'sync_generated_media',
-                    args: {
-                        product_name: productName,
-                        media_type: 'main_image',
-                        urls,
-                        mode: 'replace'
-                    }
+                    args: { product_name: productName, media_type: 'main_image', urls, mode: 'replace' }
                 },
                 actions: [
                     { label: '✅ 替换到商品', type: 'confirm', onclick: `confirmAction('${syncId}')` },
-                    { label: '✖ 不用了', type: 'cancel', onclick: `cancelAction('${syncId}')` }
+                    { label: '🔽 仅下载', type: 'outline', onclick: `cancelAction('${syncId}')` }
                 ]
             };
             state.pendingActions[syncId] = m.card.rawAction;
@@ -2620,7 +2740,7 @@
         let finalPrompt = `${productName} 商品展示短视频`;
         let refUrls = [];
         let analysis = null;
-        
+
         if (hasVideoRef) {
             const analyzeMsg = { role: 'ai', text: '🔍 正在分析参考视频...', time: nowTime(), progress: 5 };
             const analyzeId = appendMessage(analyzeMsg);
@@ -2637,36 +2757,21 @@
                 const m = state.currentMessages.find(x => x.id === analyzeId);
                 if (m) { m.progress = undefined; m.analysis = analysis; m.text = '✅ 分析完成'; updateMessageNode(m); }
             } catch (err) {
-                console.warn('反解失败:', err);
                 const m = state.currentMessages.find(x => x.id === analyzeId);
                 if (m) { m.progress = undefined; m.text = `⚠️ 反解失败：${err.message}`; updateMessageNode(m); }
                 refUrls = [];
             }
         }
-        
+
         if (!analysis && !hasVideoRef) {
             const cat = category || 'default';
             const storyboard = VIDEO_STORYBOARD_BY_CATEGORY[cat] || VIDEO_STORYBOARD_BY_CATEGORY['default'];
             finalPrompt = `${productName} 商品展示短视频。分镜脚本：${storyboard.map(s => s.prompt).join('，')}`;
-            appendMessage({
-                role: 'ai',
-                text: `💡 **AI 已根据「${cat}」类别自动生成 ${storyboard.length} 个分镜建议**：\n\n` +
-                      storyboard.map((s, i) => `${i+1}. [${s.time} · ${s.type}] ${s.prompt}`).join('\n') +
-                      `\n\n正在基于此生成视频...`,
-                time: nowTime()
-            });
         }
-        
-        const aiMsg = {
-            role: 'ai',
-            text: refUrls.length > 0
-                ? `🎬 已开始为「${productName}」生成 ${seconds} 秒同款视频（参考 ${refUrls.length} 帧）...`
-                : `🎬 已开始为「${productName}」生成 ${seconds} 秒种草视频...`,
-            time: nowTime(),
-            progress: 0
-        };
+
+        const aiMsg = { role: 'ai', text: `🎬 已开始为「${productName}」生成 ${seconds} 秒视频...`, time: nowTime(), progress: 0 };
         const msgId = appendMessage(aiMsg);
-        
+
         let videoUrl = '';
         try {
             videoUrl = await generateAgnesVideo(finalPrompt, seconds, refUrls, '9:16', (attempt, total, status, text) => {
@@ -2682,7 +2787,7 @@
             if (m) { m.progress = undefined; m.text = `❌ 视频生成失败：${err.message}`; m.retryable = true; updateMessageNode(m); }
             return;
         }
-        
+
         const m = state.currentMessages.find(x => x.id === msgId);
         if (m) {
             m.progress = undefined;
@@ -2691,7 +2796,7 @@
             const syncId = 'sync_' + Date.now();
             m.card = {
                 title: '📌 下一步',
-                desc: `是否将这段视频替换到商品「${productName}」？\n（会覆盖商品原有视频）`,
+                desc: `是否将这段视频替换到商品「${productName}」？`,
                 actionId: syncId,
                 rawAction: {
                     type: 'sync_generated_media',
@@ -2699,7 +2804,7 @@
                 },
                 actions: [
                     { label: '✅ 替换到商品', type: 'confirm', onclick: `confirmAction('${syncId}')` },
-                    { label: '✖ 不用了', type: 'cancel', onclick: `cancelAction('${syncId}')` }
+                    { label: '🔽 仅下载', type: 'outline', onclick: `cancelAction('${syncId}')` }
                 ]
             };
             state.pendingActions[syncId] = m.card.rawAction;
@@ -2749,17 +2854,19 @@
         document.getElementById('sendBtn').disabled = true;
 
         const genIntent = parseGenerationIntent(text);
-        
-        const isGenerationIntent = genIntent || 
-            (hasRef && /生成|做|制作|出|来|弄|设计|同款/.test(text));
-        
+        const isGenerationIntent = genIntent || (hasRef && /生成|做|制作|出|来|弄|设计|同款/.test(text));
+
         if (isGenerationIntent) {
             document.getElementById('typingIndicator').classList.remove('show');
             try {
-                if (genIntent) {
+                const intentType = detectIntentType(text);
+
+                if (intentType.type === 'bound') {
                     await handleGenerationIntent(genIntent, text, refSnapshot);
+                } else if (intentType.type === 'smart') {
+                    await handleSmartGenerationIntent(genIntent || { kind: 'images', count: 1 }, text, refSnapshot, intentType.candidateNames);
                 } else {
-                    await generateWithoutProduct({ kind: 'images', count: 1 }, text, refSnapshot);
+                    await generateWithoutProduct(genIntent || { kind: 'images', count: 1 }, text, refSnapshot);
                 }
             } catch (err) {
                 appendMessage({ role: 'ai', text: friendlyError(err), time: nowTime(), retryable: true });
@@ -2828,26 +2935,76 @@
         delete state.pendingActions[actionId];
         markCardExecuted(actionId);
 
+        // 智能推荐：图片
+        if (action.type === 'apply_media_to_product_smart') {
+            const { urls, suggestedProduct } = action.args;
+            showToast('⏳ 正在应用...');
+            try {
+                const res = await fetch(BACKEND_URL + '/api/materials/sync', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        product_names: [suggestedProduct],
+                        mode: 'replace',
+                        main_image: urls[0],
+                        sub_images: urls.slice(0, 5)
+                    })
+                });
+                const data = await res.json();
+                if (data.success) {
+                    appendMessage({ role: 'ai', text: `✅ 已替换到商品「${suggestedProduct}」`, time: nowTime() });
+                    state.productsCache = null;
+                } else {
+                    appendMessage({ role: 'ai', text: '❌ ' + (data.message || '替换失败'), time: nowTime() });
+                }
+            } catch (err) {
+                appendMessage({ role: 'ai', text: '❌ 替换失败：' + friendlyError(err), time: nowTime() });
+            }
+            return;
+        }
+
+        // 智能推荐：视频
+        if (action.type === 'apply_video_to_product_smart') {
+            const { videoUrl, suggestedProduct } = action.args;
+            showToast('⏳ 正在应用...');
+            try {
+                const res = await fetch(BACKEND_URL + '/api/materials/sync', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        product_names: [suggestedProduct],
+                        mode: 'replace',
+                        video: videoUrl
+                    })
+                });
+                const data = await res.json();
+                if (data.success) {
+                    appendMessage({ role: 'ai', text: `✅ 已替换到商品「${suggestedProduct}」`, time: nowTime() });
+                    state.productsCache = null;
+                } else {
+                    appendMessage({ role: 'ai', text: '❌ ' + (data.message || '替换失败'), time: nowTime() });
+                }
+            } catch (err) {
+                appendMessage({ role: 'ai', text: '❌ 替换失败：' + friendlyError(err), time: nowTime() });
+            }
+            return;
+        }
+
         if (action.type === 'apply_media_to_product') {
             return await openProductPickerForApply(action.args, 'main_image');
         }
         if (action.type === 'apply_video_to_product') {
             return await openProductPickerForApply(action.args, 'video');
         }
-
         if (action.type === 'sync_generated_media') {
             return await syncGeneratedMedia(action.args);
         }
 
         if (action.type === 'regen_poster') {
-            const { posterType } = action.args;
+            const { posterType, freeTheme } = action.args;
             const themes = ['促销', '新品', '国潮', '简约', '节日', '会员'];
             const newTheme = themes[Math.floor(Math.random() * themes.length)];
-            appendMessage({
-                role: 'ai',
-                text: `🔄 好的，正在以「${newTheme}」为主题重新生成${posterType}...`,
-                time: nowTime()
-            });
+            appendMessage({ role: 'ai', text: `🔄 好的，正在以「${newTheme}」为主题重新生成${posterType}...`, time: nowTime() });
             const newText = `生成一张${newTheme}${posterType.replace('海报', '')}海报`;
             const newIntent = parseGenerationIntent(newText);
             if (newIntent) {
@@ -2864,7 +3021,6 @@
                 body: JSON.stringify({ type: action.type, args: action.args })
             });
             const data = await res.json();
-
             if (data.success) {
                 appendMessage({ role: 'ai', text: '✅ ' + data.message, time: nowTime() });
                 if (data.csv) window.open(BACKEND_URL + '/api/export/csv', '_blank');
@@ -2882,17 +3038,9 @@
             appendMessage({ role: 'ai', text: '❌ 没有可选商品', time: nowTime() });
             return;
         }
-        
-        // 存储本次待应用素材（用全局变量）
         window._pendingApplyArgs = args;
         window._pendingApplyMediaType = mediaType;
-        
-        const msgId = appendMessage({
-            role: 'ai',
-            text: `请选择要应用到的商品（点击下方按钮）：`,
-            time: nowTime()
-        });
-        
+        const msgId = appendMessage({ role: 'ai', text: `请选择要应用到的商品（点击下方按钮）：`, time: nowTime() });
         const m = state.currentMessages.find(x => x.id === msgId);
         if (m) {
             const topProducts = products.slice(0, 8);
@@ -2914,23 +3062,15 @@
     async function applyToSpecificProduct(productName) {
         const args = window._pendingApplyArgs;
         const mediaType = window._pendingApplyMediaType || 'main_image';
-        
-        if (!args) {
-            showToast('⚠️ 素材数据丢失，请重新生成');
-            return;
-        }
-        
-        const payload = {
-            product_names: [productName],
-            mode: 'replace'
-        };
+        if (!args) { showToast('⚠️ 素材数据丢失，请重新生成'); return; }
+
+        const payload = { product_names: [productName], mode: 'replace' };
         if (mediaType === 'video' && args.videoUrl) {
             payload.video = args.videoUrl;
         } else if (args.urls && args.urls.length > 0) {
             payload.main_image = args.urls[0];
             payload.sub_images = args.urls.slice(0, 5);
         }
-        
         showToast('⏳ 正在应用到商品...');
         try {
             const res = await fetch(BACKEND_URL + '/api/materials/sync', {
@@ -2941,38 +3081,93 @@
             const data = await res.json();
             if (data.success) {
                 appendMessage({ role: 'ai', text: `✅ 已应用到商品「${productName}」`, time: nowTime() });
+                state.productsCache = null;
             } else {
                 appendMessage({ role: 'ai', text: '❌ ' + (data.message || '应用失败'), time: nowTime() });
             }
         } catch (err) {
             appendMessage({ role: 'ai', text: '❌ 应用失败：' + friendlyError(err), time: nowTime() });
         }
-        
         window._pendingApplyArgs = null;
         window._pendingApplyMediaType = null;
     }
 
+    // ★ 从智能卡片选其他商品（图片）
+    window.applyToSpecificProductFromSmart = async function(actionId, productName) {
+        const action = state.pendingActions[actionId];
+        if (!action) return;
+        const urls = action.args.urls || [];
+        if (urls.length === 0) { showToast('⚠️ 没有可应用的图片'); return; }
+
+        showToast('⏳ 正在应用...');
+        try {
+            const res = await fetch(BACKEND_URL + '/api/materials/sync', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    product_names: [productName],
+                    mode: 'replace',
+                    main_image: urls[0],
+                    sub_images: urls.slice(0, 5)
+                })
+            });
+            const data = await res.json();
+            if (data.success) {
+                appendMessage({ role: 'ai', text: `✅ 已应用到商品「${productName}」`, time: nowTime() });
+                state.productsCache = null;
+            } else {
+                appendMessage({ role: 'ai', text: '❌ ' + (data.message || '应用失败'), time: nowTime() });
+            }
+        } catch (err) {
+            appendMessage({ role: 'ai', text: '❌ 应用失败：' + friendlyError(err), time: nowTime() });
+        }
+        delete state.pendingActions[actionId];
+        markCardExecuted(actionId);
+    };
+
+    // ★ 从智能卡片选其他商品（视频）
+    window.applyVideoFromSmart = async function(actionId, productName) {
+        const action = state.pendingActions[actionId];
+        if (!action) return;
+        const videoUrl = action.args.videoUrl;
+        if (!videoUrl) { showToast('⚠️ 没有可应用的视频'); return; }
+
+        showToast('⏳ 正在应用...');
+        try {
+            const res = await fetch(BACKEND_URL + '/api/materials/sync', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    product_names: [productName],
+                    mode: 'replace',
+                    video: videoUrl
+                })
+            });
+            const data = await res.json();
+            if (data.success) {
+                appendMessage({ role: 'ai', text: `✅ 已应用到商品「${productName}」`, time: nowTime() });
+                state.productsCache = null;
+            } else {
+                appendMessage({ role: 'ai', text: '❌ ' + (data.message || '应用失败'), time: nowTime() });
+            }
+        } catch (err) {
+            appendMessage({ role: 'ai', text: '❌ 应用失败：' + friendlyError(err), time: nowTime() });
+        }
+        delete state.pendingActions[actionId];
+        markCardExecuted(actionId);
+    };
+
     async function syncGeneratedMedia(args) {
         const { product_name, media_type, urls, video_url, sub_image_url, mode } = args;
-
         const check = await checkProductExists(product_name);
         if (!check.ok) {
-            appendMessage({
-                role: 'ai',
-                text: `❌ 替换失败：商品「${product_name}」不存在，可能已被删除。`,
-                time: nowTime()
-            });
+            appendMessage({ role: 'ai', text: `❌ 替换失败：商品「${product_name}」不存在。`, time: nowTime() });
             return;
         }
         const realName = check.product.name;
-
         showToast('⏳ 正在同步到商品...');
 
-        const payload = {
-            product_names: [realName],
-            mode: mode || 'replace'
-        };
-
+        const payload = { product_names: [realName], mode: mode || 'replace' };
         if (media_type === 'main_image' && urls && urls.length > 0) {
             payload.main_image = urls[0];
             payload.sub_images = urls.slice(0, 5);
@@ -2990,37 +3185,10 @@
                 body: JSON.stringify(payload)
             });
             const data = await res.json();
-
-            const results = data.results || [];
-            const failList = results.filter(r => !r.ok);
-            const okList = results.filter(r => r.ok);
-
-            if (typeof data.all_ok === 'boolean') {
-                if (data.all_ok) {
-                    appendMessage({ role: 'ai', text: `✅ 已同步到商品「${realName}」`, time: nowTime() });
-                } else {
-                    const reasons = failList.map(r => `${r.name}：${r.msg}`).join('\n');
-                    appendMessage({ role: 'ai', text: `❌ 同步失败：\n${reasons}`, time: nowTime() });
-                }
-                state.productsCache = null;
-                return;
-            }
-
-            if (failList.length === 0 && results.length > 0) {
+            if (data.success || data.all_ok) {
                 appendMessage({ role: 'ai', text: `✅ 已同步到商品「${realName}」`, time: nowTime() });
-            } else if (okList.length === 0 && results.length > 0) {
-                const reasons = failList.map(r => `${r.name}：${r.msg}`).join('\n');
-                appendMessage({ role: 'ai', text: `❌ 同步失败：\n${reasons}`, time: nowTime() });
-            } else if (results.length > 0) {
-                const okNames = okList.map(r => r.name).join('、');
-                const failReasons = failList.map(r => `${r.name}（${r.msg}）`).join('、');
-                appendMessage({
-                    role: 'ai',
-                    text: `⚠️ 部分成功：\n✅ 已同步：${okNames}\n❌ 失败：${failReasons}`,
-                    time: nowTime()
-                });
             } else {
-                appendMessage({ role: 'ai', text: `✅ 已同步到商品「${realName}」`, time: nowTime() });
+                appendMessage({ role: 'ai', text: `❌ 同步失败：${data.message || '未知错误'}`, time: nowTime() });
             }
             state.productsCache = null;
         } catch (err) {
@@ -3076,11 +3244,11 @@
 
     function friendlyError(err) {
         const msg = (err && err.message) || '';
-        if (msg.includes('Failed to fetch') || msg.includes('NetworkError')) return '🌐 网络连接失败，请确认后端服务已启动';
-        if (msg.includes('500')) return '🔧 后端服务异常（500），请稍后重试';
-        if (msg.includes('429')) return '⏳ 请求过于频繁（429），请稍等几秒再试';
-        if (msg.includes('401') || msg.includes('403')) return '🔒 鉴权失败，请检查配置';
-        if (msg.includes('timeout')) return '⌛ 请求超时，请检查网络';
+        if (msg.includes('Failed to fetch') || msg.includes('NetworkError')) return '🌐 网络连接失败';
+        if (msg.includes('500')) return '🔧 后端服务异常（500）';
+        if (msg.includes('429')) return '⏳ 请求过于频繁';
+        if (msg.includes('401') || msg.includes('403')) return '🔒 鉴权失败';
+        if (msg.includes('timeout')) return '⌛ 请求超时';
         return '⚠️ ' + msg;
     }
 
@@ -3103,7 +3271,7 @@
         document.getElementById('messagesList').innerHTML = '';
         document.getElementById('emptyState').style.display = 'flex';
         document.getElementById('chatTitle').textContent = 'AI 经营助手';
-        document.getElementById('chatSubtitle').textContent = '基于 DeepSeek · 图片/视频/海报自由生成';
+        document.getElementById('chatSubtitle').textContent = '基于 DeepSeek · 智能商品匹配 · 市场趋势分析';
         state.currentChatId = null;
         state.currentMessages = [];
         state.pendingActions = {};
@@ -3114,18 +3282,13 @@
     function exportChat() {
         const msgs = document.querySelectorAll('#messagesList .message');
         if (msgs.length === 0) { showToast('⚠️ 暂无对话可导出'); return; }
-
         let text = '智控电商 · AI助手对话记录\n' + '='.repeat(50) + '\n';
         msgs.forEach(m => {
             const role = m.classList.contains('user') ? '用户' : 'AI助手';
             const bubble = m.querySelector('.bubble');
             if (!bubble) return;
-
-            const textParts = Array.from(bubble.querySelectorAll('p'))
-                .map(p => p.innerText.trim())
-                .filter(Boolean);
+            const textParts = Array.from(bubble.querySelectorAll('p')).map(p => p.innerText.trim()).filter(Boolean);
             const content = textParts.join('\n');
-
             const card = bubble.querySelector('.action-card');
             let cardText = '';
             if (card) {
@@ -3133,13 +3296,6 @@
                 const cardDesc = card.querySelector('.desc')?.innerText.trim() || '';
                 cardText = `【卡片】${cardTitle}${cardDesc ? ' - ' + cardDesc.replace(/\n/g, ' ') : ''}`;
             }
-
-            const analysis = bubble.querySelector('.analysis-card');
-            let analysisText = '';
-            if (analysis) {
-                analysisText = `【反解结果】${analysis.innerText.replace(/\n+/g, ' | ')}`;
-            }
-
             let mediaText = '';
             bubble.querySelectorAll('.media-preview img, .media-preview video').forEach((el, i) => {
                 const src = el.src || el.getAttribute('src') || '';
@@ -3147,14 +3303,11 @@
                     mediaText += `        [媒体${i+1}] ${src}\n`;
                 }
             });
-
             text += `[${role}] ${content}\n`;
             if (cardText) text += `        ${cardText}\n`;
-            if (analysisText) text += `        ${analysisText}\n`;
             if (mediaText) text += mediaText;
         });
         text += '='.repeat(50) + '\n导出时间: ' + new Date().toLocaleString();
-
         const blob = new Blob([text], { type: 'text/plain;charset=utf-8' });
         const a = document.createElement('a');
         a.href = URL.createObjectURL(blob);
@@ -3205,7 +3358,6 @@
         loadHistoryFromStorage();
         renderHistory();
         updateSendBtn();
-
         if (window.innerWidth > 768) {
             document.getElementById('chatInput').focus();
         }
@@ -3220,7 +3372,7 @@
         if (window.innerWidth > 768) closeSidebar();
     });
 
-    console.log('🤖 智控电商 · AI助手已加载（图片生成不强制查商品 + AI 意图分析）');
+    console.log('🤖 AI 助手已加载（智能匹配 + 市场分析 + 海报不绑定）');
     console.log('💡 后端:', BACKEND_URL);
 </script>
 </body>
