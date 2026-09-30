@@ -1235,8 +1235,8 @@
             }
         }
 
-        // 粘贴处理（支持图片）
-        editor.addEventListener('paste', function(e) {
+        // ★ 粘贴处理：图片先上传到后端，再插入 URL
+        editor.addEventListener('paste', async function(e) {
             const items = e.clipboardData.items;
             let imageFile = null;
 
@@ -1248,60 +1248,75 @@
                 }
             }
 
-            if (imageFile) {
-                // 有图片：阻止默认粘贴，异步处理
-                e.preventDefault();
+            // 没有图片：让浏览器默认处理（保留富文本格式）
+            if (!imageFile) return;
 
-                if (imageFile.size > 2 * 1024 * 1024) {
-                    showToast('❌ 粘贴的图片不能超过 2MB', 'error');
+            e.preventDefault();
+
+            if (imageFile.size > 2 * 1024 * 1024) {
+                showToast('❌ 粘贴的图片不能超过 2MB', 'error');
+                return;
+            }
+
+            // 记录粘贴前的光标位置
+            const sel = window.getSelection();
+            if (sel.rangeCount > 0) {
+                const range = sel.getRangeAt(0);
+                if (editor.contains(range.commonAncestorContainer)) {
+                    savedRange = range.cloneRange();
+                }
+            }
+
+            // 上传到后端，拿到 URL
+            showLoading(true);
+            const formData = new FormData();
+            formData.append('product_name', currentProduct ? currentProduct.name : '');
+            formData.append('image_type', 'detail');
+            formData.append('file', imageFile);
+
+            try {
+                const res = await fetch(BACKEND_URL + '/api/images/upload', {
+                    method: 'POST',
+                    body: formData
+                });
+                const data = await res.json();
+                showLoading(false);
+
+                if (!data.success || !data.url) {
+                    showToast('❌ ' + (data.message || '上传失败'), 'error');
                     return;
                 }
 
-                // 先记录当前光标位置（如果 saveSelection 没记录到）
-                const sel = window.getSelection();
-                if (sel.rangeCount > 0) {
-                    const range = sel.getRangeAt(0);
-                    if (editor.contains(range.commonAncestorContainer)) {
-                        savedRange = range.cloneRange();
+                // 恢复光标位置
+                editor.focus();
+                if (savedRange) {
+                    const newSel = window.getSelection();
+                    newSel.removeAllRanges();
+                    newSel.addRange(savedRange);
+                }
+
+                // 插入图片 URL（不是 base64）
+                const ok = document.execCommand('insertImage', false, data.url);
+                if (!ok) {
+                    const img = document.createElement('img');
+                    img.src = data.url;
+                    if (savedRange) {
+                        savedRange.insertNode(img);
+                        savedRange.setStartAfter(img);
+                        savedRange.collapse(true);
+                    } else {
+                        editor.appendChild(img);
                     }
                 }
 
-                const reader = new FileReader();
-                reader.onload = function(ev) {
-                    const dataUrl = ev.target.result;
-                    editor.focus();
+                showToast('✅ 图片已粘贴', 'success');
 
-                    // 恢复光标位置
-                    if (savedRange) {
-                        const newSel = window.getSelection();
-                        newSel.removeAllRanges();
-                        newSel.addRange(savedRange);
-                    }
-
-                    // 尝试用 execCommand 插入
-                    const ok = document.execCommand('insertImage', false, dataUrl);
-
-                    // 兜底：如果 execCommand 失败，手动 append
-                    if (!ok) {
-                        const img = document.createElement('img');
-                        img.src = dataUrl;
-                        if (savedRange) {
-                            savedRange.insertNode(img);
-                            savedRange.setStartAfter(img);
-                            savedRange.collapse(true);
-                        } else {
-                            editor.appendChild(img);
-                        }
-                    }
-
-                    showToast('✅ 图片已粘贴', 'success');
-
-                    // 更新光标位置
-                    saveSelection();
-                };
-                reader.readAsDataURL(imageFile);
+                // 更新光标位置
+                saveSelection();
+            } catch (err) {
+                showLoading(false);
+                showToast('❌ 上传失败：' + err.message, 'error');
             }
-            // 没有图片：让浏览器默认处理（保留富文本格式）
         });
     });
 
