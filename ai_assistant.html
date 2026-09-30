@@ -288,7 +288,7 @@
             border: 1px solid #b8d8f7;
         }
 
-        /* ★ 市场分析卡片 */
+        /* ★ AI 电商策略建议卡片 */
         .bubble .market-card {
             background: linear-gradient(135deg, #fff8e6, #ffeccc);
             border: 1px solid #ffd88c;
@@ -304,6 +304,18 @@
             display: flex;
             align-items: center;
             gap: 6px;
+            font-size: 14px;
+        }
+        .bubble .market-card .mkt-comment {
+            background: white;
+            border-radius: 8px;
+            padding: 8px 12px;
+            margin-bottom: 8px;
+            font-size: 13px;
+            color: #8a5a00;
+            font-weight: 500;
+            line-height: 1.6;
+            border-left: 3px solid #ffb84d;
         }
         .bubble .market-card .mkt-row {
             display: flex;
@@ -315,6 +327,7 @@
             color: #b57a00;
             font-weight: 500;
             flex-shrink: 0;
+            min-width: 78px;
         }
         .bubble .market-card .mkt-val {
             color: #5a3a00;
@@ -672,6 +685,10 @@
             .bubble .action-card .btn-group { gap: 6px; }
             .bubble .action-card .btn-group .btn-sm { padding: 7px 14px; font-size: 12px; }
 
+            .bubble .market-card { padding: 10px 12px; font-size: 12px; }
+            .bubble .market-card .mkt-title { font-size: 13px; }
+            .bubble .market-card .mkt-label { min-width: 68px; font-size: 12px; }
+
             .input-area-wrap { padding-bottom: calc(10px + env(safe-area-inset-bottom, 0px)); }
             .ref-chips { padding: 8px 12px 0; }
             .input-area { padding: 8px 12px 0; gap: 8px; }
@@ -774,7 +791,7 @@
         <div class="chat-main-header">
             <div class="info">
                 <h4 id="chatTitle">AI 经营助手</h4>
-                <p id="chatSubtitle">基于 DeepSeek · 智能商品匹配 · 市场趋势分析</p>
+                <p id="chatSubtitle">基于 DeepSeek · 智能商品匹配 · AI 电商策略分析</p>
             </div>
             <div class="actions">
                 <span class="btn-sm" onclick="clearMessages()"><i class="fas fa-eraser"></i> 清空</span>
@@ -786,10 +803,10 @@
             <div class="empty-state" id="emptyState">
                 <i class="fas fa-robot"></i>
                 <h3>👋 你好，我是 AI 经营助手</h3>
-                <p>支持 33 种商品操作 + 图片/视频/海报生成 + 视频反解 + <strong>智能商品匹配</strong>。<br>说「生成3张茶叶主图」，我会自动识别并推荐到对应商品。</p>
+                <p>支持 33 种商品操作 + 图片/视频/海报生成 + 视频反解 + <strong>智能商品匹配</strong> + <strong>AI 电商策略分析</strong>。<br>说「生成3张茶叶主图」，我会自动识别商品；说「生成母亲节海报」，我会先分析市场再生成。</p>
                 <div class="examples">
                     <span class="ex accent" onclick="sendExample('生成3张茶叶主图')">🖼️ 智能匹配生成</span>
-                    <span class="ex accent" onclick="sendExample('生成一张母亲节海报')">🎨 市场分析海报</span>
+                    <span class="ex accent" onclick="sendExample('生成一张母亲节海报')">🎨 AI策略海报</span>
                     <span class="ex accent" onclick="sendExample('给云山茶叶礼盒生成3张主图')">🖼️ 绑定商品生成</span>
                     <span class="ex accent" onclick="sendExample('生成5秒陶瓷杯视频')">🎬 智能匹配视频</span>
                     <span class="ex" onclick="sendExample('把云山茶叶礼盒的价格改成118元')">💰 改价格</span>
@@ -871,11 +888,9 @@
     const REF_VIDEO_MAX_SIZE = 20 * 1024 * 1024;
     const KEYFRAME_COUNT = 3;
 
-    // ★ 智能匹配阈值
     const MATCH_EXACT_THRESHOLD = 0.95;
     const MATCH_SEMANTIC_THRESHOLD = 0.5;
 
-    // ★ 商品名黑名单
     const PRODUCT_BLACKLIST = new Set([
         '参考图', '参考图片', '参考视频', '参考素材', '参考',
         '图片', '视频', '素材', '素材图', '样图', '样片',
@@ -887,7 +902,6 @@
         '文字', '图', '内容'
     ]);
 
-    // ★ 5 张图提示词模板
     const IMAGE_PROMPT_TEMPLATES = [
         (name, features, extra) => `${name}，突出样品设计，正面主图，突出包装设计和品牌感，暖色调自然光，高清晰产品摄影，白色或浅色背景，专业电商主图${extra ? '，' + extra : ''}`,
         (name, features, extra) => `${name}，商品细节特写，微距拍摄展示材质质感，突出${features[0] || '工艺细节'}，柔和光线，浅景深，高清产品摄影${extra ? '，' + extra : ''}`,
@@ -896,7 +910,6 @@
         (name, features, extra) => `${name}，商品+赠品组合图，展示超值感，促销风格，突出${features.join(' · ') || '卖点'}，明快亮丽配色，促销海报风格${extra ? '，' + extra : ''}`
     ];
 
-    // ★ 视频分镜模板
     const VIDEO_STORYBOARD_BY_CATEGORY = {
         '茶叶': [
             { time: '0-3s', type: '开场', prompt: '特写茶叶落入白瓷杯中泛起涟漪的慢动作，配合轻快音乐，悬念文案"你知道明前龙井为什么珍贵吗？"' },
@@ -930,7 +943,6 @@
         ]
     };
 
-    // ★ 海报模板（不绑定商品）
     const POSTER_TEMPLATES = {
         '促销海报': (name, features) => `为「${name}」设计一张电商促销海报底图：主视觉为商品高清大图居中，背景为明亮渐变红/橙/金色，上方留出 25% 空白区域，下方留出 30% 空白区域，装饰元素：金色边框、闪光、礼盒彩带，商业设计感，高信息密度，电商海报风格。重要：不要生成任何文字、汉字、字母、数字、水印、logo。`,
         '新品海报': (name, features) => `为「${name}」设计一张新品发布海报底图：高级感设计，主视觉为商品特写，背景为深色或高级灰渐变，上方和下方留出空白区域，装饰元素：几何线条、光影，整体简约高级，商业摄影风格。重要：不要生成任何文字、汉字、字母、数字、水印、logo。`,
@@ -1085,7 +1097,7 @@
             document.getElementById('messagesList').innerHTML = '';
             document.getElementById('emptyState').style.display = 'flex';
             document.getElementById('chatTitle').textContent = 'AI 经营助手';
-            document.getElementById('chatSubtitle').textContent = '基于 DeepSeek · 智能商品匹配 · 市场趋势分析';
+            document.getElementById('chatSubtitle').textContent = '基于 DeepSeek · 智能商品匹配 · AI 电商策略分析';
         }
         saveHistoryToStorage();
         renderHistory();
@@ -1109,7 +1121,7 @@
         state.lastGeneratedMedia = null;
         renderHistory();
         document.getElementById('chatTitle').textContent = 'AI 经营助手';
-        document.getElementById('chatSubtitle').textContent = '基于 DeepSeek · 智能商品匹配 · 市场趋势分析';
+        document.getElementById('chatSubtitle').textContent = '基于 DeepSeek · 智能商品匹配 · AI 电商策略分析';
         document.getElementById('messagesList').innerHTML = '';
         document.getElementById('emptyState').style.display = 'flex';
         document.getElementById('chatInput').value = '';
@@ -1231,15 +1243,29 @@
             </div>`;
         }
 
+        // ★ AI 电商策略建议卡片
         if (msg.marketAnalysis) {
             const ma = msg.marketAnalysis;
+            const tags = [];
+            if (ma.season_tag) tags.push(ma.season_tag);
+            if (ma.festival_tag) tags.push(ma.festival_tag);
+
             bubbleContent += `<div class="market-card">
-                <div class="mkt-title"><i class="fas fa-chart-line"></i> 市场趋势分析</div>
-                ${ma.trend_style ? `<div class="mkt-row"><span class="mkt-label">流行风格：</span><span class="mkt-val">${escapeHtml(ma.trend_style)}</span></div>` : ''}
-                ${ma.scenario ? `<div class="mkt-row"><span class="mkt-label">主流场景：</span><span class="mkt-val">${escapeHtml(ma.scenario)}</span></div>` : ''}
-                ${ma.selling_points && ma.selling_points.length ? `<div class="mkt-row"><span class="mkt-label">核心卖点：</span><span class="mkt-val">${ma.selling_points.map(escapeHtml).join('、')}</span></div>` : ''}
-                ${ma.avoid && ma.avoid.length ? `<div class="mkt-row"><span class="mkt-label">避免元素：</span><span class="mkt-val">${ma.avoid.map(escapeHtml).join('、')}</span></div>` : ''}
-                ${ma.season_tag ? `<div class="mkt-tags"><span class="mkt-tag">${escapeHtml(ma.season_tag)}</span></div>` : ''}
+                <div class="mkt-title"><i class="fas fa-lightbulb"></i> AI 电商策略建议</div>
+
+                ${ma.ai_comment ? `<div class="mkt-comment">💡 ${escapeHtml(ma.ai_comment)}</div>` : ''}
+
+                ${ma.user_profile ? `<div class="mkt-row"><span class="mkt-label">🎯 目标用户：</span><span class="mkt-val">${escapeHtml(ma.user_profile)}</span></div>` : ''}
+                ${ma.purchase_scenario ? `<div class="mkt-row"><span class="mkt-label">🛒 购买场景：</span><span class="mkt-val">${escapeHtml(ma.purchase_scenario)}</span></div>` : ''}
+                ${ma.trend_style ? `<div class="mkt-row"><span class="mkt-label">📈 流行风格：</span><span class="mkt-val">${escapeHtml(ma.trend_style)}</span></div>` : ''}
+                ${ma.color_scheme ? `<div class="mkt-row"><span class="mkt-label">🎨 推荐配色：</span><span class="mkt-val">${escapeHtml(ma.color_scheme)}</span></div>` : ''}
+                ${ma.composition ? `<div class="mkt-row"><span class="mkt-label">📐 推荐构图：</span><span class="mkt-val">${escapeHtml(ma.composition)}</span></div>` : ''}
+                ${ma.lighting ? `<div class="mkt-row"><span class="mkt-label">💡 推荐光影：</span><span class="mkt-val">${escapeHtml(ma.lighting)}</span></div>` : ''}
+                ${ma.selling_points && ma.selling_points.length ? `<div class="mkt-row"><span class="mkt-label">✨ 核心卖点：</span><span class="mkt-val">${ma.selling_points.map(escapeHtml).join(' · ')}</span></div>` : ''}
+                ${ma.conversion_tips && ma.conversion_tips.length ? `<div class="mkt-row"><span class="mkt-label">🚀 转化建议：</span><span class="mkt-val">${ma.conversion_tips.map(escapeHtml).join(' / ')}</span></div>` : ''}
+                ${ma.avoid && ma.avoid.length ? `<div class="mkt-row"><span class="mkt-label">⚠️ 避免元素：</span><span class="mkt-val">${ma.avoid.map(escapeHtml).join('、')}</span></div>` : ''}
+
+                ${tags.length ? `<div class="mkt-tags">${tags.map(t => `<span class="mkt-tag">${escapeHtml(t)}</span>`).join('')}</div>` : ''}
             </div>`;
         }
 
@@ -1763,7 +1789,6 @@
     function detectIntentType(text) {
         const t = text.trim();
 
-        // 1. 明确绑定
         const boundMatch = t.match(/[给为帮]([^\s，,。]{2,20}?)(?:生成|做|画|出|来|弄|制作|设计)/);
         if (boundMatch) {
             const candidate = boundMatch[1].trim();
@@ -1772,13 +1797,11 @@
             }
         }
 
-        // 2. 智能匹配
         const candidates = extractPotentialProductNames(t);
         if (candidates.length > 0) {
             return { type: 'smart', candidateNames: candidates };
         }
 
-        // 3. 参考素材 + 生成动词
         const hasRef = state.referenceMedia.images.length > 0
             || state.referenceMedia.videos.length > 0
             || state.referenceMedia.keyframes.length > 0;
@@ -1786,7 +1809,6 @@
             return { type: 'reference' };
         }
 
-        // 4. 自由创作
         return { type: 'free' };
     }
 
@@ -1804,7 +1826,6 @@
         return words[0] || '';
     }
 
-    // ★ 提取潜在商品名
     function extractPotentialProductNames(text) {
         const t = text.trim();
         const candidates = new Set();
@@ -1885,7 +1906,6 @@
             (products.length > limit ? `\n（共 ${products.length} 个商品）` : '');
     }
 
-    // ★ 调用后端智能匹配
     async function matchProductsFromBackend(keywords, context = '') {
         if (!keywords || keywords.length === 0) return [];
         try {
@@ -1902,7 +1922,6 @@
         }
     }
 
-    // ★ 调用后端市场分析
     async function analyzeMarketFromBackend(theme, kind, platform = '全平台') {
         try {
             const res = await fetch(BACKEND_URL + '/api/ai/market-analysis', {
@@ -1919,14 +1938,18 @@
         }
     }
 
-    // ★ 把市场分析转成 prompt 增强
     function buildMarketPromptEnhancement(analysis) {
         if (!analysis) return '';
+        if (analysis.prompt_enhancement && analysis.prompt_enhancement.trim()) {
+            return analysis.prompt_enhancement.trim();
+        }
         const parts = [];
         if (analysis.trend_style) parts.push(analysis.trend_style);
-        if (analysis.scenario) parts.push(`适用场景：${analysis.scenario}`);
+        if (analysis.color_scheme) parts.push(analysis.color_scheme);
+        if (analysis.composition) parts.push(analysis.composition);
+        if (analysis.lighting) parts.push(analysis.lighting);
         if (analysis.selling_points && analysis.selling_points.length > 0) {
-            parts.push(`突出卖点：${analysis.selling_points.slice(0, 3).join('、')}`);
+            parts.push(`突出：${analysis.selling_points.slice(0, 3).join('、')}`);
         }
         if (analysis.avoid && analysis.avoid.length > 0) {
             parts.push(`避免：${analysis.avoid.join('、')}`);
@@ -2024,7 +2047,6 @@
         const descMatch = t.match(/[，,](.+)$/);
         const extraDesc = descMatch ? descMatch[1].trim() : '';
 
-        // 海报优先
         if (hasPosterNoun && (hasImgVerb || t.includes('海报'))) {
             let posterType = '促销海报';
             if (t.includes('新品') || t.includes('首发')) posterType = '新品海报';
@@ -2189,24 +2211,21 @@
     }
 
     // ================================================================
-    // ★ 智能生成处理
+    // 智能生成处理
     // ================================================================
     async function handleSmartGenerationIntent(intent, originalText, refSnapshot, candidateNames) {
         const matches = await matchProductsFromBackend(candidateNames, intent.kind || 'images');
         const topMatch = matches[0];
 
-        // 精确匹配
         if (topMatch && topMatch.match_level === 'exact' && topMatch.score >= MATCH_EXACT_THRESHOLD) {
             intent.productName = topMatch.product_name;
             return await handleGenerationIntent(intent, originalText, refSnapshot);
         }
 
-        // 无匹配 → 完全自由生成
         if (!topMatch) {
             return await generateWithoutProduct(intent, originalText, refSnapshot);
         }
 
-        // 海报：不绑定商品（但用匹配到的商品名作为主题）
         if (intent.kind === 'poster') {
             return await generatePosterFree(
                 topMatch.product_name,
@@ -2215,14 +2234,12 @@
             );
         }
 
-        // 视频 / 图片：走智能推荐
         if (intent.kind === 'video') {
             return await generateVideoWithSuggestion(intent, originalText, refSnapshot, matches);
         }
         return await generateImagesWithSuggestion(intent, originalText, refSnapshot, matches);
     }
 
-    // ★ 生成图片 + 智能推荐
     async function generateImagesWithSuggestion(intent, originalText, refSnapshot, matches) {
         const theme = matches[0].product_name;
         const count = intent.count || 1;
@@ -2303,7 +2320,6 @@
         state.lastGeneratedMedia = { type: 'images', urls, theme };
     }
 
-    // ★ 生成视频 + 智能推荐
     async function generateVideoWithSuggestion(intent, originalText, refSnapshot, matches) {
         const theme = matches[0].product_name;
         const seconds = intent.seconds || '5';
@@ -2402,7 +2418,7 @@
     }
 
     // ================================================================
-    // ★ 自由生成（含市场分析）
+    // 自由生成（含 AI 电商策略分析）
     // ================================================================
     async function generateWithoutProduct(intent, originalText, refSnapshot) {
         const aiResult = await callAiParseGeneration(originalText, refSnapshot);
@@ -2415,14 +2431,13 @@
 
         const refImages = refSnapshot.images || [];
 
-        // 市场分析
         const marketMsg = { role: 'ai', text: `🔍 正在分析当下市场环境（${theme}）...`, time: nowTime() };
         const marketMsgId = appendMessage(marketMsg);
         const marketAnalysis = await analyzeMarketFromBackend(theme, kind);
 
         const marketM = state.currentMessages.find(x => x.id === marketMsgId);
         if (marketM && marketAnalysis) {
-            marketM.text = `📊 已完成市场趋势分析`;
+            marketM.text = `📊 AI 已完成电商策略分析，正在生成...`;
             marketM.marketAnalysis = marketAnalysis;
             updateMessageNode(marketM);
         } else if (marketM) {
@@ -2585,7 +2600,6 @@
         }
     }
 
-    // ★ 海报：不绑定商品
     async function generatePosterFree(theme, posterType, refImages, marketEnhance = '') {
         const aiMsg = { role: 'ai', text: `🎨 已开始生成「${theme}」主题${posterType}...`, time: nowTime(), progress: 0 };
         const msgId = appendMessage(aiMsg);
@@ -2658,7 +2672,6 @@
             return await generateWithoutProduct(intent, originalText, refSnapshot);
         }
 
-        // 海报（绑定商品时也走海报逻辑，不绑定）
         if (kind === 'poster') {
             return await generatePosterFree(productName, intent.posterType || '促销海报', refSnapshot.images || []);
         }
@@ -2876,7 +2889,6 @@
             return;
         }
 
-        // 普通意图
         document.getElementById('typingIndicator').classList.add('show');
         document.getElementById('messageContainer').scrollTop = document.getElementById('messageContainer').scrollHeight;
 
@@ -2935,7 +2947,6 @@
         delete state.pendingActions[actionId];
         markCardExecuted(actionId);
 
-        // 智能推荐：图片
         if (action.type === 'apply_media_to_product_smart') {
             const { urls, suggestedProduct } = action.args;
             showToast('⏳ 正在应用...');
@@ -2963,7 +2974,6 @@
             return;
         }
 
-        // 智能推荐：视频
         if (action.type === 'apply_video_to_product_smart') {
             const { videoUrl, suggestedProduct } = action.args;
             showToast('⏳ 正在应用...');
@@ -3092,7 +3102,6 @@
         window._pendingApplyMediaType = null;
     }
 
-    // ★ 从智能卡片选其他商品（图片）
     window.applyToSpecificProductFromSmart = async function(actionId, productName) {
         const action = state.pendingActions[actionId];
         if (!action) return;
@@ -3125,7 +3134,6 @@
         markCardExecuted(actionId);
     };
 
-    // ★ 从智能卡片选其他商品（视频）
     window.applyVideoFromSmart = async function(actionId, productName) {
         const action = state.pendingActions[actionId];
         if (!action) return;
@@ -3271,7 +3279,7 @@
         document.getElementById('messagesList').innerHTML = '';
         document.getElementById('emptyState').style.display = 'flex';
         document.getElementById('chatTitle').textContent = 'AI 经营助手';
-        document.getElementById('chatSubtitle').textContent = '基于 DeepSeek · 智能商品匹配 · 市场趋势分析';
+        document.getElementById('chatSubtitle').textContent = '基于 DeepSeek · 智能商品匹配 · AI 电商策略分析';
         state.currentChatId = null;
         state.currentMessages = [];
         state.pendingActions = {};
@@ -3372,7 +3380,7 @@
         if (window.innerWidth > 768) closeSidebar();
     });
 
-    console.log('🤖 AI 助手已加载（智能匹配 + 市场分析 + 海报不绑定）');
+    console.log('🤖 AI 助手已加载（智能匹配 + AI电商策略分析 + 海报不绑定）');
     console.log('💡 后端:', BACKEND_URL);
 </script>
 </body>
