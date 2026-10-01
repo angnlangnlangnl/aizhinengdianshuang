@@ -194,7 +194,7 @@
             transform: scale(1.02);
             box-shadow: 0 4px 12px rgba(77,171,247,0.2);
         }
-        .bubble .media-preview .media-item img { width: 100%; height: 100%; object-fit: cover; }
+        .bubble .media-preview .media-item img { width: 100%; height: 100%; object-fit: cover; display: block; }
         .bubble .media-preview .media-item .badge {
             position: absolute; top: 4px; left: 4px;
             font-size: 10px; padding: 1px 6px; border-radius: 8px;
@@ -221,6 +221,10 @@
             z-index: 2;
         }
         .bubble .media-preview .media-item:hover .zoom-hint { opacity: 1; }
+        .bubble .media-preview .media-item.loading {
+            display: flex; align-items: center; justify-content: center;
+            color: #4dabf7;
+        }
         .bubble .media-preview video {
             grid-column: 1 / -1;
             width: 100%;
@@ -1132,7 +1136,7 @@
     }
 
     // ================================================================
-    // 渲染工具
+    // 渲染工具（★ 修复 renderMarkdown 换行 bug）
     // ================================================================
     function escapeHtml(s) {
         return String(s || '').replace(/[&<>"']/g, c => ({
@@ -1143,12 +1147,25 @@
         return String(s || '').replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/'/g, '&#39;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
     }
 
+    // ★ 修复：先处理代码块（用占位符保护），再处理其余 markdown
     function renderMarkdown(text) {
         if (!text) return '';
         let s = escapeHtml(text);
-        s = s.replace(/```([\s\S]*?)```/g, (_, code) => `<pre>${code.trim()}</pre>`);
+
+        // 1. 提取代码块，用占位符保护
+        const codeBlocks = [];
+        s = s.replace(/```([\s\S]*?)```/g, (_, code) => {
+            const idx = codeBlocks.length;
+            codeBlocks.push(`<pre>${code.trim()}</pre>`);
+            return `\u0000CODEBLOCK${idx}\u0000`;
+        });
+
+        // 2. 行内代码
         s = s.replace(/`([^`\n]+)`/g, '<code>$1</code>');
+        // 3. 粗体
         s = s.replace(/\*\*([^*\n]+)\*\*/g, '<strong>$1</strong>');
+
+        // 4. 逐行处理列表和段落
         const lines = s.split('\n');
         const out = [];
         let inUl = false, inOl = false;
@@ -1169,7 +1186,14 @@
         }
         if (inUl) out.push('</ul>');
         if (inOl) out.push('</ol>');
-        return out.join('\n').replace(/\n/g, '<br>').replace(/<\/pre><br>/g, '</pre>').replace(/<br><pre>/g, '<pre>');
+
+        // 5. 用 <br> 连接非空行（保持段落换行）
+        let html = out.join('\n').replace(/\n/g, '<br>');
+
+        // 6. 还原代码块（占位符位置替换，避免被 <br> 破坏）
+        html = html.replace(/\u0000CODEBLOCK(\d+)\u0000/g, (_, i) => codeBlocks[parseInt(i, 10)]);
+
+        return html;
     }
 
     function appendMessage(msg) {
@@ -1180,6 +1204,18 @@
         const container = document.getElementById('messageContainer');
         setTimeout(() => { container.scrollTop = container.scrollHeight; }, 50);
         return msg.id;
+    }
+
+    // ★ 修复：图片加 onerror 兜底 + 强制 HTTPS + 移动端兼容
+    function sanitizeImageUrl(url) {
+        if (!url) return '';
+        // Data URI 直接返回
+        if (url.startsWith('data:')) return url;
+        // 强制 HTTPS（避免混合内容被浏览器拦截）
+        if (url.startsWith('http://') && !url.includes('localhost') && !url.includes('127.0.0.1')) {
+            return 'https://' + url.slice(7);
+        }
+        return url;
     }
 
     function renderMessageNode(msg) {
@@ -1198,30 +1234,35 @@
         if (msg.media && msg.media.type === 'references') {
             bubbleContent += `<div class="media-preview ref-preview">`;
             (msg.media.images || []).forEach((url, i) => {
+                const safeUrl = sanitizeImageUrl(url);
                 bubbleContent += `<div class="media-item"
-                    data-url="${escapeAttr(url)}"
+                    data-url="${escapeAttr(safeUrl)}"
                     data-media-type="image"
                     data-caption="参考图 ${i+1}"
                     onclick="openLightboxFromEl(this)">
-                    <img src="${url}" alt="参考${i+1}">
+                    <img src="${escapeAttr(safeUrl)}" alt="参考${i+1}" loading="lazy"
+                        onerror="this.style.display='none';this.parentNode.classList.add('loading');this.parentNode.innerHTML='<i class=\\'fas fa-image\\'></i>'">
                     <span class="badge">参考${i+1}</span>
                     <span class="zoom-hint">点击放大</span>
                 </div>`;
             });
             (msg.media.videos || []).forEach((url, i) => {
-                bubbleContent += `<video src="${url}" muted preload="metadata"
-                    data-url="${escapeAttr(url)}"
+                const safeUrl = sanitizeImageUrl(url);
+                bubbleContent += `<video src="${escapeAttr(safeUrl)}" muted preload="metadata"
+                    data-url="${escapeAttr(safeUrl)}"
                     data-media-type="video"
                     data-caption="参考视频 ${i+1}"
                     onclick="openLightboxFromEl(this)"></video>`;
             });
             (msg.media.keyframes || []).forEach((url, i) => {
+                const safeUrl = sanitizeImageUrl(url);
                 bubbleContent += `<div class="media-item"
-                    data-url="${escapeAttr(url)}"
+                    data-url="${escapeAttr(safeUrl)}"
                     data-media-type="image"
                     data-caption="关键帧 ${i+1}"
                     onclick="openLightboxFromEl(this)">
-                    <img src="${url}" alt="关键帧${i+1}">
+                    <img src="${escapeAttr(safeUrl)}" alt="关键帧${i+1}" loading="lazy"
+                        onerror="this.style.display='none';this.parentNode.classList.add('loading');this.parentNode.innerHTML='<i class=\\'fas fa-image\\'></i>'">
                     <span class="badge kf">帧${i+1}</span>
                     <span class="zoom-hint">点击放大</span>
                 </div>`;
@@ -1243,7 +1284,6 @@
             </div>`;
         }
 
-        // ★ AI 电商策略建议卡片
         if (msg.marketAnalysis) {
             const ma = msg.marketAnalysis;
             const tags = [];
@@ -1252,9 +1292,7 @@
 
             bubbleContent += `<div class="market-card">
                 <div class="mkt-title"><i class="fas fa-lightbulb"></i> AI 电商策略建议</div>
-
                 ${ma.ai_comment ? `<div class="mkt-comment">💡 ${escapeHtml(ma.ai_comment)}</div>` : ''}
-
                 ${ma.user_profile ? `<div class="mkt-row"><span class="mkt-label">🎯 目标用户：</span><span class="mkt-val">${escapeHtml(ma.user_profile)}</span></div>` : ''}
                 ${ma.purchase_scenario ? `<div class="mkt-row"><span class="mkt-label">🛒 购买场景：</span><span class="mkt-val">${escapeHtml(ma.purchase_scenario)}</span></div>` : ''}
                 ${ma.trend_style ? `<div class="mkt-row"><span class="mkt-label">📈 流行风格：</span><span class="mkt-val">${escapeHtml(ma.trend_style)}</span></div>` : ''}
@@ -1264,22 +1302,24 @@
                 ${ma.selling_points && ma.selling_points.length ? `<div class="mkt-row"><span class="mkt-label">✨ 核心卖点：</span><span class="mkt-val">${ma.selling_points.map(escapeHtml).join(' · ')}</span></div>` : ''}
                 ${ma.conversion_tips && ma.conversion_tips.length ? `<div class="mkt-row"><span class="mkt-label">🚀 转化建议：</span><span class="mkt-val">${ma.conversion_tips.map(escapeHtml).join(' / ')}</span></div>` : ''}
                 ${ma.avoid && ma.avoid.length ? `<div class="mkt-row"><span class="mkt-label">⚠️ 避免元素：</span><span class="mkt-val">${ma.avoid.map(escapeHtml).join('、')}</span></div>` : ''}
-
                 ${tags.length ? `<div class="mkt-tags">${tags.map(t => `<span class="mkt-tag">${escapeHtml(t)}</span>`).join('')}</div>` : ''}
             </div>`;
         }
 
+        // ★ 修复：AI 生成图片的 onerror 兜底
         if (msg.media && msg.media.type === 'images' && msg.media.urls) {
             bubbleContent += `<div class="media-preview">`;
             msg.media.urls.forEach((url, i) => {
                 if (url) {
+                    const safeUrl = sanitizeImageUrl(url);
                     const label = msg.media.labels && msg.media.labels[i] ? msg.media.labels[i] : `图${i+1}`;
                     bubbleContent += `<div class="media-item"
-                        data-url="${escapeAttr(url)}"
+                        data-url="${escapeAttr(safeUrl)}"
                         data-media-type="image"
                         data-caption="${escapeAttr(label)}"
                         onclick="openLightboxFromEl(this)">
-                        <img src="${url}" alt="${escapeAttr(label)}">
+                        <img src="${escapeAttr(safeUrl)}" alt="${escapeAttr(label)}" loading="lazy"
+                            onerror="this.style.display='none';this.parentNode.classList.add('loading');this.parentNode.innerHTML='<i class=\\'fas fa-image\\'></i>'">
                         <span class="badge">${escapeHtml(label)}</span>
                         <span class="zoom-hint">点击放大</span>
                     </div>`;
@@ -1293,8 +1333,9 @@
         if (msg.media && msg.media.type === 'video') {
             bubbleContent += `<div class="media-preview">`;
             if (msg.media.videoUrl) {
-                bubbleContent += `<video src="${msg.media.videoUrl}" controls preload="metadata"
-                    data-url="${escapeAttr(msg.media.videoUrl)}"
+                const safeUrl = sanitizeImageUrl(msg.media.videoUrl);
+                bubbleContent += `<video src="${escapeAttr(safeUrl)}" controls preload="metadata"
+                    data-url="${escapeAttr(safeUrl)}"
                     data-media-type="video"
                     data-caption="生成的视频"
                     onclick="openLightboxFromEl(this)"></video>`;
@@ -1303,13 +1344,15 @@
         }
 
         if (msg.media && msg.media.type === 'poster' && msg.media.posterUrl) {
+            const safeUrl = sanitizeImageUrl(msg.media.posterUrl);
             bubbleContent += `<div class="media-preview" style="grid-template-columns: 1fr;">`;
             bubbleContent += `<div class="media-item" style="aspect-ratio: 3/4; max-width: 320px;"
-                data-url="${escapeAttr(msg.media.posterUrl)}"
+                data-url="${escapeAttr(safeUrl)}"
                 data-media-type="image"
                 data-caption="${escapeAttr(msg.media.posterTitle || '海报')}"
                 onclick="openLightboxFromEl(this)">
-                <img src="${msg.media.posterUrl}" alt="海报">
+                <img src="${escapeAttr(safeUrl)}" alt="海报" loading="lazy"
+                    onerror="this.style.display='none';this.parentNode.classList.add('loading');this.parentNode.innerHTML='<i class=\\'fas fa-image\\'></i>'">
                 <span class="badge">海报</span>
                 <span class="zoom-hint">点击放大</span>
             </div>`;
@@ -1432,13 +1475,15 @@
         const actionsEl = document.getElementById('lightboxActions');
 
         mediaBox.innerHTML = '';
+        const safeUrl = sanitizeImageUrl(url);
         if (type === 'video') {
             const v = document.createElement('video');
-            v.src = url; v.controls = true; v.autoplay = true; v.preload = 'metadata';
+            v.src = safeUrl; v.controls = true; v.autoplay = true; v.preload = 'metadata';
             mediaBox.appendChild(v);
         } else {
             const img = document.createElement('img');
-            img.src = url; img.alt = caption || '预览图';
+            img.src = safeUrl; img.alt = caption || '预览图';
+            img.onerror = () => { mediaBox.innerHTML = '<div style="color:#fff;padding:20px;">图片加载失败</div>'; };
             mediaBox.appendChild(img);
         }
 
@@ -1447,7 +1492,7 @@
         const ext = type === 'video' ? 'mp4' : 'png';
         actionsEl.innerHTML = '';
         const dl = document.createElement('a');
-        dl.href = url;
+        dl.href = safeUrl;
         dl.download = `素材_${Date.now()}.${ext}`;
         dl.target = '_blank';
         dl.innerHTML = '<i class="fas fa-download"></i> 下载';
@@ -1526,13 +1571,21 @@
         return new Blob([array], { type: mime });
     }
 
+    // ★ 修复：移动端视频抽帧兼容（增加 iOS 兼容 + 重试）
     async function extractVideoKeyframes(file, count = KEYFRAME_COUNT) {
         const url = URL.createObjectURL(file);
         const video = document.createElement('video');
-        video.src = url; video.muted = true; video.preload = 'auto';
+        video.src = url;
+        video.muted = true;
+        video.playsInline = true;
+        video.setAttribute('playsinline', '');
+        video.setAttribute('webkit-playsinline', '');
+        video.preload = 'auto';
+        // iOS 需要先 load
+        video.load();
 
         await new Promise((resolve, reject) => {
-            const timeout = setTimeout(() => reject(new Error('视频加载超时')), 15000);
+            const timeout = setTimeout(() => reject(new Error('视频加载超时')), 20000);
             video.onloadedmetadata = () => { clearTimeout(timeout); resolve(); };
             video.onerror = () => {
                 clearTimeout(timeout);
@@ -1549,6 +1602,8 @@
 
         const canvas = document.createElement('canvas');
         const ctx = canvas.getContext('2d');
+        canvas.width = video.videoWidth;
+        canvas.height = video.videoHeight;
         const frames = [];
         const positions = [];
         if (count === 1) positions.push(duration / 2);
@@ -1556,16 +1611,18 @@
 
         for (const t of positions) {
             await new Promise((resolve, reject) => {
-                const timeout = setTimeout(() => { video.removeEventListener('seeked', onSeeked); reject(new Error(`seek 超时`)); }, 8000);
+                const timeout = setTimeout(() => { video.removeEventListener('seeked', onSeeked); reject(new Error(`seek 超时`)); }, 10000);
                 const onSeeked = () => { clearTimeout(timeout); video.removeEventListener('seeked', onSeeked); resolve(); };
                 video.addEventListener('seeked', onSeeked);
                 video.currentTime = t;
             });
-            canvas.width = video.videoWidth;
-            canvas.height = video.videoHeight;
             ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
             let dataUrl;
-            try { dataUrl = canvas.toDataURL('image/jpeg', 0.85); } catch (e) { throw new Error('canvas 导出失败'); }
+            try {
+                dataUrl = canvas.toDataURL('image/jpeg', 0.85);
+            } catch (e) {
+                throw new Error('canvas 导出失败（可能是跨域限制或 iOS 内存不足）');
+            }
             if (!dataUrl || dataUrl.length < 100) throw new Error('canvas 导出为空');
             frames.push(dataUrl);
         }
@@ -1639,7 +1696,7 @@
         container.innerHTML = `
             ${images.map(m => `
                 <div class="ref-chip" title="${escapeHtml(m.name)}">
-                    <div class="chip-inner"><img src="${m.dataUrl}" alt="${escapeHtml(m.name)}"></div>
+                    <div class="chip-inner"><img src="${sanitizeImageUrl(m.dataUrl)}" alt="${escapeHtml(m.name)}"></div>
                     <button class="chip-remove" onclick="removeReference('${m.id}')" title="移除">×</button>
                     <span class="chip-badge">图</span>
                 </div>
@@ -1647,7 +1704,7 @@
             ${videos.map(m => `
                 <div class="ref-chip video" title="${escapeHtml(m.name)}">
                     <div class="chip-inner">
-                        <video src="${m.previewUrl}" muted preload="metadata"></video>
+                        <video src="${m.previewUrl}" muted preload="metadata" playsinline></video>
                         <i class="fas fa-play chip-play"></i>
                     </div>
                     <button class="chip-remove" onclick="removeReference('${m.id}')" title="移除">×</button>
@@ -1726,7 +1783,7 @@
     });
 
     // ================================================================
-    // 临时图床
+    // 临时图床（仅用于视频抽帧，图片直接用 Data URI）
     // ================================================================
     async function uploadKeyframesToTemp(keyframes) {
         if (!keyframes || keyframes.length === 0) return [];
@@ -1741,7 +1798,8 @@
         const res = await fetch(BACKEND_URL + '/api/upload/temp/batch', { method: 'POST', body: formData });
         const data = await res.json();
         if (!data.success) throw new Error(data.message || '上传关键帧失败');
-        return (data.results || []).filter(r => r.success).map(r => r.url);
+        // ★ 修复：强制 HTTPS URL
+        return (data.results || []).filter(r => r.success).map(r => sanitizeImageUrl(r.url));
     }
 
     async function decomposeVideoReference(keyframeUrls, productName) {
@@ -2090,6 +2148,7 @@
 
     // ================================================================
     // Agnes 图片 / 视频
+    // ★ 修复：参考图直接用 Data URI（避免上传到自己的临时图床）
     // ================================================================
     async function generateAgnesImage(prompt, sizeTier = '1K', ratio = '1:1', referenceImages = []) {
         const apiKey = getAgnesApiKey();
@@ -2101,6 +2160,7 @@
             extra_body: { response_format: 'url' }
         };
         if (referenceImages && referenceImages.length > 0) {
+            // ★ 关键修复：使用 Data URI，Agnes 支持且无需公网可访问
             body.extra_body.image = referenceImages.slice(0, 5);
             if (!/参考|reference|<Picture/i.test(prompt)) {
                 body.prompt = prompt + '（参考上传的图片风格与主体）';
