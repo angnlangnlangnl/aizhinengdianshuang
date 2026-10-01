@@ -292,7 +292,6 @@
             border: 1px solid #b8d8f7;
         }
 
-        /* ★ AI 电商策略建议卡片 */
         .bubble .market-card {
             background: linear-gradient(135deg, #fff8e6, #ffeccc);
             border: 1px solid #ffd88c;
@@ -1136,7 +1135,7 @@
     }
 
     // ================================================================
-    // 渲染工具（★ 修复 renderMarkdown 换行 bug）
+    // 渲染工具
     // ================================================================
     function escapeHtml(s) {
         return String(s || '').replace(/[&<>"']/g, c => ({
@@ -1147,12 +1146,11 @@
         return String(s || '').replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/'/g, '&#39;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
     }
 
-    // ★ 修复：先处理代码块（用占位符保护），再处理其余 markdown
+    // 修复：先处理代码块（用占位符保护），再处理其余 markdown
     function renderMarkdown(text) {
         if (!text) return '';
         let s = escapeHtml(text);
 
-        // 1. 提取代码块，用占位符保护
         const codeBlocks = [];
         s = s.replace(/```([\s\S]*?)```/g, (_, code) => {
             const idx = codeBlocks.length;
@@ -1160,12 +1158,9 @@
             return `\u0000CODEBLOCK${idx}\u0000`;
         });
 
-        // 2. 行内代码
         s = s.replace(/`([^`\n]+)`/g, '<code>$1</code>');
-        // 3. 粗体
         s = s.replace(/\*\*([^*\n]+)\*\*/g, '<strong>$1</strong>');
 
-        // 4. 逐行处理列表和段落
         const lines = s.split('\n');
         const out = [];
         let inUl = false, inOl = false;
@@ -1187,10 +1182,7 @@
         if (inUl) out.push('</ul>');
         if (inOl) out.push('</ol>');
 
-        // 5. 用 <br> 连接非空行（保持段落换行）
         let html = out.join('\n').replace(/\n/g, '<br>');
-
-        // 6. 还原代码块（占位符位置替换，避免被 <br> 破坏）
         html = html.replace(/\u0000CODEBLOCK(\d+)\u0000/g, (_, i) => codeBlocks[parseInt(i, 10)]);
 
         return html;
@@ -1206,12 +1198,9 @@
         return msg.id;
     }
 
-    // ★ 修复：图片加 onerror 兜底 + 强制 HTTPS + 移动端兼容
     function sanitizeImageUrl(url) {
         if (!url) return '';
-        // Data URI 直接返回
         if (url.startsWith('data:')) return url;
-        // 强制 HTTPS（避免混合内容被浏览器拦截）
         if (url.startsWith('http://') && !url.includes('localhost') && !url.includes('127.0.0.1')) {
             return 'https://' + url.slice(7);
         }
@@ -1240,8 +1229,8 @@
                     data-media-type="image"
                     data-caption="参考图 ${i+1}"
                     onclick="openLightboxFromEl(this)">
-                    <img src="${escapeAttr(safeUrl)}" alt="参考${i+1}" loading="lazy"
-                        onerror="this.style.display='none';this.parentNode.classList.add('loading');this.parentNode.innerHTML='<i class=\\'fas fa-image\\'></i>'">
+                    <img src="${escapeAttr(safeUrl)}" alt="参考${i+1}"
+                        onerror="console.error('参考图加载失败:', this.src); this.style.display='none';this.parentNode.classList.add('loading');this.parentNode.innerHTML='<i class=\\'fas fa-image\\'></i>'">
                     <span class="badge">参考${i+1}</span>
                     <span class="zoom-hint">点击放大</span>
                 </div>`;
@@ -1261,8 +1250,8 @@
                     data-media-type="image"
                     data-caption="关键帧 ${i+1}"
                     onclick="openLightboxFromEl(this)">
-                    <img src="${escapeAttr(safeUrl)}" alt="关键帧${i+1}" loading="lazy"
-                        onerror="this.style.display='none';this.parentNode.classList.add('loading');this.parentNode.innerHTML='<i class=\\'fas fa-image\\'></i>'">
+                    <img src="${escapeAttr(safeUrl)}" alt="关键帧${i+1}"
+                        onerror="console.error('关键帧加载失败:', this.src); this.style.display='none';this.parentNode.classList.add('loading');this.parentNode.innerHTML='<i class=\\'fas fa-image\\'></i>'">
                     <span class="badge kf">帧${i+1}</span>
                     <span class="zoom-hint">点击放大</span>
                 </div>`;
@@ -1306,7 +1295,6 @@
             </div>`;
         }
 
-        // ★ 修复：AI 生成图片的 onerror 兜底
         if (msg.media && msg.media.type === 'images' && msg.media.urls) {
             bubbleContent += `<div class="media-preview">`;
             msg.media.urls.forEach((url, i) => {
@@ -1318,8 +1306,8 @@
                         data-media-type="image"
                         data-caption="${escapeAttr(label)}"
                         onclick="openLightboxFromEl(this)">
-                        <img src="${escapeAttr(safeUrl)}" alt="${escapeAttr(label)}" loading="lazy"
-                            onerror="this.style.display='none';this.parentNode.classList.add('loading');this.parentNode.innerHTML='<i class=\\'fas fa-image\\'></i>'">
+                        <img src="${escapeAttr(safeUrl)}" alt="${escapeAttr(label)}"
+                            onerror="console.error('AI图加载失败:', this.src); this.style.display='none';this.parentNode.classList.add('loading');this.parentNode.innerHTML='<i class=\\'fas fa-image\\'></i>'">
                         <span class="badge">${escapeHtml(label)}</span>
                         <span class="zoom-hint">点击放大</span>
                     </div>`;
@@ -1351,8 +1339,8 @@
                 data-media-type="image"
                 data-caption="${escapeAttr(msg.media.posterTitle || '海报')}"
                 onclick="openLightboxFromEl(this)">
-                <img src="${escapeAttr(safeUrl)}" alt="海报" loading="lazy"
-                    onerror="this.style.display='none';this.parentNode.classList.add('loading');this.parentNode.innerHTML='<i class=\\'fas fa-image\\'></i>'">
+                <img src="${escapeAttr(safeUrl)}" alt="海报"
+                    onerror="console.error('海报加载失败:', this.src); this.style.display='none';this.parentNode.classList.add('loading');this.parentNode.innerHTML='<i class=\\'fas fa-image\\'></i>'">
                 <span class="badge">海报</span>
                 <span class="zoom-hint">点击放大</span>
             </div>`;
@@ -1571,7 +1559,6 @@
         return new Blob([array], { type: mime });
     }
 
-    // ★ 修复：移动端视频抽帧兼容（增加 iOS 兼容 + 重试）
     async function extractVideoKeyframes(file, count = KEYFRAME_COUNT) {
         const url = URL.createObjectURL(file);
         const video = document.createElement('video');
@@ -1581,7 +1568,6 @@
         video.setAttribute('playsinline', '');
         video.setAttribute('webkit-playsinline', '');
         video.preload = 'auto';
-        // iOS 需要先 load
         video.load();
 
         await new Promise((resolve, reject) => {
@@ -1798,7 +1784,6 @@
         const res = await fetch(BACKEND_URL + '/api/upload/temp/batch', { method: 'POST', body: formData });
         const data = await res.json();
         if (!data.success) throw new Error(data.message || '上传关键帧失败');
-        // ★ 修复：强制 HTTPS URL
         return (data.results || []).filter(r => r.success).map(r => sanitizeImageUrl(r.url));
     }
 
@@ -1811,6 +1796,34 @@
         const data = await res.json();
         if (!data.success) throw new Error(data.message || '反解失败');
         return data.analysis;
+    }
+
+    // ================================================================
+    // ★ 新增：后端代理（解决手机访问不了 Agnes CDN 的问题）
+    // ================================================================
+    async function proxyMedia(agnesUrl, mediaType = 'image') {
+        if (!agnesUrl) return agnesUrl;
+        // data URI / blob 无需代理
+        if (agnesUrl.startsWith('data:') || agnesUrl.startsWith('blob:')) return agnesUrl;
+
+        const endpoint = mediaType === 'video' ? '/api/proxy/video' : '/api/proxy/image';
+        try {
+            console.log(`🔄 正在代理 Agnes ${mediaType}:`, agnesUrl.slice(0, 80) + '...');
+            const proxyRes = await fetch(BACKEND_URL + endpoint, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ media_url: agnesUrl })
+            });
+            const proxyData = await proxyRes.json();
+            if (proxyData.success && proxyData.url) {
+                console.log(`✅ ${mediaType} 已代理到自己的服务器:`, proxyData.url);
+                return proxyData.url;
+            }
+            console.warn(`⚠️ ${mediaType} 代理失败，回退到 Agnes URL:`, proxyData.message);
+        } catch (e) {
+            console.warn(`⚠️ ${mediaType} 代理异常，回退到 Agnes URL:`, e);
+        }
+        return agnesUrl;
     }
 
     // ================================================================
@@ -2147,8 +2160,7 @@
     }
 
     // ================================================================
-    // Agnes 图片 / 视频
-    // ★ 修复：参考图直接用 Data URI（避免上传到自己的临时图床）
+    // Agnes 图片 / 视频（★ 已加入后端代理）
     // ================================================================
     async function generateAgnesImage(prompt, sizeTier = '1K', ratio = '1:1', referenceImages = []) {
         const apiKey = getAgnesApiKey();
@@ -2160,7 +2172,6 @@
             extra_body: { response_format: 'url' }
         };
         if (referenceImages && referenceImages.length > 0) {
-            // ★ 关键修复：使用 Data URI，Agnes 支持且无需公网可访问
             body.extra_body.image = referenceImages.slice(0, 5);
             if (!/参考|reference|<Picture/i.test(prompt)) {
                 body.prompt = prompt + '（参考上传的图片风格与主体）';
@@ -2176,9 +2187,16 @@
             throw new Error(`图片生成失败 (${res.status}): ${errText.slice(0, 200)}`);
         }
         const data = await res.json();
-        if (data.data && data.data[0] && data.data[0].url) return data.data[0].url;
-        if (data.data && data.data[0] && data.data[0].b64_json) return 'data:image/png;base64,' + data.data[0].b64_json;
-        throw new Error('图片生成返回格式异常');
+        let agnesUrl = '';
+        if (data.data && data.data[0] && data.data[0].url) {
+            agnesUrl = data.data[0].url;
+        } else if (data.data && data.data[0] && data.data[0].b64_json) {
+            return 'data:image/png;base64,' + data.data[0].b64_json;
+        } else {
+            throw new Error('图片生成返回格式异常');
+        }
+        // ★ 关键修复：通过后端代理，返回自己域名下的 URL
+        return await proxyMedia(agnesUrl, 'image');
     }
 
     async function createVideoTaskWithRetry(apiKey, body, maxRetries = 4) {
@@ -2235,6 +2253,7 @@
 
         const maxAttempts = 300, intervalMs = 2000;
         let lastStatus = '';
+        let agnesVideoUrl = '';
         for (let i = 0; i < maxAttempts; i++) {
             await new Promise(r => setTimeout(r, intervalMs));
             let queryRes;
@@ -2259,7 +2278,7 @@
             if (typeof onProgress === 'function') onProgress(i + 1, maxAttempts, status, statusText);
 
             if (status === 'completed') {
-                if (qd.url) return qd.url;
+                if (qd.url) { agnesVideoUrl = qd.url; break; }
                 throw new Error('视频已完成但未返回 URL');
             }
             if (status === 'failed') {
@@ -2267,7 +2286,10 @@
                 throw new Error('视频生成失败：' + errMsg);
             }
         }
-        throw new Error(`视频生成超时（最后状态：${lastStatus}）`);
+        if (!agnesVideoUrl) throw new Error(`视频生成超时（最后状态：${lastStatus}）`);
+
+        // ★ 关键修复：通过后端代理，返回自己域名下的 URL
+        return await proxyMedia(agnesVideoUrl, 'video');
     }
 
     // ================================================================
@@ -3440,7 +3462,7 @@
         if (window.innerWidth > 768) closeSidebar();
     });
 
-    console.log('🤖 AI 助手已加载（智能匹配 + AI电商策略分析 + 海报不绑定）');
+    console.log('🤖 AI 助手已加载（智能匹配 + AI电商策略分析 + 图片/视频后端代理）');
     console.log('💡 后端:', BACKEND_URL);
 </script>
 </body>
