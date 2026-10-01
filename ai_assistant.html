@@ -1003,7 +1003,7 @@
     let historyData = [];
 
     // ================================================================
-    // 持久化（★ 修复：剥离大 base64，防止 localStorage 爆）
+    // 持久化
     // ================================================================
     function loadHistoryFromStorage() {
         try {
@@ -1025,7 +1025,6 @@
         } catch (e) { console.warn('saveHistory 失败:', e); }
     }
 
-    // ★ 修复：历史保存时剥离大 base64
     function slimMedia(media) {
         if (!media) return null;
         if (media.type === 'references') {
@@ -1228,7 +1227,6 @@
         return url;
     }
 
-    // ★ 修复：所有 img 去掉 loading="lazy" + 加 referrerpolicy
     function renderMessageNode(msg) {
         const list = document.getElementById('messagesList');
         const empty = document.getElementById('emptyState');
@@ -1320,7 +1318,6 @@
             </div>`;
         }
 
-        // ★ AI 生成图（删除 loading="lazy"，加 referrerpolicy）
         if (msg.media && msg.media.type === 'images' && msg.media.urls) {
             bubbleContent += `<div class="media-preview">`;
             msg.media.urls.forEach((url, i) => {
@@ -1476,7 +1473,7 @@
     }
 
     // ================================================================
-    // 灯箱（★ 视频加 playsinline 兼容）
+    // 灯箱
     // ================================================================
     function openLightboxFromEl(el) {
         const url = el.dataset.url;
@@ -1542,7 +1539,8 @@
             if (lb.classList.contains('show')) closeLightbox();
         }
     });
-        // ================================================================
+
+    // ================================================================
     // 参考素材上传
     // ================================================================
     function toggleAttachMenu(e) {
@@ -1805,7 +1803,7 @@
     });
 
     // ================================================================
-    // 临时图床（仅用于视频抽帧）
+    // 临时图床
     // ================================================================
     async function uploadKeyframesToTemp(keyframes) {
         if (!keyframes || keyframes.length === 0) return [];
@@ -1832,31 +1830,6 @@
         const data = await res.json();
         if (!data.success) throw new Error(data.message || '反解失败');
         return data.analysis;
-    }
-
-    // ★ 后端代理（视频用）
-    async function proxyMedia(agnesUrl, mediaType = 'image') {
-        if (!agnesUrl) return agnesUrl;
-        if (agnesUrl.startsWith('data:') || agnesUrl.startsWith('blob:')) return agnesUrl;
-
-        const endpoint = mediaType === 'video' ? '/api/proxy/video' : '/api/proxy/image';
-        try {
-            console.log(`🔄 正在代理 Agnes ${mediaType}:`, agnesUrl.slice(0, 80) + '...');
-            const proxyRes = await fetch(BACKEND_URL + endpoint, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ media_url: agnesUrl })
-            });
-            const proxyData = await proxyRes.json();
-            if (proxyData.success && proxyData.url) {
-                console.log(`✅ ${mediaType} 已代理到自己的服务器:`, proxyData.url);
-                return proxyData.url;
-            }
-            console.warn(`⚠️ ${mediaType} 代理失败，回退到 Agnes URL:`, proxyData.message);
-        } catch (e) {
-            console.warn(`⚠️ ${mediaType} 代理异常，回退到 Agnes URL:`, e);
-        }
-        return agnesUrl;
     }
 
     // ================================================================
@@ -1886,7 +1859,9 @@
             return { kind: null, is_bound: false, product_name: '' };
         }
     }
-
+    // ================================================================
+    // 意图类型判定
+    // ================================================================
     function detectIntentType(text) {
         const t = text.trim();
 
@@ -1913,6 +1888,9 @@
         return { type: 'free' };
     }
 
+    // ================================================================
+    // 主题词提取
+    // ================================================================
     function extractThemeFromText(text) {
         if (!text) return '';
         let theme = text
@@ -2187,139 +2165,77 @@
     }
 
     // ================================================================
-    // ★ Agnes 图片生成（base64 直出，手机必现）
+    // ★★★ Agnes 图片生成（通过后端代理）
     // ================================================================
     async function generateAgnesImage(prompt, sizeTier = '1K', ratio = '1:1', referenceImages = []) {
-        const apiKey = getAgnesApiKey();
         const body = {
-            model: AGNES_IMAGE_MODEL,
             prompt: prompt,
             size: sizeTier,
             ratio: ratio,
-            return_base64: true,
-            extra_body: { response_format: 'b64_json' }
+            reference_images: (referenceImages && referenceImages.length > 0) ? referenceImages.slice(0, 5) : null
         };
-        if (referenceImages && referenceImages.length > 0) {
-            body.extra_body.image = referenceImages.slice(0, 5);
-            if (!/参考|reference|<Picture/i.test(prompt)) {
-                body.prompt = prompt + '（参考上传的图片风格与主体）';
-            }
-        }
-        const res = await fetch(AGNES_API_BASE + '/images/generations', {
+
+        console.log('📤 调用后端图片代理:', prompt.slice(0, 50) + '...');
+
+        const res = await fetch(BACKEND_URL + '/api/agnes/generate-image', {
             method: 'POST',
-            headers: { 'Authorization': 'Bearer ' + apiKey, 'Content-Type': 'application/json' },
+            headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(body)
         });
+
         if (!res.ok) {
             const errText = await res.text();
+            console.error(`❌ 后端代理报错 (${res.status}):`, errText);
             throw new Error(`图片生成失败 (${res.status}): ${errText.slice(0, 200)}`);
         }
+
         const data = await res.json();
 
-        if (data.data && data.data[0] && data.data[0].b64_json) {
-            console.log('✅ 图片已返回 base64（本地渲染，手机必现）');
-            return 'data:image/png;base64,' + data.data[0].b64_json;
+        if (data.success && data.url) {
+            console.log('✅ 图片已生成:', data.url);
+            return data.url;
         }
-        if (data.data && data.data[0] && data.data[0].url) {
-            console.warn('⚠️ Agnes 未返回 base64，回退到代理模式');
-            return await proxyMedia(data.data[0].url, 'image');
-        }
-        throw new Error('图片生成返回格式异常');
+
+        console.error('❌ 后端返回错误:', data);
+        throw new Error(data.message || '图片生成失败');
     }
 
     // ================================================================
-    // ★ Agnes 视频生成（后端代理 + playsinline 兼容）
+    // ★★★ Agnes 视频生成（通过后端代理）
     // ================================================================
-    async function createVideoTaskWithRetry(apiKey, body, maxRetries = 4) {
-        let lastErr = null;
-        for (let attempt = 1; attempt <= maxRetries; attempt++) {
-            let res;
-            try {
-                res = await fetch(AGNES_API_BASE + '/videos', {
-                    method: 'POST',
-                    headers: { 'Authorization': 'Bearer ' + apiKey, 'Content-Type': 'application/json' },
-                    body: JSON.stringify(body)
-                });
-            } catch (netErr) {
-                lastErr = netErr;
-                if (attempt === maxRetries) throw netErr;
-                await new Promise(r => setTimeout(r, 10000 * Math.pow(2, attempt - 1)));
-                continue;
-            }
-            if (res.ok) return await res.json();
-            const status = res.status;
-            const errText = await res.text().catch(() => '');
-            lastErr = new Error(`视频任务创建失败 (${status}): ${errText.slice(0, 300)}`);
-            if (status === 429) throw new Error('视频服务速率限制。请等待 1-2 分钟后再试。');
-            const retryable = [502, 503, 504].includes(status);
-            if (!retryable || attempt === maxRetries) throw lastErr;
-            const wait = 10000 * Math.pow(2, attempt - 1);
-            showToast(`⏳ 视频队列繁忙，${Math.round(wait/1000)}s 后重试`);
-            await new Promise(r => setTimeout(r, wait));
-        }
-        throw lastErr || new Error('视频任务创建失败');
-    }
-
     async function generateAgnesVideo(prompt, seconds = '5', referenceImages = [], aspectRatio = '9:16', onProgress) {
-        const apiKey = getAgnesApiKey();
-        const hasRefs = referenceImages && referenceImages.length > 0;
-        const body = {
-            model: AGNES_VIDEO_MODEL,
-            prompt: prompt,
-            seconds: String(seconds),
-            mode: hasRefs ? 'reference' : 'text',
-            size: '720P',
-            aspect_ratio: aspectRatio,
-            n: 1
-        };
-        if (hasRefs) {
-            body.images = referenceImages.slice(0, 5);
-            if (!/<Picture\s*\d+/i.test(prompt)) {
-                body.prompt = prompt + '。以 <Picture 1> 中的商品外观、色调和风格为参考，保持主体一致性。';
-            }
+        console.log('📤 调用后端视频代理:', prompt.slice(0, 50) + '...');
+
+        if (typeof onProgress === 'function') {
+            onProgress(1, 60, 'processing', '生成中...');
         }
-        const createData = await createVideoTaskWithRetry(apiKey, body, 4);
-        const videoId = createData.video_id;
-        if (!videoId) throw new Error('创建任务未返回 video_id');
 
-        const maxAttempts = 300, intervalMs = 2000;
-        let lastStatus = '';
-        let agnesVideoUrl = '';
-        for (let i = 0; i < maxAttempts; i++) {
-            await new Promise(r => setTimeout(r, intervalMs));
-            let queryRes;
-            try {
-                queryRes = await fetch(`https://apihub.agnes-ai.com/agnesapi?video_id=${encodeURIComponent(videoId)}&model_name=${encodeURIComponent(AGNES_VIDEO_MODEL)}`,
-                    { headers: { 'Authorization': 'Bearer ' + apiKey } });
-            } catch { continue; }
-            if (!queryRes.ok) {
-                if (queryRes.status === 401 || queryRes.status === 403) throw new Error('鉴权失败');
-                if (queryRes.status === 404) throw new Error('video_id 无效');
-                continue;
-            }
-            const qd = await queryRes.json();
-            const status = qd.status;
-            lastStatus = status || lastStatus;
-            let statusText = '';
-            if (status === 'pending' || status === 'queued') statusText = `排队中...`;
-            else if (status === 'processing' || status === 'running') {
-                const pct = (typeof qd.progress === 'number') ? qd.progress : Math.min(99, Math.round((i / maxAttempts) * 100));
-                statusText = `生成中... (${pct}%)`;
-            } else statusText = `状态：${status}`;
-            if (typeof onProgress === 'function') onProgress(i + 1, maxAttempts, status, statusText);
+        const res = await fetch(BACKEND_URL + '/api/agnes/generate-video', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                prompt: prompt,
+                seconds: String(seconds),
+                aspect_ratio: aspectRatio,
+                reference_images: (referenceImages && referenceImages.length > 0) ? referenceImages.slice(0, 5) : null
+            })
+        });
 
-            if (status === 'completed') {
-                if (qd.url) { agnesVideoUrl = qd.url; break; }
-                throw new Error('视频已完成但未返回 URL');
-            }
-            if (status === 'failed') {
-                const errMsg = (qd.error && (qd.error.message || qd.error.code)) || qd.error || '未知错误';
-                throw new Error('视频生成失败：' + errMsg);
-            }
+        if (!res.ok) {
+            const errText = await res.text();
+            console.error(`❌ 后端代理报错 (${res.status}):`, errText);
+            throw new Error(`视频生成失败 (${res.status}): ${errText.slice(0, 200)}`);
         }
-        if (!agnesVideoUrl) throw new Error(`视频生成超时（最后状态：${lastStatus}）`);
 
-        return await proxyMedia(agnesVideoUrl, 'video');
+        const data = await res.json();
+
+        if (data.success && data.url) {
+            console.log('✅ 视频已生成:', data.url);
+            return data.url;
+        }
+
+        console.error('❌ 后端返回错误:', data);
+        throw new Error(data.message || '视频生成失败');
     }
 
     // ================================================================
@@ -2377,6 +2293,7 @@
                 urls.push(url);
                 labels.push(`图${i+1}·${typeNames[i]}`);
             } catch (err) {
+                console.error(`❌ 第 ${i+1} 张图生成失败:`, err.message);
                 urls.push('');
                 labels.push(`图${i+1}·${typeNames[i]}`);
             }
@@ -2591,6 +2508,7 @@
                 urls.push(url);
                 labels.push(`图${i+1}·${typeNames[i]}`);
             } catch (err) {
+                console.error(`❌ 第 ${i+1} 张图生成失败:`, err.message);
                 urls.push('');
                 labels.push(`图${i+1}·${typeNames[i]}`);
             }
@@ -2823,6 +2741,7 @@
                 urls.push(url);
                 labels.push(`图${i+1}·${typeNames[i]}`);
             } catch (err) {
+                console.error(`❌ 第 ${i+1} 张图生成失败:`, err.message);
                 urls.push('');
                 labels.push(`图${i+1}·${typeNames[i]}`);
             }
@@ -2936,7 +2855,6 @@
             updateMessageNode(m);
         }
     }
-
     // ================================================================
     // 发送消息
     // ================================================================
@@ -3492,7 +3410,7 @@
         if (window.innerWidth > 768) closeSidebar();
     });
 
-    console.log('🤖 AI 助手已加载（图片 base64 直出 + 视频代理 + 手机兼容）');
+    console.log('🤖 AI 助手已加载（Agnes 后端代理 + 图片 base64 + 手机兼容）');
     console.log('💡 后端:', BACKEND_URL);
 </script>
 </body>
