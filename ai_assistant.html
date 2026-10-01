@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=1.0, user-scalable=no">
     <meta name="theme-color" content="#0a1e2f">
     <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <title>智控电商 · AI 助手</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
@@ -182,6 +183,7 @@
         }
         .bubble .media-preview .media-item {
             aspect-ratio: 1/1;
+            min-height: 100px;
             border-radius: 10px;
             overflow: hidden;
             background: linear-gradient(135deg, #f0f7fe, #e0f0ff);
@@ -194,7 +196,13 @@
             transform: scale(1.02);
             box-shadow: 0 4px 12px rgba(77,171,247,0.2);
         }
-        .bubble .media-preview .media-item img { width: 100%; height: 100%; object-fit: cover; display: block; }
+        .bubble .media-preview .media-item img {
+            width: 100%;
+            height: 100%;
+            min-height: 100px;
+            object-fit: cover;
+            display: block;
+        }
         .bubble .media-preview .media-item .badge {
             position: absolute; top: 4px; left: 4px;
             font-size: 10px; padding: 1px 6px; border-radius: 8px;
@@ -207,6 +215,7 @@
         .bubble .media-preview .media-item .ph {
             width: 100%; height: 100%; display: flex; align-items: center; justify-content: center;
             color: #4dabf7; font-size: 24px;
+            min-height: 100px;
         }
         .bubble .media-preview .media-item .zoom-hint {
             position: absolute;
@@ -229,9 +238,11 @@
             grid-column: 1 / -1;
             width: 100%;
             max-height: 320px;
+            min-height: 180px;
             border-radius: 10px;
             background: #0a0e14;
             cursor: zoom-in;
+            display: block;
         }
         .bubble .media-preview.ref-preview {
             grid-template-columns: repeat(auto-fill, minmax(72px, 1fr));
@@ -241,6 +252,7 @@
         .bubble .media-preview.ref-preview .media-item {
             border-color: rgba(255,255,255,0.4);
             cursor: zoom-in;
+            min-height: 72px;
         }
         .bubble .media-preview.ref-preview .badge {
             background: rgba(13,124,79,0.85);
@@ -991,7 +1003,7 @@
     let historyData = [];
 
     // ================================================================
-    // 持久化
+    // 持久化（★ 修复：剥离大 base64，防止 localStorage 爆）
     // ================================================================
     function loadHistoryFromStorage() {
         try {
@@ -1013,6 +1025,7 @@
         } catch (e) { console.warn('saveHistory 失败:', e); }
     }
 
+    // ★ 修复：历史保存时剥离大 base64
     function slimMedia(media) {
         if (!media) return null;
         if (media.type === 'references') {
@@ -1024,6 +1037,15 @@
                 videos: [],
                 keyframes: (media.keyframes || []).slice(0, 1)
             };
+        }
+        if (media.type === 'images' && media.urls) {
+            return {
+                ...media,
+                urls: media.urls.map(u => (u && u.startsWith('data:') && u.length > 500000) ? '' : u)
+            };
+        }
+        if (media.type === 'poster' && media.posterUrl && media.posterUrl.startsWith('data:') && media.posterUrl.length > 800000) {
+            return { ...media, posterUrl: '' };
         }
         return media;
     }
@@ -1146,7 +1168,6 @@
         return String(s || '').replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/'/g, '&#39;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
     }
 
-    // 修复：先处理代码块（用占位符保护），再处理其余 markdown
     function renderMarkdown(text) {
         if (!text) return '';
         let s = escapeHtml(text);
@@ -1207,6 +1228,7 @@
         return url;
     }
 
+    // ★ 修复：所有 img 去掉 loading="lazy" + 加 referrerpolicy
     function renderMessageNode(msg) {
         const list = document.getElementById('messagesList');
         const empty = document.getElementById('emptyState');
@@ -1230,6 +1252,7 @@
                     data-caption="参考图 ${i+1}"
                     onclick="openLightboxFromEl(this)">
                     <img src="${escapeAttr(safeUrl)}" alt="参考${i+1}"
+                        referrerpolicy="no-referrer" decoding="async"
                         onerror="console.error('参考图加载失败:', this.src); this.style.display='none';this.parentNode.classList.add('loading');this.parentNode.innerHTML='<i class=\\'fas fa-image\\'></i>'">
                     <span class="badge">参考${i+1}</span>
                     <span class="zoom-hint">点击放大</span>
@@ -1237,7 +1260,8 @@
             });
             (msg.media.videos || []).forEach((url, i) => {
                 const safeUrl = sanitizeImageUrl(url);
-                bubbleContent += `<video src="${escapeAttr(safeUrl)}" muted preload="metadata"
+                bubbleContent += `<video src="${escapeAttr(safeUrl)}" muted preload="auto"
+                    playsinline webkit-playsinline x5-playsinline
                     data-url="${escapeAttr(safeUrl)}"
                     data-media-type="video"
                     data-caption="参考视频 ${i+1}"
@@ -1251,6 +1275,7 @@
                     data-caption="关键帧 ${i+1}"
                     onclick="openLightboxFromEl(this)">
                     <img src="${escapeAttr(safeUrl)}" alt="关键帧${i+1}"
+                        referrerpolicy="no-referrer" decoding="async"
                         onerror="console.error('关键帧加载失败:', this.src); this.style.display='none';this.parentNode.classList.add('loading');this.parentNode.innerHTML='<i class=\\'fas fa-image\\'></i>'">
                     <span class="badge kf">帧${i+1}</span>
                     <span class="zoom-hint">点击放大</span>
@@ -1295,6 +1320,7 @@
             </div>`;
         }
 
+        // ★ AI 生成图（删除 loading="lazy"，加 referrerpolicy）
         if (msg.media && msg.media.type === 'images' && msg.media.urls) {
             bubbleContent += `<div class="media-preview">`;
             msg.media.urls.forEach((url, i) => {
@@ -1307,6 +1333,7 @@
                         data-caption="${escapeAttr(label)}"
                         onclick="openLightboxFromEl(this)">
                         <img src="${escapeAttr(safeUrl)}" alt="${escapeAttr(label)}"
+                            referrerpolicy="no-referrer" decoding="async"
                             onerror="console.error('AI图加载失败:', this.src); this.style.display='none';this.parentNode.classList.add('loading');this.parentNode.innerHTML='<i class=\\'fas fa-image\\'></i>'">
                         <span class="badge">${escapeHtml(label)}</span>
                         <span class="zoom-hint">点击放大</span>
@@ -1322,7 +1349,8 @@
             bubbleContent += `<div class="media-preview">`;
             if (msg.media.videoUrl) {
                 const safeUrl = sanitizeImageUrl(msg.media.videoUrl);
-                bubbleContent += `<video src="${escapeAttr(safeUrl)}" controls preload="metadata"
+                bubbleContent += `<video src="${escapeAttr(safeUrl)}" controls preload="auto"
+                    playsinline webkit-playsinline x5-playsinline
                     data-url="${escapeAttr(safeUrl)}"
                     data-media-type="video"
                     data-caption="生成的视频"
@@ -1334,12 +1362,13 @@
         if (msg.media && msg.media.type === 'poster' && msg.media.posterUrl) {
             const safeUrl = sanitizeImageUrl(msg.media.posterUrl);
             bubbleContent += `<div class="media-preview" style="grid-template-columns: 1fr;">`;
-            bubbleContent += `<div class="media-item" style="aspect-ratio: 3/4; max-width: 320px;"
+            bubbleContent += `<div class="media-item" style="aspect-ratio: 3/4; max-width: 320px; min-height: 300px;"
                 data-url="${escapeAttr(safeUrl)}"
                 data-media-type="image"
                 data-caption="${escapeAttr(msg.media.posterTitle || '海报')}"
                 onclick="openLightboxFromEl(this)">
                 <img src="${escapeAttr(safeUrl)}" alt="海报"
+                    referrerpolicy="no-referrer" decoding="async"
                     onerror="console.error('海报加载失败:', this.src); this.style.display='none';this.parentNode.classList.add('loading');this.parentNode.innerHTML='<i class=\\'fas fa-image\\'></i>'">
                 <span class="badge">海报</span>
                 <span class="zoom-hint">点击放大</span>
@@ -1447,7 +1476,7 @@
     }
 
     // ================================================================
-    // 灯箱
+    // 灯箱（★ 视频加 playsinline 兼容）
     // ================================================================
     function openLightboxFromEl(el) {
         const url = el.dataset.url;
@@ -1466,11 +1495,19 @@
         const safeUrl = sanitizeImageUrl(url);
         if (type === 'video') {
             const v = document.createElement('video');
-            v.src = safeUrl; v.controls = true; v.autoplay = true; v.preload = 'metadata';
+            v.src = safeUrl;
+            v.controls = true;
+            v.autoplay = true;
+            v.preload = 'auto';
+            v.setAttribute('playsinline', '');
+            v.setAttribute('webkit-playsinline', '');
+            v.setAttribute('x5-playsinline', '');
             mediaBox.appendChild(v);
         } else {
             const img = document.createElement('img');
-            img.src = safeUrl; img.alt = caption || '预览图';
+            img.src = safeUrl;
+            img.alt = caption || '预览图';
+            img.setAttribute('referrerpolicy', 'no-referrer');
             img.onerror = () => { mediaBox.innerHTML = '<div style="color:#fff;padding:20px;">图片加载失败</div>'; };
             mediaBox.appendChild(img);
         }
@@ -1505,8 +1542,7 @@
             if (lb.classList.contains('show')) closeLightbox();
         }
     });
-
-    // ================================================================
+        // ================================================================
     // 参考素材上传
     // ================================================================
     function toggleAttachMenu(e) {
@@ -1682,7 +1718,7 @@
         container.innerHTML = `
             ${images.map(m => `
                 <div class="ref-chip" title="${escapeHtml(m.name)}">
-                    <div class="chip-inner"><img src="${sanitizeImageUrl(m.dataUrl)}" alt="${escapeHtml(m.name)}"></div>
+                    <div class="chip-inner"><img src="${sanitizeImageUrl(m.dataUrl)}" alt="${escapeHtml(m.name)}" referrerpolicy="no-referrer"></div>
                     <button class="chip-remove" onclick="removeReference('${m.id}')" title="移除">×</button>
                     <span class="chip-badge">图</span>
                 </div>
@@ -1769,7 +1805,7 @@
     });
 
     // ================================================================
-    // 临时图床（仅用于视频抽帧，图片直接用 Data URI）
+    // 临时图床（仅用于视频抽帧）
     // ================================================================
     async function uploadKeyframesToTemp(keyframes) {
         if (!keyframes || keyframes.length === 0) return [];
@@ -1798,12 +1834,9 @@
         return data.analysis;
     }
 
-    // ================================================================
-    // ★ 新增：后端代理（解决手机访问不了 Agnes CDN 的问题）
-    // ================================================================
+    // ★ 后端代理（视频用）
     async function proxyMedia(agnesUrl, mediaType = 'image') {
         if (!agnesUrl) return agnesUrl;
-        // data URI / blob 无需代理
         if (agnesUrl.startsWith('data:') || agnesUrl.startsWith('blob:')) return agnesUrl;
 
         const endpoint = mediaType === 'video' ? '/api/proxy/video' : '/api/proxy/image';
@@ -1854,9 +1887,6 @@
         }
     }
 
-    // ================================================================
-    // 意图类型判定
-    // ================================================================
     function detectIntentType(text) {
         const t = text.trim();
 
@@ -1883,9 +1913,6 @@
         return { type: 'free' };
     }
 
-    // ================================================================
-    // 主题词提取
-    // ================================================================
     function extractThemeFromText(text) {
         if (!text) return '';
         let theme = text
@@ -2160,7 +2187,7 @@
     }
 
     // ================================================================
-    // Agnes 图片 / 视频（★ 已加入后端代理）
+    // ★ Agnes 图片生成（base64 直出，手机必现）
     // ================================================================
     async function generateAgnesImage(prompt, sizeTier = '1K', ratio = '1:1', referenceImages = []) {
         const apiKey = getAgnesApiKey();
@@ -2169,7 +2196,8 @@
             prompt: prompt,
             size: sizeTier,
             ratio: ratio,
-            extra_body: { response_format: 'url' }
+            return_base64: true,
+            extra_body: { response_format: 'b64_json' }
         };
         if (referenceImages && referenceImages.length > 0) {
             body.extra_body.image = referenceImages.slice(0, 5);
@@ -2187,18 +2215,21 @@
             throw new Error(`图片生成失败 (${res.status}): ${errText.slice(0, 200)}`);
         }
         const data = await res.json();
-        let agnesUrl = '';
-        if (data.data && data.data[0] && data.data[0].url) {
-            agnesUrl = data.data[0].url;
-        } else if (data.data && data.data[0] && data.data[0].b64_json) {
+
+        if (data.data && data.data[0] && data.data[0].b64_json) {
+            console.log('✅ 图片已返回 base64（本地渲染，手机必现）');
             return 'data:image/png;base64,' + data.data[0].b64_json;
-        } else {
-            throw new Error('图片生成返回格式异常');
         }
-        // ★ 关键修复：通过后端代理，返回自己域名下的 URL
-        return await proxyMedia(agnesUrl, 'image');
+        if (data.data && data.data[0] && data.data[0].url) {
+            console.warn('⚠️ Agnes 未返回 base64，回退到代理模式');
+            return await proxyMedia(data.data[0].url, 'image');
+        }
+        throw new Error('图片生成返回格式异常');
     }
 
+    // ================================================================
+    // ★ Agnes 视频生成（后端代理 + playsinline 兼容）
+    // ================================================================
     async function createVideoTaskWithRetry(apiKey, body, maxRetries = 4) {
         let lastErr = null;
         for (let attempt = 1; attempt <= maxRetries; attempt++) {
@@ -2288,7 +2319,6 @@
         }
         if (!agnesVideoUrl) throw new Error(`视频生成超时（最后状态：${lastStatus}）`);
 
-        // ★ 关键修复：通过后端代理，返回自己域名下的 URL
         return await proxyMedia(agnesVideoUrl, 'video');
     }
 
@@ -3462,7 +3492,7 @@
         if (window.innerWidth > 768) closeSidebar();
     });
 
-    console.log('🤖 AI 助手已加载（智能匹配 + AI电商策略分析 + 图片/视频后端代理）');
+    console.log('🤖 AI 助手已加载（图片 base64 直出 + 视频代理 + 手机兼容）');
     console.log('💡 后端:', BACKEND_URL);
 </script>
 </body>
