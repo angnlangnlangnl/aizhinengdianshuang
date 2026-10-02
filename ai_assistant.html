@@ -148,10 +148,7 @@
         .message .bubble .time { font-size: 11px; color: #94a3b8; margin-top: 6px; display: block; }
         .message.user .bubble .time { color: rgba(255,255,255,0.4); }
 
-        .msg-actions {
-            display: flex; gap: 4px; margin-top: 6px;
-            opacity: 0; transition: 0.15s;
-        }
+        .msg-actions { display: flex; gap: 4px; margin-top: 6px; opacity: 0; transition: 0.15s; }
         .message:hover .msg-actions { opacity: 1; }
         .msg-actions .act-btn {
             padding: 3px 10px; border-radius: 10px;
@@ -175,6 +172,165 @@
         .bubble .action-card.executed { opacity: 0.55; }
         .bubble .action-card.executed .btn-group { display: none; }
 
+        /* ★ 智能匹配结果卡片 */
+        .bubble .smart-match-card {
+            background: linear-gradient(135deg, #f0f7fe, #e6f3ff);
+            border: 1px solid #b8d8f7;
+            border-radius: 12px;
+            padding: 12px 14px;
+            margin: 8px 0 4px 0;
+            font-size: 13px;
+        }
+        .bubble .smart-match-card .sm-title {
+            font-weight: 600;
+            color: #0a1e2f;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 14px;
+        }
+        .bubble .smart-match-card .sm-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px 12px;
+            background: white;
+            border: 1px solid #dce5ef;
+            border-radius: 8px;
+            margin-bottom: 6px;
+            cursor: pointer;
+            transition: 0.15s;
+        }
+        .bubble .smart-match-card .sm-item:hover {
+            border-color: #4dabf7;
+            background: #fafdff;
+            transform: translateX(2px);
+        }
+        .bubble .smart-match-card .sm-item.top-match {
+            border-color: #0d7c4f;
+            background: #f0fff8;
+        }
+        .bubble .smart-match-card .sm-item .sm-name {
+            flex: 1;
+            font-weight: 500;
+            color: #0a1e2f;
+            font-size: 13px;
+        }
+        .bubble .smart-match-card .sm-item .sm-meta {
+            font-size: 11px;
+            color: #5f7d95;
+            white-space: nowrap;
+        }
+        .bubble .smart-match-card .sm-item .sm-score {
+            font-size: 10px;
+            padding: 1px 8px;
+            border-radius: 10px;
+            background: #e6f7ec;
+            color: #0d7c4f;
+            font-weight: 600;
+            white-space: nowrap;
+        }
+        .bubble .smart-match-card .sm-item .sm-score.mid {
+            background: #fef0e6;
+            color: #b55a1a;
+        }
+        .bubble .smart-match-card .sm-item .sm-score.low {
+            background: #f0f4f9;
+            color: #5f7d95;
+        }
+        .bubble .smart-match-card .sm-item .sm-top-badge {
+            font-size: 10px;
+            padding: 1px 6px;
+            border-radius: 6px;
+            background: #0d7c4f;
+            color: white;
+            font-weight: 600;
+            margin-left: 4px;
+        }
+        .bubble .smart-match-card .sm-actions {
+            display: flex;
+            gap: 6px;
+            margin-top: 10px;
+            flex-wrap: wrap;
+        }
+        .bubble .smart-match-card .sm-actions .btn-sm {
+            padding: 6px 12px;
+            border-radius: 16px;
+            border: none;
+            font-size: 12px;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            transition: 0.1s;
+            font-family: inherit;
+        }
+        .bubble .smart-match-card .sm-actions .btn-create {
+            background: #0d7c4f;
+            color: white;
+        }
+        .bubble .smart-match-card .sm-actions .btn-create:hover { filter: brightness(1.05); }
+        .bubble .smart-match-card .sm-actions .btn-cancel {
+            background: transparent;
+            border: 1px solid #dce5ef;
+            color: #1e3a5f;
+        }
+        .bubble .smart-match-card .sm-actions .btn-cancel:hover { border-color: #b51a3f; color: #b51a3f; }
+
+        /* ★ 无匹配时的创建提示卡片 */
+        .bubble .no-match-card {
+            background: linear-gradient(135deg, #fff8e6, #ffeccc);
+            border: 1px solid #ffd88c;
+            border-radius: 12px;
+            padding: 14px 16px;
+            margin: 8px 0 4px 0;
+            font-size: 13px;
+        }
+        .bubble .no-match-card .nm-title {
+            font-weight: 600;
+            color: #8a5a00;
+            margin-bottom: 6px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 14px;
+        }
+        .bubble .no-match-card .nm-desc {
+            color: #8a5a00;
+            line-height: 1.6;
+            margin-bottom: 10px;
+        }
+        .bubble .no-match-card .nm-actions {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+        .bubble .no-match-card .nm-actions .btn-sm {
+            padding: 8px 16px;
+            border-radius: 20px;
+            border: none;
+            font-size: 12px;
+            font-weight: 500;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            transition: 0.1s;
+            font-family: inherit;
+        }
+        .bubble .no-match-card .nm-actions .btn-create {
+            background: #0d7c4f;
+            color: white;
+        }
+        .bubble .no-match-card .nm-actions .btn-create:hover { filter: brightness(1.05); }
+        .bubble .no-match-card .nm-actions .btn-cancel {
+            background: transparent;
+            border: 1px solid #dce5ef;
+            color: #1e3a5f;
+        }
+        .bubble .no-match-card .nm-actions .btn-cancel:hover { border-color: #b51a3f; color: #b51a3f; }
+
         .bubble .media-preview {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
@@ -192,190 +348,61 @@
             cursor: zoom-in;
             transition: 0.15s;
         }
-        .bubble .media-preview .media-item:hover {
-            transform: scale(1.02);
-            box-shadow: 0 4px 12px rgba(77,171,247,0.2);
-        }
-        .bubble .media-preview .media-item img {
-            width: 100%;
-            height: 100%;
-            min-height: 100px;
-            object-fit: cover;
-            display: block;
-        }
+        .bubble .media-preview .media-item:hover { transform: scale(1.02); box-shadow: 0 4px 12px rgba(77,171,247,0.2); }
+        .bubble .media-preview .media-item img { width: 100%; height: 100%; min-height: 100px; object-fit: cover; display: block; }
         .bubble .media-preview .media-item .badge {
             position: absolute; top: 4px; left: 4px;
             font-size: 10px; padding: 1px 6px; border-radius: 8px;
             background: rgba(10,30,47,0.75); color: white;
             z-index: 2;
         }
-        .bubble .media-preview .media-item .badge.kf {
-            background: rgba(77,171,247,0.9);
-        }
+        .bubble .media-preview .media-item .badge.kf { background: rgba(77,171,247,0.9); }
         .bubble .media-preview .media-item .ph {
             width: 100%; height: 100%; display: flex; align-items: center; justify-content: center;
-            color: #4dabf7; font-size: 24px;
-            min-height: 100px;
+            color: #4dabf7; font-size: 24px; min-height: 100px;
         }
         .bubble .media-preview .media-item .zoom-hint {
-            position: absolute;
-            bottom: 4px; right: 4px;
-            font-size: 10px;
-            padding: 2px 6px;
-            border-radius: 8px;
-            background: rgba(10,30,47,0.75);
-            color: white;
-            opacity: 0;
-            transition: 0.15s;
-            z-index: 2;
+            position: absolute; bottom: 4px; right: 4px;
+            font-size: 10px; padding: 2px 6px; border-radius: 8px;
+            background: rgba(10,30,47,0.75); color: white;
+            opacity: 0; transition: 0.15s; z-index: 2;
         }
         .bubble .media-preview .media-item:hover .zoom-hint { opacity: 1; }
-        .bubble .media-preview .media-item.loading {
-            display: flex; align-items: center; justify-content: center;
-            color: #4dabf7;
-        }
         .bubble .media-preview video {
-            grid-column: 1 / -1;
-            width: 100%;
-            max-height: 320px;
-            min-height: 180px;
-            border-radius: 10px;
-            background: #0a0e14;
-            cursor: zoom-in;
-            display: block;
+            grid-column: 1 / -1; width: 100%; max-height: 320px; min-height: 180px;
+            border-radius: 10px; background: #0a0e14; cursor: zoom-in; display: block;
         }
-        .bubble .media-preview.ref-preview {
-            grid-template-columns: repeat(auto-fill, minmax(72px, 1fr));
-            margin-top: 0;
-            margin-bottom: 8px;
-        }
-        .bubble .media-preview.ref-preview .media-item {
-            border-color: rgba(255,255,255,0.4);
-            cursor: zoom-in;
-            min-height: 72px;
-        }
-        .bubble .media-preview.ref-preview .badge {
-            background: rgba(13,124,79,0.85);
-        }
+        .bubble .media-preview.ref-preview { grid-template-columns: repeat(auto-fill, minmax(72px, 1fr)); margin-top: 0; margin-bottom: 8px; }
+        .bubble .media-preview.ref-preview .media-item { border-color: rgba(255,255,255,0.4); min-height: 72px; }
+        .bubble .media-preview.ref-preview .badge { background: rgba(13,124,79,0.85); }
 
         .bubble .analysis-card {
             background: linear-gradient(135deg, #f0f7fe, #e6f3ff);
-            border: 1px solid #b8d8f7;
-            border-radius: 10px;
-            padding: 12px 14px;
-            margin: 8px 0 4px 0;
-            font-size: 13px;
+            border: 1px solid #b8d8f7; border-radius: 10px;
+            padding: 12px 14px; margin: 8px 0 4px 0; font-size: 13px;
         }
-        .bubble .analysis-card .an-title {
-            font-weight: 600;
-            color: #0a1e2f;
-            margin-bottom: 6px;
-            display: flex;
-            align-items: center;
-            gap: 6px;
-        }
-        .bubble .analysis-card .an-row {
-            display: flex;
-            gap: 6px;
-            margin-bottom: 4px;
-            line-height: 1.6;
-        }
-        .bubble .analysis-card .an-row .an-label {
-            color: #2a7faa;
-            font-weight: 500;
-            flex-shrink: 0;
-        }
-        .bubble .analysis-card .an-row .an-val {
-            color: #0a1e2f;
-            word-break: break-word;
-        }
-        .bubble .analysis-card .an-tags {
-            display: flex;
-            gap: 4px;
-            flex-wrap: wrap;
-            margin-top: 6px;
-        }
-        .bubble .analysis-card .an-tags .an-tag {
-            font-size: 10px;
-            padding: 2px 8px;
-            border-radius: 10px;
-            background: white;
-            color: #2a7faa;
-            border: 1px solid #b8d8f7;
-        }
+        .bubble .analysis-card .an-title { font-weight: 600; color: #0a1e2f; margin-bottom: 6px; display: flex; align-items: center; gap: 6px; }
+        .bubble .analysis-card .an-row { display: flex; gap: 6px; margin-bottom: 4px; line-height: 1.6; }
+        .bubble .analysis-card .an-row .an-label { color: #2a7faa; font-weight: 500; flex-shrink: 0; }
+        .bubble .analysis-card .an-row .an-val { color: #0a1e2f; word-break: break-word; }
+        .bubble .analysis-card .an-tags { display: flex; gap: 4px; flex-wrap: wrap; margin-top: 6px; }
+        .bubble .analysis-card .an-tags .an-tag { font-size: 10px; padding: 2px 8px; border-radius: 10px; background: white; color: #2a7faa; border: 1px solid #b8d8f7; }
 
         .bubble .market-card {
             background: linear-gradient(135deg, #fff8e6, #ffeccc);
-            border: 1px solid #ffd88c;
-            border-radius: 10px;
-            padding: 12px 14px;
-            margin: 8px 0 4px 0;
-            font-size: 13px;
+            border: 1px solid #ffd88c; border-radius: 10px;
+            padding: 12px 14px; margin: 8px 0 4px 0; font-size: 13px;
         }
-        .bubble .market-card .mkt-title {
-            font-weight: 600;
-            color: #8a5a00;
-            margin-bottom: 6px;
-            display: flex;
-            align-items: center;
-            gap: 6px;
-            font-size: 14px;
-        }
-        .bubble .market-card .mkt-comment {
-            background: white;
-            border-radius: 8px;
-            padding: 8px 12px;
-            margin-bottom: 8px;
-            font-size: 13px;
-            color: #8a5a00;
-            font-weight: 500;
-            line-height: 1.6;
-            border-left: 3px solid #ffb84d;
-        }
-        .bubble .market-card .mkt-row {
-            display: flex;
-            gap: 6px;
-            margin-bottom: 4px;
-            line-height: 1.6;
-        }
-        .bubble .market-card .mkt-label {
-            color: #b57a00;
-            font-weight: 500;
-            flex-shrink: 0;
-            min-width: 78px;
-        }
-        .bubble .market-card .mkt-val {
-            color: #5a3a00;
-            word-break: break-word;
-        }
-        .bubble .market-card .mkt-tags {
-            display: flex;
-            gap: 4px;
-            flex-wrap: wrap;
-            margin-top: 6px;
-        }
-        .bubble .market-card .mkt-tags .mkt-tag {
-            font-size: 10px;
-            padding: 2px 8px;
-            border-radius: 10px;
-            background: white;
-            color: #b57a00;
-            border: 1px solid #ffd88c;
-        }
+        .bubble .market-card .mkt-title { font-weight: 600; color: #8a5a00; margin-bottom: 6px; display: flex; align-items: center; gap: 6px; font-size: 14px; }
+        .bubble .market-card .mkt-comment { background: white; border-radius: 8px; padding: 8px 12px; margin-bottom: 8px; font-size: 13px; color: #8a5a00; font-weight: 500; line-height: 1.6; border-left: 3px solid #ffb84d; }
+        .bubble .market-card .mkt-row { display: flex; gap: 6px; margin-bottom: 4px; line-height: 1.6; }
+        .bubble .market-card .mkt-label { color: #b57a00; font-weight: 500; flex-shrink: 0; min-width: 78px; }
+        .bubble .market-card .mkt-val { color: #5a3a00; word-break: break-word; }
+        .bubble .market-card .mkt-tags { display: flex; gap: 4px; flex-wrap: wrap; margin-top: 6px; }
+        .bubble .market-card .mkt-tags .mkt-tag { font-size: 10px; padding: 2px 8px; border-radius: 10px; background: white; color: #b57a00; border: 1px solid #ffd88c; }
 
-        .bubble .inline-progress {
-            margin-top: 8px;
-            background: #e8edf4;
-            height: 6px;
-            border-radius: 10px;
-            overflow: hidden;
-        }
-        .bubble .inline-progress .fill {
-            height: 100%;
-            background: linear-gradient(90deg, #4dabf7, #0d7c4f);
-            width: 0%;
-            transition: width 0.3s;
-        }
+        .bubble .inline-progress { margin-top: 8px; background: #e8edf4; height: 6px; border-radius: 10px; overflow: hidden; }
+        .bubble .inline-progress .fill { height: 100%; background: linear-gradient(90deg, #4dabf7, #0d7c4f); width: 0%; transition: width 0.3s; }
 
         .typing-indicator { display: none; align-items: center; gap: 12px; padding: 8px 0; }
         .typing-indicator.show { display: flex; }
@@ -388,125 +415,40 @@
         .input-area-wrap.drag-over { background: #f0f7fe; }
         .input-area-wrap.drag-over::after {
             content: '拖拽图片或视频到此处上传';
-            position: absolute;
-            top: 0; left: 0; right: 0; bottom: 0;
+            position: absolute; top: 0; left: 0; right: 0; bottom: 0;
             background: rgba(77,171,247,0.08);
             border: 2px dashed #4dabf7;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 14px;
-            font-weight: 500;
-            color: #2a7faa;
-            pointer-events: none;
-            z-index: 2;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 14px; font-weight: 500; color: #2a7faa;
+            pointer-events: none; z-index: 2;
         }
 
-        .ref-chips {
-            display: flex;
-            gap: 8px;
-            padding: 10px 28px 0;
-            flex-wrap: wrap;
-            align-items: center;
-        }
-        .ref-chip {
-            position: relative;
-            width: 56px;
-            height: 56px;
-            border-radius: 10px;
-            overflow: visible;
-            flex-shrink: 0;
-        }
-        .ref-chip .chip-inner {
-            width: 100%;
-            height: 100%;
-            border-radius: 10px;
-            overflow: hidden;
-            border: 2px solid #e8edf4;
-            background: #f0f7fe;
-            position: relative;
-        }
+        .ref-chips { display: flex; gap: 8px; padding: 10px 28px 0; flex-wrap: wrap; align-items: center; }
+        .ref-chip { position: relative; width: 56px; height: 56px; border-radius: 10px; overflow: visible; flex-shrink: 0; }
+        .ref-chip .chip-inner { width: 100%; height: 100%; border-radius: 10px; overflow: hidden; border: 2px solid #e8edf4; background: #f0f7fe; position: relative; }
         .ref-chip img { width: 100%; height: 100%; object-fit: cover; display: block; }
         .ref-chip video { width: 100%; height: 100%; object-fit: cover; display: block; }
-        .ref-chip .chip-play {
-            position: absolute;
-            top: 50%; left: 50%;
-            transform: translate(-50%, -50%);
-            color: white;
-            font-size: 16px;
-            text-shadow: 0 1px 4px rgba(0,0,0,0.6);
-            pointer-events: none;
-        }
+        .ref-chip .chip-play { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); color: white; font-size: 16px; text-shadow: 0 1px 4px rgba(0,0,0,0.6); pointer-events: none; }
         .ref-chip .chip-remove {
-            position: absolute;
-            top: -6px;
-            right: -6px;
-            width: 20px;
-            height: 20px;
-            border-radius: 50%;
-            background: #b51a3f;
-            color: white;
-            border: 2px solid white;
-            font-size: 11px;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            padding: 0;
-            line-height: 1;
-            z-index: 3;
-            font-family: inherit;
+            position: absolute; top: -6px; right: -6px;
+            width: 20px; height: 20px; border-radius: 50%;
+            background: #b51a3f; color: white; border: 2px solid white;
+            font-size: 11px; cursor: pointer;
+            display: flex; align-items: center; justify-content: center;
+            padding: 0; line-height: 1; z-index: 3; font-family: inherit;
         }
         .ref-chip .chip-remove:hover { background: #8a1533; }
-        .ref-chip .chip-badge {
-            position: absolute;
-            bottom: -4px;
-            left: 50%;
-            transform: translateX(-50%);
-            font-size: 9px;
-            padding: 1px 6px;
-            border-radius: 8px;
-            background: rgba(10,30,47,0.85);
-            color: white;
-            white-space: nowrap;
-            pointer-events: none;
-            z-index: 2;
-        }
+        .ref-chip .chip-badge { position: absolute; bottom: -4px; left: 50%; transform: translateX(-50%); font-size: 9px; padding: 1px 6px; border-radius: 8px; background: rgba(10,30,47,0.85); color: white; white-space: nowrap; pointer-events: none; z-index: 2; }
         .ref-chip.video .chip-badge { background: rgba(77,171,247,0.9); }
-        .ref-chip .chip-kf-badge {
-            position: absolute;
-            top: -6px;
-            left: -6px;
-            font-size: 9px;
-            padding: 1px 5px;
-            border-radius: 6px;
-            background: #0d7c4f;
-            color: white;
-            font-weight: 600;
-        }
-        .ref-hint {
-            font-size: 11px;
-            color: #94a3b8;
-            padding-left: 4px;
-            align-self: center;
-        }
+        .ref-chip .chip-kf-badge { position: absolute; top: -6px; left: -6px; font-size: 9px; padding: 1px 5px; border-radius: 6px; background: #0d7c4f; color: white; font-weight: 600; }
+        .ref-hint { font-size: 11px; color: #94a3b8; padding-left: 4px; align-self: center; }
 
         .input-area { padding: 10px 28px 0; background: transparent; display: flex; gap: 10px; align-items: flex-end; }
         .input-area .attach-btn {
-            width: 40px; height: 40px;
-            border-radius: 50%;
-            border: 1px solid #e8edf4;
-            background: white;
-            color: #5f7d95;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 20px;
-            font-weight: 400;
-            flex-shrink: 0;
-            transition: 0.15s;
-            font-family: inherit;
+            width: 40px; height: 40px; border-radius: 50%;
+            border: 1px solid #e8edf4; background: white; color: #5f7d95;
+            cursor: pointer; display: flex; align-items: center; justify-content: center;
+            font-size: 20px; font-weight: 400; flex-shrink: 0; transition: 0.15s; font-family: inherit;
         }
         .input-area .attach-btn:hover { border-color: #4dabf7; color: #2a7faa; background: #f5f9fe; }
         .input-area .attach-btn:disabled { opacity: 0.4; cursor: not-allowed; }
@@ -522,35 +464,19 @@
         .input-hint { text-align: center; font-size: 11px; color: #94a3b8; margin-top: 6px; padding: 0 28px; }
 
         .attach-menu {
-            position: absolute;
-            bottom: 90px;
-            left: 28px;
-            background: white;
-            border: 1px solid #e8edf4;
-            border-radius: 12px;
-            box-shadow: 0 8px 24px rgba(10,30,47,0.12);
-            padding: 6px;
-            display: none;
-            z-index: 100;
-            min-width: 240px;
+            position: absolute; bottom: 90px; left: 28px;
+            background: white; border: 1px solid #e8edf4; border-radius: 12px;
+            box-shadow: 0 8px 24px rgba(10,30,47,0.12); padding: 6px;
+            display: none; z-index: 100; min-width: 240px;
         }
         .attach-menu.show { display: block; animation: fadeUpSmall 0.2s ease; }
         @keyframes fadeUpSmall { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
         .attach-menu .menu-item {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            padding: 10px 14px;
-            border-radius: 8px;
-            font-size: 13px;
-            color: #0a1e2f;
-            cursor: pointer;
-            transition: 0.12s;
-            font-family: inherit;
-            background: none;
-            border: none;
-            width: 100%;
-            text-align: left;
+            display: flex; align-items: center; gap: 10px;
+            padding: 10px 14px; border-radius: 8px; font-size: 13px;
+            color: #0a1e2f; cursor: pointer; transition: 0.12s;
+            font-family: inherit; background: none; border: none;
+            width: 100%; text-align: left;
         }
         .attach-menu .menu-item:hover { background: #f0f7fe; color: #2a7faa; }
         .attach-menu .menu-item i { width: 18px; color: #4dabf7; font-size: 14px; }
@@ -569,99 +495,131 @@
         .empty-state .examples .ex.accent:hover { background: #d9f7e6; }
 
         .lightbox {
-            position: fixed;
-            top: 0; left: 0; right: 0; bottom: 0;
-            background: rgba(0,0,0,0.92);
-            z-index: 10000;
-            display: none;
-            align-items: center;
-            justify-content: center;
-            padding: 40px 20px;
-            cursor: zoom-out;
+            position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0,0,0,0.92); z-index: 10000;
+            display: none; align-items: center; justify-content: center;
+            padding: 40px 20px; cursor: zoom-out;
         }
         .lightbox.show { display: flex; animation: fadeInLightbox 0.2s ease; }
         @keyframes fadeInLightbox { from { opacity: 0; } to { opacity: 1; } }
-        .lightbox-content {
-            max-width: 100%;
-            max-height: 100%;
-            position: relative;
-            cursor: default;
-        }
-        .lightbox-content img,
-        .lightbox-content video {
-            max-width: 100%;
-            max-height: calc(100vh - 80px);
-            max-height: calc(100dvh - 80px);
-            border-radius: 12px;
-            box-shadow: 0 20px 60px rgba(0,0,0,0.5);
-            display: block;
-            background: #000;
+        .lightbox-content { max-width: 100%; max-height: 100%; position: relative; cursor: default; }
+        .lightbox-content img, .lightbox-content video {
+            max-width: 100%; max-height: calc(100vh - 80px); max-height: calc(100dvh - 80px);
+            border-radius: 12px; box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+            display: block; background: #000;
         }
         .lightbox-close {
-            position: absolute;
-            top: -16px;
-            right: -16px;
-            width: 36px;
-            height: 36px;
-            border-radius: 50%;
-            background: white;
-            color: #0a1e2f;
-            border: none;
-            font-size: 18px;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
-            z-index: 2;
+            position: absolute; top: -16px; right: -16px;
+            width: 36px; height: 36px; border-radius: 50%;
+            background: white; color: #0a1e2f; border: none;
+            font-size: 18px; cursor: pointer;
+            display: flex; align-items: center; justify-content: center;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.3); z-index: 2;
         }
         .lightbox-close:hover { background: #f0f4f9; }
-        .lightbox-actions {
-            position: absolute;
-            bottom: -50px;
-            left: 50%;
-            transform: translateX(-50%);
-            display: flex;
-            gap: 8px;
+        .lightbox-actions { position: absolute; bottom: -50px; left: 50%; transform: translateX(-50%); display: flex; gap: 8px; }
+        .lightbox-actions button, .lightbox-actions a {
+            padding: 8px 16px; border-radius: 20px;
+            background: rgba(255,255,255,0.15); backdrop-filter: blur(10px);
+            color: white; border: 1px solid rgba(255,255,255,0.2);
+            font-size: 13px; cursor: pointer; text-decoration: none;
+            display: inline-flex; align-items: center; gap: 6px; transition: 0.15s;
         }
-        .lightbox-actions button,
-        .lightbox-actions a {
-            padding: 8px 16px;
-            border-radius: 20px;
-            background: rgba(255,255,255,0.15);
-            backdrop-filter: blur(10px);
-            color: white;
-            border: 1px solid rgba(255,255,255,0.2);
-            font-size: 13px;
-            cursor: pointer;
-            text-decoration: none;
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
+        .lightbox-actions button:hover, .lightbox-actions a:hover { background: rgba(255,255,255,0.25); }
+        .lightbox-caption { position: absolute; top: -40px; left: 0; right: 0; color: white; font-size: 14px; text-align: center; opacity: 0.85; }
+
+        /* ★★★ 创建商品弹窗 */
+        .create-product-modal {
+            position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(10,30,47,0.6); backdrop-filter: blur(4px);
+            z-index: 9999; display: none;
+            align-items: center; justify-content: center;
+            padding: 20px;
+        }
+        .create-product-modal.show { display: flex; animation: fadeInModal 0.2s ease; }
+        @keyframes fadeInModal { from { opacity: 0; } to { opacity: 1; } }
+        .create-product-modal .modal-box {
+            background: white; border-radius: 16px;
+            padding: 24px; max-width: 480px; width: 100%;
+            max-height: 90vh; overflow-y: auto;
+            box-shadow: 0 24px 64px rgba(0,0,0,0.3);
+            animation: slideUpModal 0.25s ease;
+        }
+        @keyframes slideUpModal { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+        .create-product-modal .modal-header {
+            display: flex; justify-content: space-between; align-items: center;
+            margin-bottom: 20px; padding-bottom: 14px;
+            border-bottom: 1px solid #e8edf4;
+        }
+        .create-product-modal .modal-header h3 {
+            font-size: 17px; font-weight: 600; color: #0a1e2f;
+            display: flex; align-items: center; gap: 8px;
+        }
+        .create-product-modal .modal-header h3 i { color: #0d7c4f; }
+        .create-product-modal .modal-header .close-btn {
+            width: 32px; height: 32px; border-radius: 50%;
+            border: none; background: #f0f4f9; color: #5f7d95;
+            cursor: pointer; font-size: 16px;
+            display: flex; align-items: center; justify-content: center;
             transition: 0.15s;
         }
-        .lightbox-actions button:hover,
-        .lightbox-actions a:hover { background: rgba(255,255,255,0.25); }
-        .lightbox-caption {
-            position: absolute;
-            top: -40px;
-            left: 0;
-            right: 0;
-            color: white;
-            font-size: 14px;
-            text-align: center;
-            opacity: 0.85;
+        .create-product-modal .modal-header .close-btn:hover { background: #fde8ed; color: #b51a3f; }
+
+        .create-product-modal .form-group { margin-bottom: 16px; }
+        .create-product-modal .form-group label {
+            display: block; font-size: 13px; font-weight: 500;
+            color: #0a1e2f; margin-bottom: 6px;
         }
+        .create-product-modal .form-group label .req { color: #b51a3f; }
+        .create-product-modal .form-group label .hint-text {
+            font-size: 11px; color: #94a3b8; font-weight: 400;
+            margin-left: 6px;
+        }
+        .create-product-modal .form-group input,
+        .create-product-modal .form-group select {
+            width: 100%; padding: 10px 14px;
+            border: 1px solid #dce5ef; border-radius: 10px;
+            font-size: 14px; background: #fafcfe;
+            font-family: inherit; transition: 0.15s;
+        }
+        .create-product-modal .form-group input:focus,
+        .create-product-modal .form-group select:focus {
+            outline: none; border-color: #0d7c4f;
+            box-shadow: 0 0 0 3px rgba(13,124,79,0.08);
+            background: white;
+        }
+        .create-product-modal .form-row {
+            display: grid; grid-template-columns: 1fr 1fr; gap: 14px;
+        }
+        .create-product-modal .modal-actions {
+            display: flex; gap: 10px;
+            margin-top: 20px; padding-top: 16px;
+            border-top: 1px solid #e8edf4;
+        }
+        .create-product-modal .modal-actions .btn {
+            flex: 1; padding: 12px 20px;
+            border-radius: 12px; border: none;
+            font-size: 14px; font-weight: 600;
+            cursor: pointer; transition: 0.15s;
+            font-family: inherit;
+            display: flex; align-items: center; justify-content: center;
+            gap: 6px;
+        }
+        .create-product-modal .modal-actions .btn-primary {
+            background: #0d7c4f; color: white;
+        }
+        .create-product-modal .modal-actions .btn-primary:hover { filter: brightness(1.05); }
+        .create-product-modal .modal-actions .btn-primary:disabled { opacity: 0.5; cursor: not-allowed; }
+        .create-product-modal .modal-actions .btn-outline {
+            background: white; border: 1px solid #dce5ef; color: #1e3a5f;
+            flex: 0 0 auto;
+        }
+        .create-product-modal .modal-actions .btn-outline:hover { background: #f5f8fc; }
 
         @media (max-width: 1024px) { .sidebar-chat { width: 240px; } }
 
         @media (max-width: 768px) {
-            .app-header {
-                padding: 10px 14px;
-                padding-top: calc(10px + env(safe-area-inset-top, 0px));
-                padding-left: calc(14px + env(safe-area-inset-left, 0px));
-                padding-right: calc(14px + env(safe-area-inset-right, 0px));
-            }
+            .app-header { padding: 10px 14px; padding-top: calc(10px + env(safe-area-inset-top, 0px)); padding-left: calc(14px + env(safe-area-inset-left, 0px)); padding-right: calc(14px + env(safe-area-inset-right, 0px)); }
             .app-header .logo { font-size: 15px; gap: 8px; }
             .app-header .logo i { font-size: 18px; padding: 5px; border-radius: 8px; }
             .mobile-menu-btn { display: flex; align-items: center; justify-content: center; width: 36px; height: 36px; }
@@ -670,16 +628,7 @@
             .app-header .status .btn { padding: 6px 10px; font-size: 12px; }
             .app-header .status .btn span { display: none; }
 
-            .sidebar-chat {
-                position: fixed;
-                top: 0; left: 0; bottom: 0;
-                width: 280px;
-                max-width: 82vw;
-                z-index: 100;
-                transform: translateX(-100%);
-                box-shadow: 2px 0 20px rgba(0,0,0,0.15);
-                padding-top: env(safe-area-inset-top, 0px);
-            }
+            .sidebar-chat { position: fixed; top: 0; left: 0; bottom: 0; width: 280px; max-width: 82vw; z-index: 100; transform: translateX(-100%); box-shadow: 2px 0 20px rgba(0,0,0,0.15); padding-top: env(safe-area-inset-top, 0px); }
             .sidebar-chat.show { transform: translateX(0); }
             .sidebar-chat .sidebar-header .close-sidebar { display: flex; align-items: center; justify-content: center; }
 
@@ -699,6 +648,18 @@
             .bubble .action-card .desc { font-size: 12px; }
             .bubble .action-card .btn-group { gap: 6px; }
             .bubble .action-card .btn-group .btn-sm { padding: 7px 14px; font-size: 12px; }
+
+            .bubble .smart-match-card { padding: 10px 12px; }
+            .bubble .smart-match-card .sm-title { font-size: 13px; }
+            .bubble .smart-match-card .sm-item { padding: 8px 10px; }
+            .bubble .smart-match-card .sm-item .sm-name { font-size: 12px; }
+            .bubble .smart-match-card .sm-item .sm-meta { font-size: 10px; }
+            .bubble .smart-match-card .sm-item .sm-score { font-size: 9px; padding: 1px 6px; }
+
+            .bubble .no-match-card { padding: 12px 14px; }
+            .bubble .no-match-card .nm-title { font-size: 13px; }
+            .bubble .no-match-card .nm-desc { font-size: 12px; }
+            .bubble .no-match-card .nm-actions .btn-sm { padding: 7px 14px; font-size: 12px; }
 
             .bubble .market-card { padding: 10px 12px; font-size: 12px; }
             .bubble .market-card .mkt-title { font-size: 13px; }
@@ -726,6 +687,10 @@
             .lightbox { padding: 20px 10px; }
             .lightbox-close { top: 10px; right: 10px; width: 40px; height: 40px; }
             .lightbox-actions { bottom: 10px; }
+
+            .create-product-modal { padding: 12px; }
+            .create-product-modal .modal-box { padding: 18px; border-radius: 14px; }
+            .create-product-modal .form-row { grid-template-columns: 1fr; }
         }
 
         @media (max-width: 480px) {
@@ -879,6 +844,65 @@
     </div>
 </div>
 
+<!-- ★★★ 创建新商品弹窗 -->
+<div class="create-product-modal" id="createProductModal">
+    <div class="modal-box">
+        <div class="modal-header">
+            <h3><i class="fas fa-plus-circle"></i> 创建新商品</h3>
+            <button class="close-btn" onclick="closeCreateProductModal()" title="关闭">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        <div class="form-group">
+            <label>商品名 <span class="req">*</span> <span class="hint-text" id="nameHint"></span></label>
+            <input type="text" id="newProductName" placeholder="例如：桂花糕" autocomplete="off">
+        </div>
+        <div class="form-row">
+            <div class="form-group">
+                <label>分类 <span class="req">*</span> <span class="hint-text" id="catHint"></span></label>
+                <select id="newProductCategory">
+                    <option value="茶叶">🍃 茶叶</option>
+                    <option value="食品">🍜 食品</option>
+                    <option value="手工艺">🎨 手工艺</option>
+                    <option value="文创">📚 文创</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>平台</label>
+                <select id="newProductPlatform">
+                    <option value="淘宝">🛒 淘宝</option>
+                    <option value="抖音">🎵 抖音</option>
+                    <option value="拼多多">🛍️ 拼多多</option>
+                    <option value="京东">📦 京东</option>
+                    <option value="1688">🏭 1688</option>
+                </select>
+            </div>
+        </div>
+        <div class="form-row">
+            <div class="form-group">
+                <label>价格（元）<span class="req">*</span></label>
+                <input type="number" id="newProductPrice" placeholder="0.00" step="0.01" min="0">
+            </div>
+            <div class="form-group">
+                <label>库存（件）</label>
+                <input type="number" id="newProductStock" placeholder="0" value="0" min="0">
+            </div>
+        </div>
+        <div class="form-group">
+            <label>规格</label>
+            <input type="text" id="newProductSpec" placeholder="例如：500g/盒" autocomplete="off">
+        </div>
+        <div class="modal-actions">
+            <button class="btn btn-outline" onclick="closeCreateProductModal()">
+                <i class="fas fa-times"></i> 取消
+            </button>
+            <button class="btn btn-primary" id="createProductBtn" onclick="submitCreateProduct()">
+                <i class="fas fa-check"></i> 创建并应用素材
+            </button>
+        </div>
+    </div>
+</div>
+
 <input type="file" id="imageInput" accept="image/*" multiple style="display:none;">
 <input type="file" id="videoInput" accept="video/mp4,video/webm,video/quicktime" style="display:none;">
 
@@ -905,6 +929,19 @@
 
     const MATCH_EXACT_THRESHOLD = 0.95;
     const MATCH_SEMANTIC_THRESHOLD = 0.5;
+
+    // ★ 节日/风格词（这些词不走商品匹配，直接创建）
+    const FESTIVAL_STYLE_WORDS = [
+        '母亲节', '父亲节', '情人节', '女神节', '七夕', '中秋', '春节',
+        '国庆', '元旦', '端午', '清明', '儿童节', '教师节', '感恩节', '圣诞节',
+        '618', '双11', '双12', '双十一', '双十二', '年货节', '开学季', '毕业季',
+        '国潮', '简约', '极简', '促销', '新品', '爆款', '热卖', '会员',
+    ];
+
+    function isFestivalOrStyleWord(word) {
+        if (!word) return false;
+        return FESTIVAL_STYLE_WORDS.some(w => word.includes(w));
+    }
 
     const PRODUCT_BLACKLIST = new Set([
         '参考图', '参考图片', '参考视频', '参考素材', '参考',
@@ -991,6 +1028,8 @@
         lastGeneratedMedia: null,
         productsCache: null,
         productsCacheTime: 0,
+        // ★ 当前待应用的素材上下文
+        pendingApplyContext: null,
         referenceMedia: {
             images: [],
             videos: [],
@@ -1143,6 +1182,7 @@
         state.currentMessages = [];
         state.pendingActions = {};
         state.lastGeneratedMedia = null;
+        state.pendingApplyContext = null;
         renderHistory();
         document.getElementById('chatTitle').textContent = 'AI 经营助手';
         document.getElementById('chatSubtitle').textContent = '基于 DeepSeek · 智能商品匹配 · AI 电商策略分析';
@@ -1318,6 +1358,47 @@
             </div>`;
         }
 
+        // ★★★ 智能匹配商品卡片
+        if (msg.smartMatch) {
+            const sm = msg.smartMatch;
+            bubbleContent += `<div class="smart-match-card">
+                <div class="sm-title"><i class="fas fa-magic"></i> 找到 ${sm.matched.length} 个匹配「${escapeHtml(sm.keyword)}」的商品</div>`;
+            sm.matched.forEach((m, idx) => {
+                const isTop = idx === 0;
+                const scoreCls = m.score >= 80 ? '' : (m.score >= 60 ? 'mid' : 'low');
+                bubbleContent += `<div class="sm-item ${isTop ? 'top-match' : ''}" onclick="applyToProductFromSmart('${escapeAttr(m.product_name)}')">
+                    <span class="sm-name">${escapeHtml(m.product_name)}${isTop ? '<span class="sm-top-badge">推荐</span>' : ''}</span>
+                    <span class="sm-meta">¥${m.price} · 库存 ${m.stock}</span>
+                    <span class="sm-score ${scoreCls}">${m.score}%</span>
+                </div>`;
+            });
+            bubbleContent += `<div class="sm-actions">
+                <button class="btn-sm btn-create" onclick="startCreateProductFromMatch()">
+                    <i class="fas fa-plus"></i> 都不对，创建新商品
+                </button>
+                <button class="btn-sm btn-cancel" onclick="cancelApply()">
+                    <i class="fas fa-times"></i> 取消
+                </button>
+            </div></div>`;
+        }
+
+        // ★★★ 无匹配时创建提示卡片
+        if (msg.noMatch) {
+            const nm = msg.noMatch;
+            bubbleContent += `<div class="no-match-card">
+                <div class="nm-title"><i class="fas fa-info-circle"></i> 没有找到匹配的商品</div>
+                <div class="nm-desc">关键词「<strong>${escapeHtml(nm.keyword)}</strong>」在商品库中没有匹配的商品。<br>是否创建新商品？</div>
+                <div class="nm-actions">
+                    <button class="btn-sm btn-create" onclick="startCreateProductFromMatch()">
+                        <i class="fas fa-plus"></i> 创建并应用
+                    </button>
+                    <button class="btn-sm btn-cancel" onclick="cancelApply()">
+                        <i class="fas fa-times"></i> 取消
+                    </button>
+                </div>
+            </div>`;
+        }
+
         if (msg.media && msg.media.type === 'images' && msg.media.urls) {
             bubbleContent += `<div class="media-preview">`;
             msg.media.urls.forEach((url, i) => {
@@ -1443,6 +1524,8 @@
             media: m.media || null,
             analysis: m.analysis || null,
             marketAnalysis: m.marketAnalysis || null,
+            smartMatch: m.smartMatch || null,
+            noMatch: m.noMatch || null,
             card: m.card ? {
                 title: m.card.title,
                 desc: m.card.desc,
@@ -1492,18 +1575,14 @@
         const safeUrl = sanitizeImageUrl(url);
         if (type === 'video') {
             const v = document.createElement('video');
-            v.src = safeUrl;
-            v.controls = true;
-            v.autoplay = true;
-            v.preload = 'auto';
+            v.src = safeUrl; v.controls = true; v.autoplay = true; v.preload = 'auto';
             v.setAttribute('playsinline', '');
             v.setAttribute('webkit-playsinline', '');
             v.setAttribute('x5-playsinline', '');
             mediaBox.appendChild(v);
         } else {
             const img = document.createElement('img');
-            img.src = safeUrl;
-            img.alt = caption || '预览图';
+            img.src = safeUrl; img.alt = caption || '预览图';
             img.setAttribute('referrerpolicy', 'no-referrer');
             img.onerror = () => { mediaBox.innerHTML = '<div style="color:#fff;padding:20px;">图片加载失败</div>'; };
             mediaBox.appendChild(img);
@@ -1537,6 +1616,8 @@
         if (e.key === 'Escape') {
             const lb = document.getElementById('lightbox');
             if (lb.classList.contains('show')) closeLightbox();
+            const modal = document.getElementById('createProductModal');
+            if (modal.classList.contains('show')) closeCreateProductModal();
         }
     });
 
@@ -1859,6 +1940,7 @@
             return { kind: null, is_bound: false, product_name: '' };
         }
     }
+
     // ================================================================
     // 意图类型判定
     // ================================================================
@@ -1995,6 +2077,23 @@
         } catch (e) {
             console.warn('商品匹配失败:', e);
             return [];
+        }
+    }
+
+    // ★ 智能匹配（用于"应用到商品"场景）
+    async function smartMatchProducts(keyword) {
+        if (!keyword) return { has_match: false, matched: [] };
+        try {
+            const res = await fetch(BACKEND_URL + '/api/products/smart-match', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ keyword, max_results: 5 })
+            });
+            const data = await res.json();
+            return data;
+        } catch (e) {
+            console.warn('智能匹配失败:', e);
+            return { has_match: false, matched: [] };
         }
     }
 
@@ -2165,7 +2264,7 @@
     }
 
     // ================================================================
-    // ★★★ Agnes 图片生成（通过后端代理）
+    // Agnes 图片生成（走后端代理）
     // ================================================================
     async function generateAgnesImage(prompt, sizeTier = '1K', ratio = '1:1', referenceImages = []) {
         const body = {
@@ -2201,13 +2300,13 @@
     }
 
     // ================================================================
-    // ★★★ Agnes 视频生成（通过后端代理）
+    // Agnes 视频生成（走后端代理）
     // ================================================================
     async function generateAgnesVideo(prompt, seconds = '5', referenceImages = [], aspectRatio = '9:16', onProgress) {
         console.log('📤 调用后端视频代理:', prompt.slice(0, 50) + '...');
 
         if (typeof onProgress === 'function') {
-            onProgress(1, 60, 'processing', '生成中...');
+            onProgress(1, 60, 'processing', '生成中（队列满会自动重试）...');
         }
 
         const res = await fetch(BACKEND_URL + '/api/agnes/generate-video', {
@@ -2237,7 +2336,6 @@
         console.error('❌ 后端返回错误:', data);
         throw new Error(data.message || '视频生成失败');
     }
-
     // ================================================================
     // 智能生成处理
     // ================================================================
@@ -2313,34 +2411,18 @@
             m.text = `✅ 已生成 ${validCount}/${actualCount} 张「${theme}」主图`;
 
             const applyId = 'apply_' + Date.now();
-            const topMatch = matches[0];
-            const otherMatches = matches.slice(1, 3);
-
-            const actions = [
-                { label: `✅ 替换到「${topMatch.product_name}」`, type: 'confirm', onclick: `confirmAction('${applyId}')` }
-            ];
-            for (const m2 of otherMatches) {
-                actions.push({
-                    label: `📦 应用到「${m2.product_name}」`,
-                    type: 'primary',
-                    onclick: `applyToSpecificProductFromSmart('${applyId}', '${m2.product_name.replace(/'/g, "\\'")}')`
-                });
-            }
-            actions.push({ label: '🔽 仅下载', type: 'outline', onclick: `cancelAction('${applyId}')` });
-
             m.card = {
                 title: '📌 下一步',
-                desc: `检测到你的商品可能是「${topMatch.product_name}」（相关度 ${Math.round(topMatch.score * 100)}%）\n${topMatch.reason}`,
+                desc: `检测到你的商品可能是「${theme}」，是否应用到商品？`,
                 actionId: applyId,
                 rawAction: {
-                    type: 'apply_media_to_product_smart',
-                    args: {
-                        urls, labels,
-                        suggestedProduct: topMatch.product_name,
-                        allMatches: matches.map(x => x.product_name)
-                    }
+                    type: 'apply_media_smart',
+                    args: { urls, labels, theme, mediaType: 'image' }
                 },
-                actions: actions
+                actions: [
+                    { label: `📦 应用到商品`, type: 'confirm', onclick: `confirmAction('${applyId}')` },
+                    { label: '🔽 仅下载', type: 'outline', onclick: `cancelAction('${applyId}')` }
+                ]
             };
             state.pendingActions[applyId] = m.card.rawAction;
             updateMessageNode(m);
@@ -2412,34 +2494,18 @@
             m.text = `✅ 已生成 ${seconds} 秒「${theme}」视频`;
 
             const applyId = 'apply_' + Date.now();
-            const topMatch = matches[0];
-            const otherMatches = matches.slice(1, 3);
-
-            const actions = [
-                { label: `✅ 替换到「${topMatch.product_name}」`, type: 'confirm', onclick: `confirmAction('${applyId}')` }
-            ];
-            for (const m2 of otherMatches) {
-                actions.push({
-                    label: `📦 应用到「${m2.product_name}」`,
-                    type: 'primary',
-                    onclick: `applyVideoFromSmart('${applyId}', '${m2.product_name.replace(/'/g, "\\'")}')`
-                });
-            }
-            actions.push({ label: '🔽 仅下载', type: 'outline', onclick: `cancelAction('${applyId}')` });
-
             m.card = {
                 title: '📌 下一步',
-                desc: `检测到你的商品可能是「${topMatch.product_name}」（相关度 ${Math.round(topMatch.score * 100)}%）\n${topMatch.reason}`,
+                desc: `检测到你的商品可能是「${theme}」，是否应用视频到商品？`,
                 actionId: applyId,
                 rawAction: {
-                    type: 'apply_video_to_product_smart',
-                    args: {
-                        videoUrl,
-                        suggestedProduct: topMatch.product_name,
-                        allMatches: matches.map(x => x.product_name)
-                    }
+                    type: 'apply_media_smart',
+                    args: { videoUrl, theme, mediaType: 'video' }
                 },
-                actions: actions
+                actions: [
+                    { label: `📦 应用到商品`, type: 'confirm', onclick: `confirmAction('${applyId}')` },
+                    { label: '🔽 仅下载', type: 'outline', onclick: `cancelAction('${applyId}')` }
+                ]
             };
             state.pendingActions[applyId] = m.card.rawAction;
             updateMessageNode(m);
@@ -2532,7 +2598,7 @@
                 title: '📌 下一步',
                 desc: `图片已生成完成，可以下载使用，或将其应用到某个商品。`,
                 actionId: applyId,
-                rawAction: { type: 'apply_media_to_product', args: { urls, labels } },
+                rawAction: { type: 'apply_media_smart', args: { urls, labels, theme, mediaType: 'image' } },
                 actions: [
                     { label: '📦 应用到商品', type: 'confirm', onclick: `confirmAction('${applyId}')` },
                     { label: '🔽 仅下载', type: 'cancel', onclick: `cancelAction('${applyId}')` }
@@ -2619,7 +2685,7 @@
                 title: '📌 下一步',
                 desc: `视频已生成完成，可以下载使用，或将其应用到某个商品。`,
                 actionId: applyId,
-                rawAction: { type: 'apply_video_to_product', args: { videoUrl } },
+                rawAction: { type: 'apply_media_smart', args: { videoUrl, theme, mediaType: 'video' } },
                 actions: [
                     { label: '📦 应用到商品', type: 'confirm', onclick: `confirmAction('${applyId}')` },
                     { label: '🔽 仅下载', type: 'cancel', onclick: `cancelAction('${applyId}')` }
@@ -2652,18 +2718,18 @@
             m.media = { type: 'poster', posterUrl, posterTitle: `${theme} · ${posterType}` };
             m.text = `✅ 已生成「${theme}」主题${posterType}`;
 
-            const regenId = 'regen_' + Date.now();
+            const applyId = 'apply_' + Date.now();
             m.card = {
                 title: '📌 下一步',
-                desc: `海报已生成完成。可下载使用，或换个主题/风格重新生成。`,
-                actionId: regenId,
-                rawAction: { type: 'regen_poster', args: { posterType, freeTheme: theme } },
+                desc: `海报已生成完成。可下载使用，或应用到某个商品。`,
+                actionId: applyId,
+                rawAction: { type: 'apply_media_smart', args: { posterUrl, theme, mediaType: 'poster' } },
                 actions: [
-                    { label: '🔄 换主题再生成', type: 'confirm', onclick: `confirmAction('${regenId}')` },
-                    { label: '🔽 完成', type: 'outline', onclick: `cancelAction('${regenId}')` }
+                    { label: '📦 应用到商品', type: 'confirm', onclick: `confirmAction('${applyId}')` },
+                    { label: '🔽 仅下载', type: 'outline', onclick: `cancelAction('${applyId}')` }
                 ]
             };
-            state.pendingActions[regenId] = m.card.rawAction;
+            state.pendingActions[applyId] = m.card.rawAction;
             updateMessageNode(m);
         }
     }
@@ -2855,6 +2921,302 @@
             updateMessageNode(m);
         }
     }
+
+    // ================================================================
+    // ★★★ 智能应用到商品（核心新逻辑）
+    // ================================================================
+    async function startSmartApply(context) {
+        // context = { urls?, videoUrl?, posterUrl?, theme, mediaType }
+        const theme = context.theme || '';
+        const keyword = theme.trim();
+
+        state.pendingApplyContext = context;
+
+        if (!keyword) {
+            // 无主题 → 直接进创建流程
+            showNoMatchCard('未命名素材');
+            return;
+        }
+
+        // 节日/风格词判断 → 直接创建
+        if (isFestivalOrStyleWord(keyword)) {
+            showNoMatchCard(keyword, '（这是节日/风格主题，通常没有现成商品）');
+            return;
+        }
+
+        // 显示"正在匹配"占位消息
+        const searchingMsg = {
+            role: 'ai',
+            text: `🔍 正在为你查找匹配「${keyword}」的商品...`,
+            time: nowTime()
+        };
+        const searchingId = appendMessage(searchingMsg);
+
+        // 调后端智能匹配
+        const result = await smartMatchProducts(keyword);
+
+        // 删除"正在匹配"占位消息
+        const mIdx = state.currentMessages.findIndex(x => x.id === searchingId);
+        if (mIdx >= 0) state.currentMessages.splice(mIdx, 1);
+        const oldNode = document.querySelector(`.message[data-msg-id="${searchingId}"]`);
+        if (oldNode) oldNode.remove();
+
+        if (result.has_match && result.matched && result.matched.length > 0) {
+            // 有匹配 → 展示智能匹配卡片
+            appendMessage({
+                role: 'ai',
+                text: `为你找到 ${result.matched.length} 个匹配「${keyword}」的商品：`,
+                time: nowTime(),
+                smartMatch: {
+                    keyword,
+                    matched: result.matched
+                }
+            });
+        } else {
+            // 无匹配 → 提示创建
+            showNoMatchCard(keyword);
+        }
+    }
+
+    function showNoMatchCard(keyword, extraHint = '') {
+        const text = extraHint
+            ? `关键词「${keyword}」${extraHint}`
+            : `关键词「${keyword}」在商品库中没有匹配的商品。`;
+
+        appendMessage({
+            role: 'ai',
+            text: text,
+            time: nowTime(),
+            noMatch: {
+                keyword
+            }
+        });
+    }
+
+    // 从智能匹配卡片直接应用
+    window.applyToProductFromSmart = async function(productName) {
+        const context = state.pendingApplyContext;
+        if (!context) {
+            showToast('⚠️ 素材上下文已丢失，请重新生成');
+            return;
+        }
+
+        showToast(`⏳ 正在应用到「${productName}」...`);
+
+        try {
+            const payload = {
+                product_names: [productName],
+                mode: 'replace'
+            };
+
+            if (context.mediaType === 'video' && context.videoUrl) {
+                payload.video = context.videoUrl;
+            } else if (context.mediaType === 'poster' && context.posterUrl) {
+                payload.main_image = context.posterUrl;
+            } else if (context.urls && context.urls.length > 0) {
+                payload.main_image = context.urls[0];
+                payload.sub_images = context.urls.filter(u => u).slice(0, 5);
+            } else {
+                showToast('⚠️ 没有可应用的素材');
+                return;
+            }
+
+            const res = await fetch(BACKEND_URL + '/api/materials/sync', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
+            });
+            const data = await res.json();
+
+            if (data.success || data.all_ok) {
+                appendMessage({
+                    role: 'ai',
+                    text: `✅ 已成功应用到商品「${productName}」`,
+                    time: nowTime()
+                });
+                state.productsCache = null;
+                state.pendingApplyContext = null;
+            } else {
+                appendMessage({
+                    role: 'ai',
+                    text: `❌ 应用失败：${data.message || '未知错误'}`,
+                    time: nowTime()
+                });
+            }
+        } catch (err) {
+            appendMessage({
+                role: 'ai',
+                text: `❌ 应用失败：${friendlyError(err)}`,
+                time: nowTime()
+            });
+        }
+    };
+
+    // 用户点"都不对，创建新商品"
+    window.startCreateProductFromMatch = function() {
+        openCreateProductModal();
+    };
+
+    // 用户点"取消"
+    window.cancelApply = function() {
+        state.pendingApplyContext = null;
+        appendMessage({
+            role: 'ai',
+            text: '好的，已取消应用。素材已保存，稍后可再次使用。',
+            time: nowTime()
+        });
+    };
+
+    // ================================================================
+    // ★★★ 创建新商品弹窗
+    // ================================================================
+    function openCreateProductModal() {
+        const context = state.pendingApplyContext;
+        if (!context) {
+            showToast('⚠️ 素材上下文已丢失，请重新生成');
+            return;
+        }
+
+        const keyword = (context.theme || '').trim() || '新商品';
+
+        // 填默认值
+        document.getElementById('newProductName').value = keyword;
+        document.getElementById('newProductPrice').value = '';
+        document.getElementById('newProductStock').value = '0';
+        document.getElementById('newProductSpec').value = '';
+
+        // 异步获取 AI 推荐分类
+        document.getElementById('catHint').textContent = '（AI 推荐中...）';
+        fetch(BACKEND_URL + '/api/products/suggest-category', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ keyword })
+        }).then(r => r.json()).then(data => {
+            if (data.success && data.suggested_category) {
+                document.getElementById('newProductCategory').value = data.suggested_category;
+                document.getElementById('catHint').textContent = `（AI 推荐：${data.suggested_category}）`;
+            } else {
+                document.getElementById('catHint').textContent = '';
+            }
+        }).catch(() => {
+            document.getElementById('catHint').textContent = '';
+        });
+
+        document.getElementById('nameHint').textContent = '（来自生成主题，可修改）';
+
+        document.getElementById('createProductModal').classList.add('show');
+        setTimeout(() => {
+            document.getElementById('newProductName').focus();
+        }, 200);
+    }
+
+    function closeCreateProductModal() {
+        document.getElementById('createProductModal').classList.remove('show');
+    }
+
+    async function submitCreateProduct() {
+        const name = document.getElementById('newProductName').value.trim();
+        const category = document.getElementById('newProductCategory').value;
+        const platform = document.getElementById('newProductPlatform').value;
+        const priceStr = document.getElementById('newProductPrice').value.trim();
+        const stockStr = document.getElementById('newProductStock').value.trim() || '0';
+        const spec = document.getElementById('newProductSpec').value.trim();
+
+        // 校验
+        if (!name) {
+            showToast('⚠️ 请填写商品名');
+            document.getElementById('newProductName').focus();
+            return;
+        }
+        if (!priceStr) {
+            showToast('⚠️ 请填写价格');
+            document.getElementById('newProductPrice').focus();
+            return;
+        }
+        const price = parseFloat(priceStr);
+        if (isNaN(price) || price < 0) {
+            showToast('⚠️ 价格必须是正数');
+            document.getElementById('newProductPrice').focus();
+            return;
+        }
+        const stock = parseInt(stockStr, 10);
+        if (isNaN(stock) || stock < 0) {
+            showToast('⚠️ 库存必须是非负整数');
+            document.getElementById('newProductStock').focus();
+            return;
+        }
+
+        const btn = document.getElementById('createProductBtn');
+        btn.disabled = true;
+        btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> 正在创建...';
+
+        try {
+            // 1. 创建商品
+            const createRes = await fetch(BACKEND_URL + '/api/products/create', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    fields: {
+                        name,
+                        category,
+                        platform,
+                        price,
+                        stock,
+                        spec
+                    }
+                })
+            });
+            const createData = await createRes.json();
+
+            if (!createData.success) {
+                showToast('❌ ' + (createData.message || '创建失败'));
+                btn.disabled = false;
+                btn.innerHTML = '<i class="fas fa-check"></i> 创建并应用素材';
+                return;
+            }
+
+            // 2. 应用素材
+            const context = state.pendingApplyContext;
+            if (context) {
+                const payload = {
+                    product_names: [name],
+                    mode: 'replace'
+                };
+                if (context.mediaType === 'video' && context.videoUrl) {
+                    payload.video = context.videoUrl;
+                } else if (context.mediaType === 'poster' && context.posterUrl) {
+                    payload.main_image = context.posterUrl;
+                } else if (context.urls && context.urls.length > 0) {
+                    payload.main_image = context.urls[0];
+                    payload.sub_images = context.urls.filter(u => u).slice(0, 5);
+                }
+
+                await fetch(BACKEND_URL + '/api/materials/sync', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+            }
+
+            // 3. 提示成功
+            appendMessage({
+                role: 'ai',
+                text: `✅ 已创建新商品「${name}」（${category} · ¥${price} · 库存 ${stock}）并应用素材！`,
+                time: nowTime()
+            });
+
+            state.productsCache = null;
+            state.pendingApplyContext = null;
+
+            // 4. 关闭弹窗
+            closeCreateProductModal();
+
+        } catch (err) {
+            showToast('❌ 创建失败：' + friendlyError(err));
+            btn.disabled = false;
+            btn.innerHTML = '<i class="fas fa-check"></i> 创建并应用素材';
+        }
+    }
     // ================================================================
     // 发送消息
     // ================================================================
@@ -2977,6 +3339,18 @@
         delete state.pendingActions[actionId];
         markCardExecuted(actionId);
 
+        // ★ 智能应用（走匹配流程）
+        if (action.type === 'apply_media_smart') {
+            await startSmartApply(action.args);
+            return;
+        }
+
+        // 绑定商品直接同步（给XX生成主图）
+        if (action.type === 'sync_generated_media') {
+            return await syncGeneratedMedia(action.args);
+        }
+
+        // 旧版兼容
         if (action.type === 'apply_media_to_product_smart') {
             const { urls, suggestedProduct } = action.args;
             showToast('⏳ 正在应用...');
@@ -3030,16 +3404,6 @@
             return;
         }
 
-        if (action.type === 'apply_media_to_product') {
-            return await openProductPickerForApply(action.args, 'main_image');
-        }
-        if (action.type === 'apply_video_to_product') {
-            return await openProductPickerForApply(action.args, 'video');
-        }
-        if (action.type === 'sync_generated_media') {
-            return await syncGeneratedMedia(action.args);
-        }
-
         if (action.type === 'regen_poster') {
             const { posterType, freeTheme } = action.args;
             const themes = ['促销', '新品', '国潮', '简约', '节日', '会员'];
@@ -3072,129 +3436,6 @@
         }
     }
 
-    async function openProductPickerForApply(args, mediaType) {
-        const products = await fetchProducts();
-        if (!products || products.length === 0) {
-            appendMessage({ role: 'ai', text: '❌ 没有可选商品', time: nowTime() });
-            return;
-        }
-        window._pendingApplyArgs = args;
-        window._pendingApplyMediaType = mediaType;
-        const msgId = appendMessage({ role: 'ai', text: `请选择要应用到的商品（点击下方按钮）：`, time: nowTime() });
-        const m = state.currentMessages.find(x => x.id === msgId);
-        if (m) {
-            const topProducts = products.slice(0, 8);
-            m.card = {
-                title: '📦 选择商品',
-                desc: `共 ${products.length} 个可选商品，显示前 ${topProducts.length} 个：`,
-                actionId: 'pick_' + Date.now(),
-                rawAction: null,
-                actions: topProducts.map(p => ({
-                    label: p.name,
-                    type: 'primary',
-                    onclick: `applyToSpecificProduct('${p.name.replace(/'/g, "\\'")}')`
-                }))
-            };
-            updateMessageNode(m);
-        }
-    }
-
-    async function applyToSpecificProduct(productName) {
-        const args = window._pendingApplyArgs;
-        const mediaType = window._pendingApplyMediaType || 'main_image';
-        if (!args) { showToast('⚠️ 素材数据丢失，请重新生成'); return; }
-
-        const payload = { product_names: [productName], mode: 'replace' };
-        if (mediaType === 'video' && args.videoUrl) {
-            payload.video = args.videoUrl;
-        } else if (args.urls && args.urls.length > 0) {
-            payload.main_image = args.urls[0];
-            payload.sub_images = args.urls.slice(0, 5);
-        }
-        showToast('⏳ 正在应用到商品...');
-        try {
-            const res = await fetch(BACKEND_URL + '/api/materials/sync', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(payload)
-            });
-            const data = await res.json();
-            if (data.success) {
-                appendMessage({ role: 'ai', text: `✅ 已应用到商品「${productName}」`, time: nowTime() });
-                state.productsCache = null;
-            } else {
-                appendMessage({ role: 'ai', text: '❌ ' + (data.message || '应用失败'), time: nowTime() });
-            }
-        } catch (err) {
-            appendMessage({ role: 'ai', text: '❌ 应用失败：' + friendlyError(err), time: nowTime() });
-        }
-        window._pendingApplyArgs = null;
-        window._pendingApplyMediaType = null;
-    }
-
-    window.applyToSpecificProductFromSmart = async function(actionId, productName) {
-        const action = state.pendingActions[actionId];
-        if (!action) return;
-        const urls = action.args.urls || [];
-        if (urls.length === 0) { showToast('⚠️ 没有可应用的图片'); return; }
-
-        showToast('⏳ 正在应用...');
-        try {
-            const res = await fetch(BACKEND_URL + '/api/materials/sync', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    product_names: [productName],
-                    mode: 'replace',
-                    main_image: urls[0],
-                    sub_images: urls.slice(0, 5)
-                })
-            });
-            const data = await res.json();
-            if (data.success) {
-                appendMessage({ role: 'ai', text: `✅ 已应用到商品「${productName}」`, time: nowTime() });
-                state.productsCache = null;
-            } else {
-                appendMessage({ role: 'ai', text: '❌ ' + (data.message || '应用失败'), time: nowTime() });
-            }
-        } catch (err) {
-            appendMessage({ role: 'ai', text: '❌ 应用失败：' + friendlyError(err), time: nowTime() });
-        }
-        delete state.pendingActions[actionId];
-        markCardExecuted(actionId);
-    };
-
-    window.applyVideoFromSmart = async function(actionId, productName) {
-        const action = state.pendingActions[actionId];
-        if (!action) return;
-        const videoUrl = action.args.videoUrl;
-        if (!videoUrl) { showToast('⚠️ 没有可应用的视频'); return; }
-
-        showToast('⏳ 正在应用...');
-        try {
-            const res = await fetch(BACKEND_URL + '/api/materials/sync', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    product_names: [productName],
-                    mode: 'replace',
-                    video: videoUrl
-                })
-            });
-            const data = await res.json();
-            if (data.success) {
-                appendMessage({ role: 'ai', text: `✅ 已应用到商品「${productName}」`, time: nowTime() });
-                state.productsCache = null;
-            } else {
-                appendMessage({ role: 'ai', text: '❌ ' + (data.message || '应用失败'), time: nowTime() });
-            }
-        } catch (err) {
-            appendMessage({ role: 'ai', text: '❌ 应用失败：' + friendlyError(err), time: nowTime() });
-        }
-        delete state.pendingActions[actionId];
-        markCardExecuted(actionId);
-    };
-
     async function syncGeneratedMedia(args) {
         const { product_name, media_type, urls, video_url, sub_image_url, mode } = args;
         const check = await checkProductExists(product_name);
@@ -3208,7 +3449,7 @@
         const payload = { product_names: [realName], mode: mode || 'replace' };
         if (media_type === 'main_image' && urls && urls.length > 0) {
             payload.main_image = urls[0];
-            payload.sub_images = urls.slice(0, 5);
+            payload.sub_images = urls.filter(u => u).slice(0, 5);
         } else if (media_type === 'video' && video_url) {
             payload.video = video_url;
         } else if (media_type === 'sub_image_only' && sub_image_url) {
@@ -3313,6 +3554,7 @@
         state.currentChatId = null;
         state.currentMessages = [];
         state.pendingActions = {};
+        state.pendingApplyContext = null;
         renderHistory();
         showToast('🗑️ 已清空对话');
     }
@@ -3410,7 +3652,35 @@
         if (window.innerWidth > 768) closeSidebar();
     });
 
-    console.log('🤖 AI 助手已加载（Agnes 后端代理 + 图片 base64 + 手机兼容）');
+    // 全局暴露
+    window.toggleSidebar = toggleSidebar;
+    window.closeSidebar = closeSidebar;
+    window.newChat = newChat;
+    window.clearAllHistory = clearAllHistory;
+    window.deleteHistoryItem = deleteHistoryItem;
+    window.loadHistory = loadHistory;
+    window.clearMessages = clearMessages;
+    window.exportChat = exportChat;
+    window.sendExample = sendExample;
+    window.hintUploadVideo = hintUploadVideo;
+    window.toggleAttachMenu = toggleAttachMenu;
+    window.triggerUpload = triggerUpload;
+    window.removeReference = removeReference;
+    window.clearReferenceMedia = clearReferenceMedia;
+    window.openLightboxFromEl = openLightboxFromEl;
+    window.closeLightbox = closeLightbox;
+    window.confirmAction = confirmAction;
+    window.cancelAction = cancelAction;
+    window.copyMessageText = copyMessageText;
+    window.retryLastMessage = retryLastMessage;
+    window.editAndResend = editAndResend;
+    window.handleKeyDown = handleKeyDown;
+    window.autoResize = autoResize;
+    window.sendMessage = sendMessage;
+    window.closeCreateProductModal = closeCreateProductModal;
+    window.submitCreateProduct = submitCreateProduct;
+
+    console.log('🤖 AI 助手已加载（Agnes 后端代理 + 5级智能匹配 + 创建商品 + 手机兼容）');
     console.log('💡 后端:', BACKEND_URL);
 </script>
 </body>
