@@ -1193,7 +1193,19 @@
             </div>
         `;
 
-        body.innerHTML = mediaHTML + paramsHTML + detailSectionHTML;
+        // ★ 新增：咨询客服按钮
+        const contactBtnHTML = `
+            <div class="detail-block" style="text-align:center;">
+                <a class="contact-cs-btn"
+                   href="ai_service.html?from_product=${p.id}"
+                   target="_blank"
+                   style="display:inline-flex;align-items:center;gap:8px;padding:12px 28px;border-radius:30px;background:linear-gradient(135deg,#4dabf7,#2a7faa);color:#fff;text-decoration:none;font-size:15px;font-weight:600;box-shadow:0 4px 14px rgba(77,171,247,0.3);transition:0.15s;">
+                    <i class="fas fa-headset"></i> 咨询客服 · 询问此商品
+                </a>
+            </div>
+        `;
+
+        body.innerHTML = mediaHTML + paramsHTML + detailSectionHTML + contactBtnHTML;
     }
 
     function openLightbox(src) {
